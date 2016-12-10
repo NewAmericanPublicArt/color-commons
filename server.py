@@ -101,7 +101,7 @@ def update_pin(pin, state):
         if state.lower() == 'on':
             pytronics.digitalWrite(pin, 'HIGH')
             return 'Set pin %s high' % pin
-        elif state.lower() == 'off':
+        elif state.lower() == 'off':                       
             pytronics.digitalWrite(pin, 'LOW')
             return 'Set pin %s low' % pin
         elif state.lower() == 'in':
@@ -129,8 +129,9 @@ def read_pins():
 def serial_write(port, speed, message):
     pytronics.serialWrite(message, speed, port)
     return 'Tried to write serial data.'
-
-def parse_sms(color):
+    
+@public.route('/sms', methods=['POST'])
+def control_lights():
     d = {'airforceblue': '11',
         'airsuperiorityblue': '11',
         'aliceblue': '16',
@@ -578,7 +579,143 @@ def parse_sms(color):
         'yellow': '44',
         'yellow-green': '40',
         'yellowgreen': '40',
-        'zaffre': '18'}
+        'zaffre': '18',
+        ':(': '18',
+        ':)': '73',
+        '<3': '62',
+        'agreement': '76',
+        'ah': '84',
+        'ahh': '84',
+        'ahhh': '84',
+        'ahhhh': '84',
+        'ahhhhh': '84',
+        'aquarium': '90',
+        'aubergine': '54',
+        'avacado': '93',
+        'baboon': '91',
+        'banana': '92',
+        'barkingcrab': '62',
+        'barn': '29',
+        'bathtub': '76',
+        'bear': '77',
+        'black': '50',
+        'bleh': '98',
+        'bloom': '66',
+        'blur': '76',
+        'blurp': '84',
+        'blurp!': '84',
+        'bluw': '18',
+        'bokchoi': '41',
+        'bubblegum': '85',
+        'burntsiena': '34',
+        'butterscotch': '93',
+        'cabbage': '42',
+        'calman': '84',
+        'cat': '92',
+        'chair': '17',
+        'cherry': '29',
+        'christmas': '64',
+        'chromacity': '75',
+        'chromaticuty': '85',
+        'city': '67',
+        'clear': '50',
+        'comeonlights': '93',
+        'connect': '92',
+        'couch': '98',
+        'crab': '62',
+        'cranberry': '30',
+        'crazy': '91',
+        'cyclon': '59',
+        'cylon': '59',
+        'discus': '77',
+        'disparate': '69',
+        'dog': '77',
+        'dolphin': '93',
+        'dream': '85',
+        'eel': '84',
+        'ellie': '98',
+        'elliefolding': '98',
+        'emerald': '40',
+        'fever': '75',
+        'flash': '72',
+        'flu': '75',
+        'fuscia': '54',
+        'galaxy': '61',
+        'goldfish': '92',
+        'gopher': '77',
+        'grass': '41',
+        'hermit': '62',
+        'hermitcrab': '62',
+        'hermitcrabs': '62',
+        'holly': '40',
+        'iloveyou': '85',
+        'ish': '87',
+        'jellyfish': '85',
+        'kelly': '75',
+        'kelp': '89',
+        'lamp': '92',
+        'laugh': '91',
+        'lemon': '45',
+        'light': '93',
+        'lightning': '91',
+        'limeo': '93',
+        'line': '40',
+        'lisa': '27',
+        'lisamarie': '27',
+        'lobster': '62',
+        'macaroni': '92',
+        'macaroniandcheese': '92',
+        'magic': '93',
+        'mauve': '53',
+        'monkey': '98',
+        'moonstones': '93',
+        'myrtle': '42',
+        'near': '77',
+        'nior': '82',
+        'nude': '75',
+        'off': '50',
+        'onyx': '50',
+        'pee': '87',
+        'penis': '84',
+        'phish': '93',
+        'pick': '91',
+        'piss': '87',
+        'plaid': '85',
+        'polkadots': '91',
+        'poppy': '76',
+        'porsche': '92',
+        'potpourri': '91',
+        'proudmom': '88',
+        'puce': '63',
+        'putmeincoach': '82',
+        'quartz': '91',
+        'real': '60',
+        'robinsegg': '14',
+        'sabertoothtiger': '77',
+        'sage': '46',
+        'salman': '84',
+        'salmonsex': '73',
+        'saphire': '76',
+        'saturn': '62',
+        'science': '91',
+        'seaturtle': '93',
+        'seaweed': '41',
+        'shark': '77',
+        'smallcat': '92',
+        'soap': '85',
+        'starbuck': '21',
+        'sunrise': '92',
+        'ted': '27',
+        'tiger': '62',
+        'tin': '49',
+        'twilight': '61',
+        'twillight': '61',
+        'twinkle': '61',
+        'viridian': '42',
+        'werewolf': '21',
+        'yello': '92',
+        'youcompletemelights': '92',
+        'zebra': '93'}
     allowed_commands = ['X040A',
         'X040B',
         'X040C',
@@ -668,26 +805,22 @@ def parse_sms(color):
         'X0460',
         'X0461',
         'X0462']
-    MAGIC_OFFSET = 0
+    import random
+    message = request.form['Body']
+    print "Received text message: " + str(message)
     try:
-        program = int(d[color[0:25].lower()]) + MAGIC_OFFSET
+        program = int(d[message[0:25].lower().replace(' ', '')])
     except KeyError:
-        print 'color {0} not found'.format(color)
-        program = int(d['red']) + MAGIC_OFFSET
+        print 'color {0} not found'.format(message)
+        program = random.randint(10,98)
     command = 'X04%(number)2.2X' % {"number": program}
-    print 'Translated {0} to {1}'.format(color, command)
+    print 'Translated {0} to {1}'.format(message, command)
     if (command in allowed_commands):
         pytronics.serialWrite(command, speed=9600)
     else:
         print "Command {0} is not one of the allowed commands.".format(command)
-    return('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
-
-@public.route('/sms', methods=['POST'])
-def control_lights():
-    message = request.form['Body']
-    print "Received text message: " + str(message)
-    parse_sms(message)
-    return ('Message processed')
+        command = 'FAIL'
+    return('<?xml version="1.0" encoding="UTF-8"?><Response>{0}</Response>'.format(command))
 
 # Called from hello.html
 @public.route('/flash_led', methods=['POST'])
