@@ -1,12 +1,13 @@
-Manufacturer,Manu #, Distributor,Dist #,Price,Qty,Shipping,Total,Have,Need,Ordered,Description,Link
-RasPi 2,Adafruit,2358,39.95,2.00,0.00,79.90,https://www.adafruit.com/products/2358
-DMX RasPi board,BitWizard,32.57,2.00,0.00,65.14,http://www.bitwizard.nl/shop/DMX-interface-for-Raspberry-pi
-Rail-Flip,Artistic License,450.00,1.00,450.00,http://artisticlicence.com/index.php?mode=products&sub=overview&action=&category_id=19&product_id=383&project_id=&policies_id=&cart_id=&order_id=
-Enclosure,100.00,1.00,100.00,
-Web hosting,??,200.00,1.00,200.00,??
-Twillio,Twillio,200.00,1.00,200.00,
-plug sets ,switch craft etc,100.00,1.00,100.00,
-DMX splitter,Enttec,140.00,1.00,140.00,http://www.enttec.com/?main_menu=Products&pn=70572
-3pin DMX cords,18.99,0.00,0.00,0.00,https://www.amazon.com/Male-Female-Microphone-Extension-Cable/dp/B01M083IUN/ref=sr_1_2?ie=UTF8&qid=1477340971&sr=8-2&keywords=dmx+cord+3ft
-DMX light,0.00,0.00,0.00,0.00,we have them,
-DMX output,0.00,0.00,0.00,0.00,Blue Hour brain,
+﻿Manufacturer,Manu #, Distributor,Dist #,Price,Qty,Shipping,Total,Have,Need,On order,Description,Link
+Raspberry Pi,2,Adafruit,2358,39.95,2,,,0,1,0,Microcontroller,https://www.adafruit.com/products/2358
+BitWizard,DMX RasPi board,BitWizard,,32.57,2,,,2,1,0,DMX hat,http://www.bitwizard.nl/shop/DMX-interface-for-Raspberry-pi
+Artistic License,Rail-Flip,Artistic License,,450,1,,,0,1,0,DMX merger,http://artisticlicence.com/index.php?mode=products&sub=overview&product_id=383
+,,,,100,1,,,0,1,0,Enclosure,
+,,Linode,,200,1,,,0,1,0,Web hosting,
+Twilio,,,,200,1,,,0,1,0,SMS reception,
+Switchcraft,plug sets ,,,100,1,,,0,0,0,Connectors,
+Enttec,D-Split,Amazon,,140,1,,,0,1,1,DMX splitter,http://www.enttec.com/?main_menu=Products&pn=70572
+,,,,18.99,0,,,4,4,0,3pin DMX cords,https://www.amazon.com/Male-Female-Microphone-Extension-Cable/dp/B01M083IUN
+,,,,,,,,1,1,0,DMX light,we have them
+,,,,,,,,1,1,0,DMX output,Blue Hour brain
+Alchemy Power,Pi-EzConnect,Amazon,,19.99,1,0,,0,1,1,Rpi breakout board,https://www.amazon.com/gp/product/B01FE9EQ88
