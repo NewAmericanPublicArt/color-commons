@@ -9,7 +9,16 @@
 * Connect to RPi using Putty on COM4 at 115200 bps or `screen /dev/tty.usbserialaskjfhaskjh 115200` Physical connection is with a USB cable to a FTDI breakout board to wires to pins 6, 8, 10 on RPi header.
 * Username is pi; default password is openlighting
 
-Install `autossh`
+### Update stuff ###
+
+    sudo apt-get update
+    sudo apt-get upgrade
+
+### Install Flask and uWSGI ###
+
+    sudo apt-get install python-flask uwsgi uwsgi-plugin-python python-uwsgidecorators
+
+### Install autossh ###
 
     sudo apt-get install autossh
 
