@@ -129,7 +129,29 @@ def read_pins():
 def serial_write(port, speed, message):
     pytronics.serialWrite(message, speed, port)
     return 'Tried to write serial data.'
-    
+
+@public.route('/sms', methods=['POST'])
+def parse_sms():
+    from xkcd_colors import xkcd_names_to_hex
+    import serial, webcolors
+    message = request.form['Body']
+    print("Received text message: " + str(message))
+    color = webcolors.hex_to_rgb(xkcd_names_to_hex[str(message.lower())])
+    cmd = str(color[0]) + ',' + str(color[1]) + ',' + str(color[2]) + '\n'
+    ser = serial.Serial(port = "/dev/ttyACM0", baudrate=9600)
+    ser.write(cmd)
+    #
+    # Control a Blinkm
+    #cmd = 'blinkm set-rgb -d 9 -r ' + str(color[0]) + ' -g ' + str(color[1]) + ' -b ' + str(color[2])
+    #subprocess.Popen([cmd], shell=True)
+    #
+    # Write to a file
+    #f = open('/var/www/public/thermostat-target.txt', 'w')
+    #f.write(str(message))
+    #f.close()
+    print('Wrote to USB: {0}'.format(cmd))
+    return ('<?xml version="1.0" encoding="UTF-8" ?><Response></Response>')
+
 @public.route('/sms', methods=['POST'])
 def control_lights():
     d = {'airforceblue': '11',
