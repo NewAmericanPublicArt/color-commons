@@ -15,6 +15,10 @@
     sudo apt-get upgrade
     sudo apt-get install avahi-daemon # for hostname.local name resolution
 
+Change hostname to `colorcommons`
+
+    sudo vim /etc/hostname
+
 ### Install Flask and uWSGI ###
 
     sudo apt-get install python-flask uwsgi uwsgi-plugin-python python-uwsgidecorators
