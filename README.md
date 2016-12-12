@@ -8,4 +8,8 @@
 * Connect to RPi using Putty on COM4 at 115200 bps or `screen /dev/tty.usbserialaskjfhaskjh 115200` Physical connection is with a USB cable to a FTDI breakout board to wires to pins 6, 8, 10 on RPi header.
 * Username is pi; default password is openlighting
 
+Install `autossh`
+
+    sudo apt-get install autossh
+
 
