@@ -1,5 +1,6 @@
 * Code for the original Color Commons in 2013: https://gist.github.com/4494118
 * tech blog post http://rascalmicro.com/docs/project-light-blades.html
+* Lights in lightblades are Lumenpulse Lumenfacade Stand Alone RGB, as described at http://www.bostonlightsource.com/content39128
 
 ### Setup of microcontroller ###
 
