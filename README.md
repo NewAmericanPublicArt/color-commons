@@ -21,7 +21,7 @@ Change hostname to `colorcommons`
 
 ### Install Flask and uWSGI ###
 
-    sudo apt-get install python-flask python-pip python-dev
+    sudo apt-get install python-flask python-pip python-dev python-webcolors
     sudo pip install uwsgi # Have to install via pip because Debian version is old (1.2.3)
 
 ### Install autossh ###
