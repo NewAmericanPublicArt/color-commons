@@ -1,7 +1,14 @@
+from __future__ import print_function
 from flask import Flask, render_template, request
 from uwsgidecorators import *
 from xkcd_colors import xkcd_names_to_hex
 import webcolors
+
+from ola.ClientWrapper import ClientWrapper
+import array
+import sys
+
+wrapper = None
 
 public = Flask(__name__)
 public.config['PROPAGATE_EXCEPTIONS'] = True
@@ -19,12 +26,43 @@ def add_no_cache(response):
 def default_page():
     return render_template('/index.html')
 
+def DmxSent(status):
+  if status.Succeeded():
+    print('Success!')
+  else:
+    print('Error: %s' % status.message, file=sys.stderr)
+
+  global wrapper
+  if wrapper:
+    wrapper.Stop()
+
 @public.route('/sms', methods=['POST'])
 def parse_sms():
     message = request.form['Body']
     print("Received text message: " + str(message))
     color = webcolors.hex_to_rgb(xkcd_names_to_hex[str(message.lower())])
     cmd = str(color[0]) + ',' + str(color[1]) + ',' + str(color[2]) + '\n'
+    universe = 0
+    data = array.array('B')
+    data.append(0)
+    data.append(0)
+    data.append(0)
+    data.append(0)
+    data.append(0)
+    data.append(0)
+    data.append(0)
+    data.append(0)
+    data.append(0)
+    data.append(color[0])
+    data.append(color[1])
+    data.append(color[2])
+
+    global wrapper
+    wrapper = ClientWrapper()
+    client = wrapper.Client()
+    client.SendDmx(universe, data, DmxSent)
+    wrapper.Run()
+
     # send DMX here
     print('Wrote to USB: {0}'.format(cmd))
     return ('<?xml version="1.0" encoding="UTF-8" ?><Response></Response>')
