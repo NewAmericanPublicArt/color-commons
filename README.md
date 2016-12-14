@@ -43,6 +43,7 @@ Useful debugging commands
 
 ### Configure OLA ###
 
+
     sudo adduser pi olad
 
 Log out and back in again.
@@ -51,6 +52,8 @@ Log out and back in again.
     sh /usr/bin/ola_conf_plugins.sh disable all
     sh /usr/bin/ola_conf_plugins.sh status all
 
-Verify that the plugins are all disabled. Then edit `/var/lib/ola/conf/ola-uartdmx.conf` to set `enable = true`
+Verify that the plugins are all disabled. Then edit `/var/lib/ola/conf/ola-uartdmx.conf` to set `enable = true` and set `device = /dev/ttyAMA0`
 
 `sudo raspi-config` > Advanced Options > Serial to disable serial console on UART.
+
+Reboot. If needed, you can also restart OLA using `sudo service olad restart` and see the startup log with `tail -n 100 /var/log/syslog`
