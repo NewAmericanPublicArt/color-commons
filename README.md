@@ -104,3 +104,9 @@ Probably healthy spew from OLA:
     Dec 14 10:38:25 colorcommons olad: plugins/uartdmx/UartDmxThread.cpp:136: Granularity for UART thread is GOOD
     Dec 14 10:38:25 colorcommons kernel: [  599.044667] uart-pl011 3f201000.uart: no DMA platform data
     Dec 14 10:38:26 colorcommons olad: olad/AvahiDiscoveryAgent.cpp:236: State for OLA Server._http._tcp,_ola, group 0xd2d7e0 changed to AVAHI_ENTRY_GROUP_ESTABLISHED
+
+To configure pin 18 on the RPi to go high at boot, which puts the Bitwizard DMX shield into output mode, copy the file `set_dmx_mode` from this repo to `/usr/bin/set_dmx_mode` and make it executable with `sudo chmod 755 /usr/bin/set_dmx_mode`
+
+Then execute that file at boot by putting this line in `/etc/rc.local` somewhere before the line `exit 0`
+
+
