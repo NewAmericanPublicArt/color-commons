@@ -51,4 +51,6 @@ Log out and back in again.
     sh /usr/bin/ola_conf_plugins.sh disable all
     sh /usr/bin/ola_conf_plugins.sh status all
 
-Verify that the plugins are all disabled. Then edit `/var/lib/ola/conf/ola-uartdmx.conf` to set `enable=true`
+Verify that the plugins are all disabled. Then edit `/var/lib/ola/conf/ola-uartdmx.conf` to set `enable = true`
+
+`sudo raspi-config` > Advanced Options > Serial to disable serial console on UART.
