@@ -41,3 +41,14 @@ Useful debugging commands
     netstat -lptu
     nc -v rascalmicro.com 12345 (tries to open TCP connection, which is first step of HTTP POST)
 
+### Configure OLA ###
+
+    sudo adduser pi olad
+
+Log out and back in again.
+
+    sh /usr/bin/ola_conf_plugins.sh status all
+    sh /usr/bin/ola_conf_plugins.sh disable all
+    sh /usr/bin/ola_conf_plugins.sh status all
+
+Verify that the plugins are all disabled. Then edit `/var/lib/ola/conf/ola-uartdmx.conf` to set `enable=true`
