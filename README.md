@@ -24,6 +24,8 @@ Change hostname to `colorcommons`
     sudo apt-get install python-flask python-pip python-dev python-webcolors supervisor
     sudo pip install uwsgi # Have to install via pip because Debian version is old (1.2.3)
 
+Copy `uwsgi.conf` from this repo to `/etc/supervisor/conf.d/uwsgi.conf`
+
 ### Install autossh ###
 
     sudo apt-get install autossh
@@ -42,7 +44,6 @@ Useful debugging commands
     nc -v rascalmicro.com 12345 (tries to open TCP connection, which is first step of HTTP POST)
 
 ### Configure OLA ###
-
 
     sudo adduser pi olad
 
