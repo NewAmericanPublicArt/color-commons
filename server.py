@@ -42,20 +42,13 @@ def parse_sms():
     print("Received text message: " + str(message))
     color = webcolors.hex_to_rgb(xkcd_names_to_hex[str(message.lower())])
     cmd = str(color[0]) + ',' + str(color[1]) + ',' + str(color[2]) + '\n'
-    universe = 0
+    universe = 1
+    num_fixtures = 24
     data = array.array('B')
-    data.append(0)
-    data.append(0)
-    data.append(0)
-    data.append(0)
-    data.append(0)
-    data.append(0)
-    data.append(0)
-    data.append(0)
-    data.append(0)
     data.append(color[0])
     data.append(color[1])
     data.append(color[2])
+    data = data * num_fixtures
 
     global wrapper
     wrapper = ClientWrapper()
