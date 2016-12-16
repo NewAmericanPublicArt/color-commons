@@ -53,11 +53,23 @@ Log out and back in again.
     sh /usr/bin/ola_conf_plugins.sh disable all
     sh /usr/bin/ola_conf_plugins.sh status all
 
+### To output streaming ACN, also known as sACN or ESTA e1.31 ###
+
+Verify that the plugins are all disabled. Then edit `/var/lib/ola/conf/ola-e131.conf` to set `enable = true` and set `ip = ` to the address you want to send to.
+
+In the Ola web interface, which should be running on the Pi on port 9090, add a universe named "colorcommons" or whatever other name you like.
+
+### To output serial to Bitwizard DMX shield ###
+
 Verify that the plugins are all disabled. Then edit `/var/lib/ola/conf/ola-uartdmx.conf` to set `enable = true` and set `device = /dev/ttyAMA0`
 
 `sudo raspi-config` > Advanced Options > Serial to disable serial console on UART.
 
 Reboot. If needed, you can also restart OLA using `sudo service olad restart` and see the startup log with `tail -n 100 /var/log/syslog`
+
+To configure pin 18 on the RPi to go high at boot, which puts the Bitwizard DMX shield into output mode, copy the file `set_dmx_mode` from this repo to `/usr/bin/set_dmx_mode` and make it executable with `sudo chmod 755 /usr/bin/set_dmx_mode`
+
+Then execute that file at boot by putting this line in `/etc/rc.local` somewhere before the line `exit 0`
 
 Probably healthy spew from OLA:
 
@@ -105,9 +117,5 @@ Probably healthy spew from OLA:
     Dec 14 10:38:25 colorcommons olad: plugins/uartdmx/UartDmxThread.cpp:136: Granularity for UART thread is GOOD
     Dec 14 10:38:25 colorcommons kernel: [  599.044667] uart-pl011 3f201000.uart: no DMA platform data
     Dec 14 10:38:26 colorcommons olad: olad/AvahiDiscoveryAgent.cpp:236: State for OLA Server._http._tcp,_ola, group 0xd2d7e0 changed to AVAHI_ENTRY_GROUP_ESTABLISHED
-
-To configure pin 18 on the RPi to go high at boot, which puts the Bitwizard DMX shield into output mode, copy the file `set_dmx_mode` from this repo to `/usr/bin/set_dmx_mode` and make it executable with `sudo chmod 755 /usr/bin/set_dmx_mode`
-
-Then execute that file at boot by putting this line in `/etc/rc.local` somewhere before the line `exit 0`
 
 
