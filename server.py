@@ -3,7 +3,9 @@ from flask import Flask, render_template, request
 from uwsgidecorators import *
 from xkcd_colors import xkcd_names_to_hex
 import webcolors
+import time
 
+import socket
 from ola.ClientWrapper import ClientWrapper
 import array
 import sys
@@ -50,6 +52,13 @@ def parse_sms():
     data.append(color[2])
     data = data * num_fixtures
 
+    ip = "172.16.11.50"
+    port = 5000
+    message = "listentome"
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.sendto(message.encode(), (ip, port))
+
+    time.sleep(0.1)
     global wrapper
     wrapper = ClientWrapper()
     client = wrapper.Client()
