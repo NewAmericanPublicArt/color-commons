@@ -45,6 +45,8 @@ Useful debugging commands
 
 ### Configure OLA ###
 
+Copy `interfaces` to `/etc/network/interfaces`. The point of this is to add the command `post-up /etc/init.d/olad restart` to the `eth0` section of the file, so that when the `eth0` interface comes up, OLA will be restarted and successfully load the sACN plugin. Loading th e sACN plugin fails if the network is not ready when OLA first starts.
+
     sudo adduser pi olad
 
 Log out and back in again.
