@@ -4,6 +4,7 @@ from uwsgidecorators import *
 from xkcd_colors import xkcd_names_to_hex
 import webcolors
 import time
+from random import randint
 
 import socket
 from ola.ClientWrapper import ClientWrapper
@@ -40,17 +41,28 @@ def DmxSent(status):
 
 @public.route('/sms', methods=['POST'])
 def parse_sms():
-    message = request.form['Body']
-    print("Received text message: " + str(message))
-    color = webcolors.hex_to_rgb(xkcd_names_to_hex[str(message.lower())])
-    cmd = str(color[0]) + ',' + str(color[1]) + ',' + str(color[2]) + '\n'
+    message = str(request.form['Body']).strip().lower()
+    print("Received text message: " + message)
     universe = 1
     num_fixtures = 24
     data = array.array('B')
-    data.append(color[0])
-    data.append(color[1])
-    data.append(color[2])
-    data = data * num_fixtures
+    if(message == "secret"):
+        data.append(0)
+        data.append(0)
+        data.append(255)
+        data.append(255)
+        data.append(0)
+        data.append(0)
+        data = data * (num_fixtures/2)
+    else:
+        try:
+            color = webcolors.hex_to_rgb(xkcd_names_to_hex[message])
+        except:
+            color = [randint(0, 255), randint(0, 255), randint(0, 255)]
+        data.append(color[0])
+        data.append(color[1])
+        data.append(color[2])
+        data = data * num_fixtures
 
     ip = "172.16.11.50"
     port = 5000
@@ -64,9 +76,6 @@ def parse_sms():
     client = wrapper.Client()
     client.SendDmx(universe, data, DmxSent)
     wrapper.Run()
-
-    # send DMX here
-    print('Wrote to USB: {0}'.format(cmd))
     return ('<?xml version="1.0" encoding="UTF-8" ?><Response></Response>')
 
 # @public.route('/sms', methods=['POST'])
