@@ -58,6 +58,16 @@ Log in and set `GatewayPorts yes` in `/etc/ssh/sshd_config`. This will allow SSH
 
 Create an account with the username `sms`.
 
+As root:
+
+    adduser sms
+    cd /home/sms
+    mkdir .ssh
+    touch .ssh/authorized_keys
+    chown -R sms:sms /home/sms/.ssh
+    chmod 0700 /home/sms/.ssh
+    chmod 0600 /home/sms/.ssh/authorized_keys
+
 ### Install autossh ###
 
     sudo apt-get install autossh
