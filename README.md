@@ -80,7 +80,11 @@ On Pi, generate SSH keys, by running once: `ssh-keygen`
 
 Append `/root/.ssh/id_rsa.pub` to file on remote server: `/home/sms/.ssh/authorized_keys`
 
-Check that you can log in remotely via SSH from the Pi to the remote server with the username `sms`. Along the way, accept the host's public key.
+Check that you can log in remotely via SSH from the Pi to the remote server with the username `sms` like this:
+
+    ssh -i /home/pi/.ssh/id_rsa -R *:12345:localhost:8080 sms@45.33.87.121 -N
+
+Along the way, accept the host's public key. If you don't accept the host's public key, `autossh` will fail.
 
 Ensure that on remote server in `/etc/ssh/sshd_config`, we have: `GatewayPorts yes`
 
