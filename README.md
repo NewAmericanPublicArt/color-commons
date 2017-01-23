@@ -19,6 +19,28 @@ Change hostname to `colorcommons`
 
     sudo vim /etc/hostname
 
+### Set up network connection ###
+
+(If this were using Debian Jessie, we would have to modify `/etc/dhcpcd.conf`, but we're using Wheezy because that's what the OLA build is based on. This means we modify `/etc/network/interfaces`.)
+
+    auto lo
+    auto eth0
+
+    iface lo inet loopback
+    iface eth0 inet dhcp
+    #iface eth0 inet static
+    #address 192.168.0.6
+    #netmask 255.255.255.0
+    #network 192.168.0.0
+    #broadcast 192.168.0.255
+    #gateway 192.168.0.1
+    post-up /etc/init.d/olad restart
+
+    allow-hotplug wlan0
+    iface wlan0 inet manual
+    wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+    iface default inet dhcp
+
 ### Install Flask and uWSGI ###
 
     sudo apt-get install python-flask python-pip python-dev python-webcolors supervisor
