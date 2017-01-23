@@ -68,6 +68,8 @@ As root:
     chmod 0700 /home/sms/.ssh
     chmod 0600 /home/sms/.ssh/authorized_keys
 
+Later, you'll add a public key to `authorized_keys`.
+
 ### Install autossh ###
 
     sudo apt-get install autossh
@@ -77,6 +79,8 @@ Copy over autossh.conf to `/etc/supervisor/conf.d/autossh.conf` on Pi.
 On Pi, generate SSH keys, by running once: `ssh-keygen`
 
 Append `/root/.ssh/id_rsa.pub` to file on remote server: `/home/sms/.ssh/authorized_keys`
+
+Check that you can log in remotely via SSH from the Pi to the remote server with the username `sms`. Along the way, accept the host's public key.
 
 Ensure that on remote server in `/etc/ssh/sshd_config`, we have: `GatewayPorts yes`
 
