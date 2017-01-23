@@ -48,6 +48,16 @@ Change hostname to `colorcommons`
 
 Copy `uwsgi.conf` from this repo to `/etc/supervisor/conf.d/uwsgi.conf`
 
+### Set up remote server on Linode ###
+
+Create a Linode using Debian 8 image.
+
+Set root password in dashboard.
+
+Log in and set `GatewayPorts yes` in `/etc/ssh/sshd_config`. This will allow SSH connections to be forwarded through the server.
+
+Create an account with the username `sms`.
+
 ### Install autossh ###
 
     sudo apt-get install autossh
