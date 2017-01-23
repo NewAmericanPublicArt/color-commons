@@ -90,8 +90,17 @@ Ensure that on remote server in `/etc/ssh/sshd_config`, we have: `GatewayPorts y
 
 Useful debugging commands
 
-    netstat -lptu
-    nc -v rascalmicro.com 12345 (tries to open TCP connection, which is first step of HTTP POST)
+    root@debian:/home/sms# netstat -lptu
+    Active Internet connections (only servers)
+    Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+    tcp        0      0 *:12345                 *:*                     LISTEN      3765/sshd: sms
+    tcp        0      0 *:12300                 *:*                     LISTEN      3765/sshd: sms
+    tcp        0      0 *:ssh                   *:*                     LISTEN      3685/sshd
+    tcp6       0      0 [::]:12345              [::]:*                  LISTEN      3765/sshd: sms
+    tcp6       0      0 [::]:12300              [::]:*                  LISTEN      3765/sshd: sms
+    tcp6       0      0 [::]:ssh                [::]:*                  LISTEN      3685/sshd
+
+    nc -v 45.33.87.121 12345 (tries to open TCP connection, which is first step of HTTP POST)
 
 ### Configure OLA ###
 
