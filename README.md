@@ -52,13 +52,13 @@ Copy `uwsgi.conf` from this repo to `/etc/supervisor/conf.d/uwsgi.conf`
 
     sudo apt-get install autossh
 
-Copy over autossh-tunnel.conf
+Copy over autossh.conf to `/etc/supervisor/conf.d/autossh.conf` on Pi.
 
-Run once: `ssh-keygen`
+On Pi, generate SSH keys, by running once: `ssh-keygen`
 
-Append `/root/.ssh/id_rsa.pub` to rascalmicro.com, `/home/sms/.ssh/authorized_keys`
+Append `/root/.ssh/id_rsa.pub` to file on remote server: `/home/sms/.ssh/authorized_keys`
 
-Ensure that in /etc/ssh/sshd_config, we have: `GatewayPorts yes`
+Ensure that on remote server in `/etc/ssh/sshd_config`, we have: `GatewayPorts yes`
 
 Useful debugging commands
 
