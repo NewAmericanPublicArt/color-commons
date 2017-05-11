@@ -4,7 +4,9 @@
 
 ### Setup of microcontroller ###
 
-* Download Raspbian image with OLA added from http://dl.openlighting.org/ Used raspbian-ola-0.9.5.zip
+* Download Raspbian image with OLA added from http://dl.openlighting.org/raspbian-ola-0.9.5.zip
+* Unzip file to get `raspbian-ola-0.9.5.img` 
+* Burn to microSD card with https://etcher.io/ and put card in RPi.
 * Power up RPi with USB cable and wall wart.
 * Connect to RPi using Putty on COM4 at 115200 bps or `screen /dev/tty.usbserialaskjfhaskjh 115200` Physical connection is with a USB cable to a FTDI breakout board to wires to pins 6, 8, 10 on RPi header.
 * Username is pi; default password is openlighting
