@@ -125,7 +125,7 @@ Log out and back in again.
 
 Verify that the plugins are all disabled. Then edit `/var/lib/ola/conf/ola-e131.conf` to set `enable = true` and set `ip = ` to the address you want to send to.
 
-In the Ola web interface, which should be running on the Pi on port 9090, add a universe named "colorcommons" or whatever other name you like.
+In the Ola web interface, which should be running on the Pi on port 9090, add a universe named "colorcommons" or whatever other name you like. Set universe ID to 1 and add E1.31 as an output port.
 
 ### To output serial to Bitwizard DMX shield ###
 
