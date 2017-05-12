@@ -50,6 +50,11 @@ Change hostname to `colorcommons`
 
 Copy `uwsgi.conf` from this repo to `/etc/supervisor/conf.d/uwsgi.conf`
 
+### Install the Color Commons Flask app ###
+
+    cd /home/pi
+    git clone https://github.com/NewAmericanPublicArt/color-commons.git
+
 ### Set up remote server on Linode ###
 
 Create a Linode using Debian 8 image.
