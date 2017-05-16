@@ -85,9 +85,9 @@ Copy over autossh.conf to `/etc/supervisor/conf.d/autossh.conf` on Pi.
 
 Make sure the IP address of the Linode is used in the `autossh` command in `/etc/supervisor/conf.d/autossh.conf`.
 
-On Pi, generate SSH keys, by running once as root: `ssh-keygen`
+On Pi, generate SSH keys, by running once as user `pi`: `ssh-keygen`
 
-Append `/root/.ssh/id_rsa.pub` to file on remote server: `/home/sms/.ssh/authorized_keys`
+Append `/home/pi/.ssh/id_rsa.pub` to file on remote server: `/home/sms/.ssh/authorized_keys`
 
 Check that you can log in remotely via SSH from the Pi to the remote server with the username `sms` like this:
 
