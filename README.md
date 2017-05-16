@@ -77,11 +77,13 @@ As root:
 
 Later, you'll add a public key to `authorized_keys`.
 
-### Install autossh ###
+### Install supervisor and autossh ###
 
-    sudo apt-get install autossh
+    sudo apt-get install autossh supervisor
 
 Copy over autossh.conf to `/etc/supervisor/conf.d/autossh.conf` on Pi.
+
+Make sure the IP address of the Linode is used in the `autossh` command in `/etc/supervisor/conf.d/autossh.conf`.
 
 On Pi, generate SSH keys, by running once: `ssh-keygen`
 
