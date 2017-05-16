@@ -77,7 +77,7 @@ As root:
 
 Later, you'll add a public key to `authorized_keys`.
 
-### Install supervisor and autossh ###
+### Install supervisor and autossh on the Pi ###
 
     sudo apt-get install autossh supervisor
 
