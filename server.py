@@ -67,13 +67,35 @@ def parse_sms():
         data.append(0)
         data.append(0)
         data = data * (num_fixtures/2)
+    elif(message == "secret white"):
+        data.append(255)
+        data.append(255)
+        data.append(255)
+        data.append(0)
+        data.append(0)
+        data.append(0)
+        data = data * (num_fixtures/2)
+    elif(message == "secret black"):
+        data.append(0)
+        data.append(0)
+        data.append(0)
+        data.append(255)
+        data.append(255)
+        data.append(255)
+        data = data * (num_fixtures/2)
     elif(message == "rainbow"):
-        rainbow_tuples = [(int(128 + 128 * sin(phase)), int(128 + 128 * sin(2.094 + phase)), int(128 + 128 * sin(4.189 + phase))) for phase in [x/1000.0 for x in range(0, 6282, 6282/24)]]
+        rainbow_tuples = [(int(128 + 128 * sin(phase)), \
+            int(128 + 128 * sin(2.094 + phase)), \
+            int(128 + 128 * sin(4.189 + phase))) \
+            for phase in [x/1000.0 for x in range(0, 6282, 6282/24)]]
         data = array.array('B', itertools.chain.from_iterable(rainbow_tuples))
     elif(message.startswith("secret")):
-    	remainder = message[6:].strip() # chop off secret and strip away any spaces
-        color = look_up_color(message)
+        remainder = message[6:].strip() # chop off secret and strip any spaces
+        print(remainder)
+        color = look_up_color(remainder)
         inverse = complement(color)
+        print(color)
+        print(inverse)
         data.append(color[0])
         data.append(color[1])
         data.append(color[2])
@@ -101,10 +123,6 @@ def parse_sms():
     client.SendDmx(universe, data, DmxSent)
     wrapper.Run()
     return ('<?xml version="1.0" encoding="UTF-8" ?><Response></Response>')
-
-	# Rainbow across all blades
-	# Simple. Everyone wants this and loves it. 
-	# I like when the two lights on each blade are different creating a little variance across the blade itself. 
 
 if __name__ == "__main__":
     public.run(host='127.0.0.1:5000', debug=True)
