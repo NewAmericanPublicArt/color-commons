@@ -67,7 +67,7 @@ def parse_sms():
         data.append(0)
         data.append(0)
         data = data * (num_fixtures/2)
-    elif(message == "secret white"):
+    elif(message == "flip white"):
         data.append(255)
         data.append(255)
         data.append(255)
@@ -75,7 +75,7 @@ def parse_sms():
         data.append(0)
         data.append(0)
         data = data * (num_fixtures/2)
-    elif(message == "secret black"):
+    elif(message == "flip black"):
         data.append(0)
         data.append(0)
         data.append(0)
@@ -89,8 +89,8 @@ def parse_sms():
             int(128 + 128 * sin(4.189 + phase))) \
             for phase in [x/1000.0 for x in range(0, 6282, 6282/24)]]
         data = array.array('B', itertools.chain.from_iterable(rainbow_tuples))
-    elif(message.startswith("secret")):
-        remainder = message[6:].strip() # chop off secret and strip any spaces
+    elif(message.startswith("flip")):
+        remainder = message[4:].strip() # chop off flip and strip any spaces
         print(remainder)
         color = look_up_color(remainder)
         inverse = complement(color)
