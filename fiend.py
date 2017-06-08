@@ -21,7 +21,7 @@ class Fiend():
                 # Loads SEVERAL entries from preexisting/compiled fr Twilio
         def new_entry(self,elem):
                 # Elem should be of type {'name':'x','msg':'y','stamp':'z'}
-                if !(elem and elem['name'] and elem['msg'] and elem['stamp']):
+                if !(elem and ('name' in elem) and ('msg' in elem) and ('stamp' in elem)):
                         print("improper entry format")
                         return False
                 elem = sanitize(elem)
@@ -30,11 +30,11 @@ class Fiend():
         def find(self,query): # Returns a list of terms matching query
                 found = []
                 if query: #Essentially generates placeholders for cond_find
-                        if !query['name']:
+                        if 'name' not in query:
                                 query['name'] = False
-                        if !query['msg']:
+                        if 'msg' not in query:
                                 query['msg'] = False
-                        if !query['stamp']:
+                        if 'stamp' not in query:
                                 query['stamp'] = False
                         found = conditional_find(self.log,query)
                 return found #if !query, returns empty list
