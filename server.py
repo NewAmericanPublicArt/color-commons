@@ -25,11 +25,13 @@ def add_no_cache(response):
         response.cache_control.no_cache = True
     return response
 
-### Home page ###
-@public.route('/')
-@public.route('/index.html')
+### HOME PAGE API ###
+@public.route('/') # DO we want to clarify methods=['GET']? ASK
+@public.route('/index.html') # WILL take us fr / to /index.html, yes? ASK
 def default_page():
     return render_template('/index.html')
+
+
 
 def complement(color): # pass color as (r, g, b) tuple
     # simpler, slower version of http://stackoverflow.com/a/40234924
@@ -43,7 +45,7 @@ def DmxSent(status):
 
     global wrapper
     if wrapper:
-        wrapper.Stop()
+        wrapper.Stop() # Shut down OLA transmission to DMX if wrapper's running ASK
 
 def look_up_color(name):
     try:
@@ -52,6 +54,7 @@ def look_up_color(name):
         color = [randint(0, 255), randint(0, 255), randint(0, 255)]
     return color
 
+## SMS API ##
 @public.route('/sms', methods=['POST'])
 def parse_sms():
     message = str(request.form['Body']).strip().lower()
@@ -83,7 +86,7 @@ def parse_sms():
         data.append(255)
         data.append(255)
         data = data * (num_fixtures/2)
-    elif(message == "rainbow"):
+    elif(message == "rainbow"):         # ASK ABOUT THIS
         rainbow_tuples = [(int(128 + 128 * sin(phase)), \
             int(128 + 128 * sin(2.094 + phase)), \
             int(128 + 128 * sin(4.189 + phase))) \
@@ -110,19 +113,21 @@ def parse_sms():
         data.append(color[2])
         data = data * num_fixtures
 
-    ip = "172.16.11.50"
-    port = 5000
-    message = "listentome"
+    ip = "172.16.11.50"         # TODO - this is ours?
+    port = 5000                 # UPnP TCP protocol
+    message = "listentome"      # Yodel into the void
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.sendto(message.encode(), (ip, port))
+    sock.sendto(message.encode(), (ip, port)) # Sends to own socket
 
-    time.sleep(0.1)
-    global wrapper
+    time.sleep(0.1)             # Waits on send request? Or for aesthetics
+    global wrapper              # Whole other class for OLA!!!
     wrapper = ClientWrapper()
     client = wrapper.Client()
     client.SendDmx(universe, data, DmxSent)
-    wrapper.Run()
+    wrapper.Run()               # THROWS IT ALL TO THE PI TO RUN WITH
     return ('<?xml version="1.0" encoding="UTF-8" ?><Response></Response>')
+                                # Giving back the texter some bull
 
+# Initiator 
 if __name__ == "__main__":
     public.run(host='127.0.0.1:5000', debug=True)
