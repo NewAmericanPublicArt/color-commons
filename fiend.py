@@ -45,6 +45,9 @@ class Fiend():
 
 # TODO - transition over more from server.py into this
 
+# TODO - add sanitize
+def sanitize(input):
+    return input
 
 
 
