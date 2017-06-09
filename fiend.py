@@ -28,7 +28,7 @@ class Fiend():
                  ('stamp' in elem)):
                 print("improper entry format")
                 return False
-        elem = sanitize(elem)
+        elem['msg'] = sanitize(elem['msg'])
         self.log.append(elem)
         return True
     def find(self,query): # Returns a list of terms matching query
@@ -48,16 +48,10 @@ class Fiend():
         return filex
                 # Not sure if needed
 
-# TODO Add class Log():?
-
 # TODO - transition over more from server.py into this
 
-# TODO - add sanitize
+# Sanitize function - uses encode & decode modules of strings
+# Suggestion from Vasily Alexeev
+# https://stackoverflow.com/questions/8689795/how-can-i-remove-non-ascii-characters-but-leave-periods-and-spaces-using-python#comment72965907_18430817
 def sanitize(input):
-    return input
-
-
-
-
-
-
+    return input.decode('utf-8').encode('ascii',errors='ignore')
