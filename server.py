@@ -31,8 +31,6 @@ def add_no_cache(response):
 def default_page():
     return render_template('/index.html')
 
-
-
 def complement(color): # pass color as (r, g, b) tuple
     # simpler, slower version of http://stackoverflow.com/a/40234924
     return tuple(max(color) + min(color) - channel for channel in color)
