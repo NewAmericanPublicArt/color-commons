@@ -47,7 +47,9 @@ def serve():
 @app.route('/sms', methods=['POST'])
 def parse_sms():
     message = str(request.form['Body']).strip().lower()
-    print('Entire request form:'+request.form)	
+    sender = str(request.form['from_'])
+    print(message+' '+sender)
+
     # NOW - throw to fiend object
     elem = {'name':'bevvy','msg':message,'stamp':'timegoeshere'}
     if (repo.new_entry(elem)):

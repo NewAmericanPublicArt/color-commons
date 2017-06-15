@@ -2,6 +2,7 @@
 # Implementation of FIEND class for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
 
+# Fiend-specific aggregator given particular input fields
 def conditional_find(arr,test):
         temp = []
         for x in arr:
@@ -10,6 +11,12 @@ def conditional_find(arr,test):
                     (x['stamp']==test['stamp'] or test['stamp']==False)):
                         temp.append(x)
         return temp
+
+# Sanitize function - uses encode & decode modules of strings
+# Suggestion from Vasily Alexeev; https://stackoverflow.com/questions/8689795/how-can-i-remove-non-ascii-characters-but-leave-periods-and-spaces-using-python#comment72965907_18430817
+def sanitize(input):
+    input = str(input)
+    return input.decode('utf-8').encode('ascii',errors='ignore')
 
 # FIEND CLASS - CONTROLS RPI, ETC FROM LINODE SERVER
 class Fiend():
@@ -38,4 +45,3 @@ class Fiend():
 	    # Clarify - input must be of type (?)
 	    # Using MD5 hasher, built-in python function
 	    return input
-
