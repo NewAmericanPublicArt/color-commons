@@ -37,3 +37,12 @@ class Fiend():
                    query['stamp'] = False
                 found = conditional_find(self.log,query)
             return found # if !query, returns empty list
+	
+	def get_hashable(self,nos):
+	   # TODO - cross-reference with a list
+	   # TODO - set up a md5 stream
+	   # TO RETURN - a silly name like "Mr. Vernon" of type STR
+	
+	def get_Boston_datetime(self):
+	   # TODO - configure .tzinfo of datetime object to boston coords, etc
+	   # TO RETURN - a date (or maybe, in the future, split) and time object for reinsertion

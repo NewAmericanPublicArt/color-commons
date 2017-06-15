@@ -46,11 +46,12 @@ def serve():
 ## SMS API - PASSES TO PI ##
 @app.route('/sms', methods=['POST'])
 def parse_sms():
-    # NOTE - Fiend object handles some input validation in-module
-    message = str(request.form['Body']).strip().lower()
-    sender = str(request.form['from_'])
-    elem = {'name':,'msg':message,'stamp':'timegoeshere'}
-    if (repo.new_entry(elem)):
+    
+    message = str(request.form['Body']).strip().lower() # NOTE - Fiend object handles most input validation in-module
+    sender = repo.get_hashable(str(request.form['from_']))
+    # sender = repo.get_hashable(sender)
+    datetime = repo.get_Boston_datetime()
+    if (repo.new_entry({'name':sender,'msg':message,'stamp':datetime})):
     	universe = 1
     	num_fixtures = 24
     	data = array.array('B')
@@ -107,7 +108,7 @@ def parse_sms():
 
     # So now data has what we need - need to make a request to the raspbi
     response = requests.post('http://172.16.11.50/colors', data=data) #MIGHT NEED PORT INFO
-    print('Reply:'+response)
+    print(response)
 
 def complement(color): # pass color as (r, g, b) tuple
     # simpler, slower version of http://stackoverflow.com/a/40234924
