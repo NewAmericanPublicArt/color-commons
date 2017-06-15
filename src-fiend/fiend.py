@@ -12,24 +12,20 @@ def conditional_find(arr,test):
                         temp.append(x)
         return temp
 
-# Sanitize function - uses encode & decode modules of strings
-# Suggestion from Vasily Alexeev; https://stackoverflow.com/questions/8689795/how-can-i-remove-non-ascii-characters-but-leave-periods-and-spaces-using-python#comment72965907_18430817
-def sanitize(input):
-    input = str(input)
-    return input.decode('utf-8').encode('ascii',errors='ignore')
-
 # FIEND CLASS - CONTROLS RPI, ETC FROM LINODE SERVER
 class Fiend():
-        def __init__(self):
+        
+	def __init__(self):
                 self.log = [] # Empty dict of log entry
+	
 	def new_entry(self,elem):
             # Elem should be of type {'name':'x','msg':'y','stamp':'z'}
             if not(elem and ('name' in elem) and ('msg' in elem) and ('stamp' in elem)):
                 print("improper entry format")
                 return False
-            elem = sanitize(elem)
             self.log.append(elem)
             return True
+	
 	def find(self,entry):
 	    found = []
 	    if query: #Essentially generates placeholders for cond_find
@@ -41,7 +37,3 @@ class Fiend():
                    query['stamp'] = False
                 found = conditional_find(self.log,query)
             return found # if !query, returns empty list
-	def hash_to_name(self,input):
-	    # Clarify - input must be of type (?)
-	    # Using MD5 hasher, built-in python function
-	    return input

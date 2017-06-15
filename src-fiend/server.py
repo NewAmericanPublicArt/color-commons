@@ -28,7 +28,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 def initialize():
     global repo
     repo = Fiend()
-    print("init'ed empty fiend")
+    print("*** SERVER RUNNING, WAITING ON POST REQUEST ***\n")
 
 # Include "no-cache" header in all POST responses
 @app.after_request
@@ -46,12 +46,10 @@ def serve():
 ## SMS API - PASSES TO PI ##
 @app.route('/sms', methods=['POST'])
 def parse_sms():
+    # NOTE - Fiend object handles some input validation in-module
     message = str(request.form['Body']).strip().lower()
     sender = str(request.form['from_'])
-    print(message+' '+sender)
-
-    # NOW - throw to fiend object
-    elem = {'name':'bevvy','msg':message,'stamp':'timegoeshere'}
+    elem = {'name':,'msg':message,'stamp':'timegoeshere'}
     if (repo.new_entry(elem)):
     	universe = 1
     	num_fixtures = 24
