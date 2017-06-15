@@ -1,4 +1,4 @@
-# File created by Sydney Strzempko(c) for NEW AMERICAN PUBLIC ART association
+# FILE created by Sydney Strzempko(c) for NEW AMERICAN PUBLIC ART association
 # Implementation of FIEND class for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
 
@@ -14,24 +14,28 @@ def conditional_find(arr,test):
 # FIEND CLASS - CONTROLS RPI, ETC FROM LINODE SERVER
 class Fiend():
         def __init__(self):
-                # Do here
-                self.log = [] # Empty dict of log entries
-        def new_entry(self,elem):
-                # Elem should be of type {'name':'x','msg':'y','stamp':'z'}
-                if !(elem and elem['name'] and elem['msg'] and elem['stamp']):
-                        print("improper entry format")
-                        return False
-                elem = sanitize(elem)
-                self.log.append(elem)
-                return True
-        def find(self,query): # Returns a list of terms matching query
-                found = []
-                if query: #Essentially generates placeholders for cond_find
-                        if !query['name']:
-                                query['name'] = False
-                        if !query['msg']:
-                                query['msg'] = False
-                        if !query['stamp']:
-                                query['stamp'] = False
-                        found = conditional_find(self.log,query)
-                return found #if !query, returns empty list
+                self.log = [] # Empty dict of log entry
+	def new_entry(self,elem):
+            # Elem should be of type {'name':'x','msg':'y','stamp':'z'}
+            if not(elem and ('name' in elem) and ('msg' in elem) and ('stamp' in elem)):
+                print("improper entry format")
+                return False
+            elem = sanitize(elem)
+            self.log.append(elem)
+            return True
+	def find(self,entry):
+	    found = []
+	    if query: #Essentially generates placeholders for cond_find
+                if 'name' not in query:
+             	   query['name'] = False
+                if 'msg' not in query:
+                   query['msg'] = False
+                if 'stamp' not in query:
+                   query['stamp'] = False
+                found = conditional_find(self.log,query)
+            return found # if !query, returns empty list
+	def hash_to_name(self,input):
+	    # Clarify - input must be of type (?)
+	    # Using MD5 hasher, built-in python function
+	    return input
+
