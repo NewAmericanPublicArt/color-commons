@@ -1,4 +1,5 @@
-from __future__ import print_function
+
+m __future__ import print_function
 from flask import Flask, render_template, request
 from uwsgidecorators import *
 from xkcd_colors import xkcd_names_to_hex
