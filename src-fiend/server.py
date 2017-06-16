@@ -1,21 +1,18 @@
 # File created by Sydney Strzempko(c) for NEW AMERICAN PUBLIC ART association
 # Implementation of Linode APP for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
+# from __future__ import print_function
+#from uwsgidecorators import *
+#import webcolors
 
-from __future__ import print_function
 from flask import Flask, render_template, request
 import requests # WILL ALLOW US TO POST TO THE PI
-#from uwsgidecorators import *
 from xkcd_colors import xkcd_names_to_hex # Special thanks!
-#import webcolors
-import time
 from random import randint
-
 import socket
-#from ola.ClientWrapper import ClientWrapper
-import array
 from math import sin
 import itertools
+import array
 import sys
 from fiend import Fiend # Personal module
 
@@ -45,13 +42,10 @@ def serve():
 
 ## SMS API - PASSES TO PI ##
 @app.route('/sms', methods=['POST'])
-def parse_sms():
-    # NOTE - Fiend object handles some input validation in-module
-    message = str(request.form['Body']).strip().lower()
-    sender = str(request.form['from_'])
-    elem = {'name':,'msg':message,'stamp':'timegoeshere'}
-    if (repo.new_entry(elem)):
-    	universe = 1
+def parse_sms(): 
+    message = str(request.form['Body']).strip().lower() # NOTE - Fiend object handles most input validation in-module
+    sender = repo.get_hashable(str(request.form['from_']))
+    if (repo.new_entry({'name':sender,'msg':message})): # Also generates date/time specs with new_entry
     	num_fixtures = 24
     	data = array.array('B')
     	if(message == "secret"):
@@ -104,10 +98,10 @@ def parse_sms():
             data.append(color[1])
             data.append(color[2])
             data = data * num_fixtures
-
-    # So now data has what we need - need to make a request to the raspbi
-    response = requests.post('http://172.16.11.50/colors', data=data) #MIGHT NEED PORT INFO
-    print('Reply:'+response)
+    package = convert_to_str(data)
+    print(package) # TAKE OUT eventually
+    response = requests.post('http://127.0.0.1:54321/colors', data={'raw':package})
+    print(response)# TAKE OUT eventually
 
 def complement(color): # pass color as (r, g, b) tuple
     # simpler, slower version of http://stackoverflow.com/a/40234924
@@ -119,6 +113,23 @@ def look_up_color(name):
     except: # if we can't find a color, make up a random one
         color = [randint(0, 255), randint(0, 255), randint(0, 255)]
     return color
+
+#def bitpack(arr):
+#    condensed = bytearray(72) # Max RGB = 1byte*3 colors*2 lights*12 blades	
+#    for i, x in enumerate(arr):
+#	condensed += (x << (8*i)) # Packs in BIG ENDIAN FORMAT
+#    return condensed
+
+def convert_to_str(arr):
+    condensed = ""
+    for i, x in enumerate(arr):
+	condensed+=str(x)
+	if (i % 3 == 2):
+	    condensed+="|"
+	elif (i !=(len(arr)-1)):
+            condensed += ","
+	# Else, add nothing - last values
+    return condensed
 
 if __name__ == "__main__":
    app.run(host='127.0.0.1:5000', debug=True)
