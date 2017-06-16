@@ -1,7 +1,7 @@
 # File created by Sydney Strzempko(c) for NEW AMERICAN PUBLIC ART association
 # Implementation of Linode APP for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
-# from __future__ import print_function
+i# from __future__ import print_function
 #from uwsgidecorators import *
 #import webcolors
 
@@ -49,7 +49,7 @@ def parse_sms():
     	num_fixtures = 24
     	data = array.array('B')
     	if(message == "secret"):
-	    data.append(0)
+	        data.append(0)
             data.append(0)
             data.append(255)
             data.append(255)
@@ -100,7 +100,8 @@ def parse_sms():
             data = data * num_fixtures
     package = convert_to_str(data)
     print(package) # TAKE OUT eventually
-    response = requests.post('http://127.0.0.1:54321/colors', data={'raw':package})
+    response = requests.post('http://127.0.0.1:54321/colors',
+        data=[('raw',package)]) # Passes dict as FORM-ENCODED object to pi
     print(response)# TAKE OUT eventually
 
 def complement(color): # pass color as (r, g, b) tuple
