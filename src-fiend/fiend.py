@@ -17,8 +17,9 @@ class Fiend():
             if not(elem and ('name' in elem) and ('msg' in elem)):
                 print("improper entry format")
                 return False
-            elem['date'] = get_Boston_date() #Bc TWILIO does not provide a timestamp when SENT
-            elem['time'] = get_Boston_time() #It is worth noting that these are times RECEIVED
+	    elem['name'] = self.get_hashable(elem['name'])
+            elem['date'] = self.get_date() #Bc TWILIO does not provide a timestamp when SENT
+            elem['time'] = self.get_time() #It is worth noting that these are times RECEIVED
             self.log.append(elem) # Elem is in type {'name':'x','msg':'y','date':x,'time':y}
             return True
 
@@ -49,14 +50,19 @@ class Fiend():
             return found # if !query, returns empty list
 	
 	def get_hashable(self,nos):
-	   # TODO - cross-reference with a list
-	   self.hasher.update(str(nos))
-	   hex = self.hasher.hexdigest()
-	   return hex	   
-	   # TO RETURN - a silly name like "Mr. Vernon" of type STR
+	    self.hasher.update(str(nos))
+	    hex = self.hasher.hexdigest()
+	    hex = self.generate_alias(hex)
+	    return hex	   
+	    # TO RETURN - a silly name like "Mr. Vernon" of type STR
 	
-	def get_Boston_time(self):
-	   return datetime.time.now('America/New_York')
+	def generate_alias(self,hash):
+	    # TODO - THIS FUNCTION CROSS-REFERENCES W 2 LISTS ND LAST 4 DIGS
+	    key = hash
+	    return "Capt. Bev"	
+
+	def get_time(self):
+	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorporate tzinfo, convert format
 	
-	def get_Boston_date(self):
-	   return datetime.date.today('America/New_York')
+	def get_date(self):
+	   return datetime.date.today() # DATE hardwired naive; TODO convert format
