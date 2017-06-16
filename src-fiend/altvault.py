@@ -1,3 +1,7 @@
+# File created by Brandon Stafford with help from Sydney Strzempko(c) for NEW AMERICAN PUBLIC ART association
+# Implementation of Raspberry Pi APP for use in server of color commons project
+# Link: http://www.newamericanpublicart.com/color-commons-2017
+
 #from __future__ import print_function
 #from uwsgidecorators import *
 import array
@@ -33,6 +37,7 @@ def sendtoDmx():
     sock.sendto(init.encode(), (ip, port))
     time.sleep(0.1) # Waiting for DMX to wake up
     global wrapper
+    universe = 1 # For pharos fwdng
     wrapper = ClientWrapper()
     client = wrapper.Client()
     # DMXBUFFER CLASS - passes as array.array('B')
