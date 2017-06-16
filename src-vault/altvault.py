@@ -4,13 +4,14 @@
 
 #from __future__ import print_function
 #from uwsgidecorators import *
-import array
 
 from flask import Flask, render_template, request
 import time # Allows for Pharos to turn on
 import socket
 from ola.ClientWrapper import ClientWrapper # Allows for ACNstream, etc
+import re # minimal regex support
 import sys
+import array
 import itertools
 
 wrapper = None
@@ -55,8 +56,11 @@ def DmxSent(status):
         wrapper.Stop() # Shut down OLA transmission to DMX if wrapper's running ASK
 
 def convert_barr(input):
-    #
-    return input
+    # We have string of numbers as "11,12,13|10,9,8|etc..
+    arr = re.split('\D+',input) # https://stackoverflow.com/questions/1059559/split-strings-with-multiple-delimiters
+    arr = map(int,arr) # Converts to ints
+    arr = array.array('B',arr) # Calls arr initializer as req'd
+    return arr
 
 # Initiator
 if __name__ == "__main__":
