@@ -1,6 +1,6 @@
 #from __future__ import print_function
 #from uwsgidecorators import *
-#import array
+import array
 
 from flask import Flask, render_template, request
 import time # Allows for Pharos to turn on
@@ -22,7 +22,7 @@ def add_no_cache(response):
     return response
 
 ### PI'S HANDLING OF COLOR ARRAY ###
-@public.route('/colors',method=['POST']):
+@public.route('/colors',methods=['POST'])
 def sendtoDmx():
     colors = request.form['raw'] #request['raw']
     colors = convert_barr(colors)
@@ -43,16 +43,16 @@ def sendtoDmx():
 def DmxSent(status):
     if status.Succeeded():
         print('Success!')
-    else:
-        print('Error: %s' % status.message, file=sys.stderr)
+#    else:
+#        print('Error: %s' % status.message, file=sys.stderr)
     global wrapper
     if wrapper:
         wrapper.Stop() # Shut down OLA transmission to DMX if wrapper's running ASK
 
 def convert_barr(input):
-    # 
+    #
     return input
- 
-# Initiator 
+
+# Initiator
 if __name__ == "__main__":
-    public.run(host='127.0.0.1:5000', debug=True)
+    public.run(host='0.0.0.0', debug=True)
