@@ -1,5 +1,4 @@
-
-m __future__ import print_function
+from __future__ import print_function
 from flask import Flask, render_template, request
 from uwsgidecorators import *
 from xkcd_colors import xkcd_names_to_hex
@@ -125,8 +124,7 @@ def parse_sms():
     client.SendDmx(universe, data, DmxSent)
     wrapper.Run()               # THROWS IT ALL TO THE PI TO RUN WITH
     return ('<?xml version="1.0" encoding="UTF-8" ?><Response></Response>')
-                                # Giving back the texter some bull
-
-# Initiator 
+                                
+# python Initiator 
 if __name__ == "__main__":
     public.run(host='127.0.0.1:5000', debug=True)
