@@ -129,13 +129,15 @@ def look_up_color(name):
 
 def convert_to_str(arr):
     condensed = ""
+    last = len(arr)-1
     for i, x in enumerate(arr):
 	condensed+=str(x)
-	if (i % 3 == 2):
+	if ((i%3==2) and (i!=last)):
 	    condensed+="|"
-	elif (i !=(len(arr)-1)):
+	elif (i!=last):
             condensed += ","
 	# Else, add nothing - last values
+    print(condensed + "...is our list\n")
     return condensed
 
 if __name__ == "__main__":

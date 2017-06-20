@@ -58,6 +58,7 @@ def DmxSent(status):
 def convert_barr(input):
     # We have string of numbers as "11,12,13|10,9,8|etc..
     arr = re.split('\D+',input) # https://stackoverflow.com/questions/1059559/split-strings-with-multiple-delimiters
+#   arr = filter(None,arr) 
     arr = map(int,arr) # Converts to ints
     arr = array.array('B',arr) # Calls arr initializer as req'd
     return arr

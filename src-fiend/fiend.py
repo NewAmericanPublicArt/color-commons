@@ -67,5 +67,3 @@ class Fiend():
 
 	def get_dict(self):
 	    return self.log
-	
-
