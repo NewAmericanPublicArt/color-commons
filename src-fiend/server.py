@@ -1,7 +1,8 @@
 # File created by Sydney Strzempko(c) for NEW AMERICAN PUBLIC ART association
 # Implementation of Linode APP for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
-i# from __future__ import print_function
+
+# from __future__ import print_function
 #from uwsgidecorators import *
 #import webcolors
 
@@ -15,10 +16,15 @@ import itertools
 import array
 import sys
 from fiend import Fiend # Personal module
+import jinja2
 
 global app
 app = Flask(__name__)
 app.config['PROPAGATE_EXCEPTIONS'] = True
+
+# JINJA PREP - loads template root paths, prepares environment
+templateLoader = jinja2.FileSystemLoader( searchpath="/templates" )
+templateEnv = jinja2.Environment( loader=templateLoader )
 
 ## FIEND FRAMEWORK INITIALIZER ##
 @app.before_first_request
@@ -38,7 +44,10 @@ def add_no_cache(response):
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
-    return render_template('/data.html')
+    vizvars = repo.get_dict() # Gets current incarnation of DB in dict-format
+    TEMPLATE_FILE = "/dataviz.html"
+    template = templateEnv.get_template( TEMPLATE_FILE )
+    return template.render(vizvars)
 
 ## SMS API - PASSES TO PI ##
 @app.route('/sms', methods=['POST'])

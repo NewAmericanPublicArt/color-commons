@@ -66,3 +66,8 @@ class Fiend():
 	
 	def get_date(self):
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
+
+	def get_dict(self):
+	    return self.log
+	
+
