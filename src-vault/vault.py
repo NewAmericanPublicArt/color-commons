@@ -64,4 +64,4 @@ def convert_barr(input):
 
 # Initiator
 if __name__ == "__main__":
-    public.run(host='0.0.0.0', debug=True)
+    public.run(host='0.0.0.0', port=8080, debug=True)
