@@ -44,10 +44,11 @@ def add_no_cache(response):
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
-    vizvars = repo.get_dict() # Gets current incarnation of DB in dict-format
-    TEMPLATE_FILE = "/dataviz.html"
-    template = templateEnv.get_template( TEMPLATE_FILE )
-    return template.render(vizvars)
+#    vizvars = repo.get_dict() # Gets current incarnation of DB in dict-format
+#    TEMPLATE_FILE = "/dataviz.html"
+#    template = templateEnv.get_template( TEMPLATE_FILE )
+#    return template.render(vizvars)
+     return render_template('/dataviz.html')
 
 ## SMS API - PASSES TO PI ##
 @app.route('/sms', methods=['POST'])
@@ -109,6 +110,7 @@ def parse_sms():
             data = data * num_fixtures
     package = convert_to_str(data)
     response = requests.post('http://127.0.0.1:54321/colors',data={'raw': package}) # Passes dict as FORM-ENCODED object to pi
+    return "POSTED"
 
 def complement(color): # pass color as (r, g, b) tuple
     # simpler, slower version of http://stackoverflow.com/a/40234924
@@ -137,7 +139,6 @@ def convert_to_str(arr):
 	elif (i!=last):
             condensed += ","
 	# Else, add nothing - last values
-    print(condensed + "...is our list\n")
     return condensed
 
 if __name__ == "__main__":
