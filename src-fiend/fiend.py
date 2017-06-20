@@ -11,7 +11,7 @@ class Fiend():
 	def __init__(self):
             self.log = [] # Empty dict of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
-
+	    	
         def new_entry(self,elem):
             # Elem should be of type {'name':'x','msg':'y'}
             if not(elem and ('name' in elem) and ('msg' in elem)):
@@ -50,15 +50,13 @@ class Fiend():
             return found # if !query, returns empty list
 	
 	def get_hashable(self,nos):
-	    self.hasher.update(str(nos))
-	    hex = self.hasher.hexdigest()
-	    hex = self.generate_alias(hex)
-	    return hex	   
-	    # TO RETURN - a silly name like "Mr. Vernon" of type STR
+	    self.hasher.update(str(nos)) # Feeds #s as str
+	    hex = self.hasher.hexdigest()# Spits out encoded str
+	    alias = self.generate_alias(hex)# Cross-indexes w extant baby names	   
+	    return alias	    
 	
 	def generate_alias(self,hash):
-	    # TODO - THIS FUNCTION CROSS-REFERENCES W 2 LISTS ND LAST 4 DIGS
-	    key = hash
+	    # TODO - THIS FUNCTION CROSS-REFERENCES W 2 LISTS ND LAST 4 DIGITS
 	    return "Capt. Bev"	
 
 	def get_time(self):

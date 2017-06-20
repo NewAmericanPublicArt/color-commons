@@ -51,14 +51,14 @@ def serve():
 
 ## SMS API - PASSES TO PI ##
 @app.route('/sms', methods=['POST'])
-def parse_sms(): 
+def parse_sms():
     message = str(request.form['Body']).strip().lower() # NOTE - Fiend object handles most input validation in-module
-    sender = repo.get_hashable(str(request.form['from_']))
+    sender = repo.get_hashable(str(request.form['From']))
     if (repo.new_entry({'name':sender,'msg':message})): # Also generates date/time specs with new_entry
     	num_fixtures = 24
     	data = array.array('B')
     	if(message == "secret"):
-	        data.append(0)
+	    data.append(0)
             data.append(0)
             data.append(255)
             data.append(255)
@@ -108,10 +108,8 @@ def parse_sms():
             data.append(color[2])
             data = data * num_fixtures
     package = convert_to_str(data)
-    print(package) # TAKE OUT eventually
-    response = requests.post('http://127.0.0.1:54321/colors',
-        data=[('raw',package)]) # Passes dict as FORM-ENCODED object to pi
-    print(response)# TAKE OUT eventually
+    response = requests.post('http://127.0.0.1:54321/colors',data={'raw': package}) # Passes dict as FORM-ENCODED object to pi
+    return response
 
 def complement(color): # pass color as (r, g, b) tuple
     # simpler, slower version of http://stackoverflow.com/a/40234924
@@ -142,4 +140,4 @@ def convert_to_str(arr):
     return condensed
 
 if __name__ == "__main__":
-   app.run(host='127.0.0.1:5000', debug=True)
+   app.run(host='0.0.0.0', port=12345, debug=True)
