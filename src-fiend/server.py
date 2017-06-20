@@ -109,7 +109,6 @@ def parse_sms():
             data = data * num_fixtures
     package = convert_to_str(data)
     response = requests.post('http://127.0.0.1:54321/colors',data={'raw': package}) # Passes dict as FORM-ENCODED object to pi
-    return response
 
 def complement(color): # pass color as (r, g, b) tuple
     # simpler, slower version of http://stackoverflow.com/a/40234924
