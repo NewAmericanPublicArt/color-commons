@@ -11,7 +11,16 @@ class Fiend():
 	def __init__(self):
             self.log = [] # Empty dict of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
-	    	
+	
+	# Getters
+	def get_time(self):
+	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorporate tzinfo, convert format
+	def get_date(self):
+	   return datetime.date.today() # DATE hardwired naive; TODO convert format
+	def get_dict(self):
+	    return self.log
+	
+	# Generator for new log items - majority of input validation executed here
         def new_entry(self,elem):
             # Elem should be of type {'name':'x','msg':'y'}
             if not(elem and ('name' in elem) and ('msg' in elem)):
@@ -22,19 +31,8 @@ class Fiend():
             elem['time'] = self.get_time() #It is worth noting that these are times RECEIVED
             self.log.append(elem) # Elem is in type {'name':'x','msg':'y','date':x,'time':y}
             return True
-
-	# Fiend-specific aggregator given particular input fields(groomed input by find())
-	def conditional_find(arr,test):
-            temp = []
-            for x in arr:
-            	if ((x['name']==test['name'] or test['name']==False) and
-               	    (x['msg']==test['msg'] or test['msg']==False) and
-                    (x['date']==test['date'] or test['date']==False) and
-	            (x['time']==test['time'] or test['time']==False)):
-           	   temp.append(x)
-            return temp
      
-	# Fiend module which interacts with incomplete/variable-length queries
+	# Interacts with incomplete/variable-length queries
 	def find(self,entry):
 	    found = []
 	    if query: #Essentially generates placeholders for cond_find
@@ -49,6 +47,19 @@ class Fiend():
                 found = conditional_find(self.log,query)
             return found # if !query, returns empty list
 	
+	# Aggregator given all fields ( groomed by FIND() )
+	def conditional_find(arr,test):
+            temp = []
+            for x in arr:
+            	if ((x['name']==test['name'] or test['name']==False) and
+               	    (x['msg']==test['msg'] or test['msg']==False) and
+                    (x['date']==test['date'] or test['date']==False) and
+	            (x['time']==test['time'] or test['time']==False)):
+           	   temp.append(x)
+            return temp
+	
+	# MD5-compliant hashing & indexing functions
+	
 	def get_hashable(self,nos):
 	    self.hasher.update(str(nos)) # Feeds #s as str
 	    hex = self.hasher.hexdigest()# Spits out encoded str
@@ -58,12 +69,82 @@ class Fiend():
 	def generate_alias(self,hash):
 	    # TODO - THIS FUNCTION CROSS-REFERENCES W 2 LISTS ND LAST 4 DIGITS
 	    return "Capt. Bev"	
-
-	def get_time(self):
-	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorporate tzinfo, convert format
 	
-	def get_date(self):
-	   return datetime.date.today() # DATE hardwired naive; TODO convert format
+	# MULTIPURPOSE functions - unrelated to self object 
+	
+	def parse_command(self, message):
+	    num_fixtures = 24
+	    data = array.array('B')
+	    if(message == "secret"):
+		data.append(0)
+		data.append(0)
+		data.append(255)
+		data.append(255)
+		data.append(0)
+		data.append(0)
+		data = data * (num_fixtures/2)
+	    elif(message == "flip white"):
+		data.append(255)
+		data.append(255)
+		data.append(255)
+		data.append(0)
+		data.append(0)
+		data.append(0)
+		data = data * (num_fixtures/2)
+	    elif(message == "flip black"):
+		data.append(0)
+		data.append(0)
+		data.append(0)
+		data.append(255)
+		data.append(255)
+		data.append(255)
+		data = data * (num_fixtures/2)
+	    elif(message == "rainbow"):
+		rainbow_tuples = [(int(128 + 128 * sin(phase)), \
+		int(128 + 128 * sin(2.094 + phase)), \
+		int(128 + 128 * sin(4.189 + phase))) \
+		for phase in [x/1000.0 for x in range(0, 6282, 6282/24)]]
+		data = array.array('B', itertools.chain.from_iterable(rainbow_tuples))
+	    elif(message.startswith("flip")):
+		remainder = message[4:].strip() # chop off flip and strip any spaces
+		print(remainder)
+		color = look_up_color(remainder)
+		inverse = complement(color)
+		print(color)
+		print(inverse)
+		data.append(color[0])
+		data.append(color[1])
+		data.append(color[2])
+		data.append(inverse[0])
+		data.append(inverse[1])
+		data.append(inverse[2])
+		data = data * (num_fixtures/2)
+	    else:
+		color = look_up_color(message)
+		data.append(color[0])
+		data.append(color[1])
+		data.append(color[2])
+		data = data * num_fixtures
 
-	def get_dict(self):
-	    return self.log
+	def complement(self, color): # pass color as (r, g, b) tuple
+	    # simpler, slower version of http://stackoverflow.com/a/40234924
+	    return tuple(max(color) + min(color) - channel for channel in color)
+
+	def look_up_color(self, name):
+	    try:
+		color = webcolors.hex_to_rgb(xkcd_names_to_hex[name])
+	    except: # if we can't find a color, make up a random one
+		color = [randint(0, 255), randint(0, 255), randint(0, 255)]
+	    return color
+
+	def convert_to_str(self, arr):
+	    condensed = ""
+	    last = len(arr)-1
+	    for i, x in enumerate(arr):
+		condensed+=str(x)
+		if ((i%3==2) and (i!=last)):
+		    condensed+="|"
+		elif (i!=last):
+		    condensed += ","
+		# Else, add nothing - last values
+	    return condensed
