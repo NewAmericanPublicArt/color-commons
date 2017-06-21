@@ -4,10 +4,12 @@
 
 from xkcd_colors import xkcd_names_to_hex 	# look_up_color
 from random import randint			# generate rand color
+from names import *				# brings in NAMES, SURS
 import socket					#
 from math import sin				# parse_command rainbow gen
 import itertools				# p_cmd array/iterable loops
 import array					# p_cmd array of 'B'
+import re					# regexing
 import sys					#
 import webcolors				# look_up_color
 import datetime					# get_date, get_time
@@ -71,15 +73,29 @@ class Fiend():
 	# MD5-compliant hashing & indexing functions
 	
 	def get_hashable(self,nos):
-	    self.hasher.update(str(nos)) # Feeds #s as str
+	    nos = re.sub("[^0-9]",'',nos) #rmvs + from Twilio formatting
+	    self.hasher.update(nos) # Feeds #s as str
 	    hex = self.hasher.hexdigest()# Spits out encoded str
 	    alias = self.generate_alias(hex)# Cross-indexes w extant baby names	   
 	    return alias	    
 	
 	def generate_alias(self,hash):
-	    # TODO - THIS FUNCTION CROSS-REFERENCES W 2 LISTS ND LAST 4 DIGITS
-	    return "Capt. Bev"	
-	
+	    KEY_LEN = 32
+	    SUR_LEN = 2 # front 2 chars
+	    TAG_LEN = 3 # back 3 chars
+	    key = int(hash,16)
+
+	    # Bit manipulation to isolate chunks of hex
+	    surkey = (key >> ((KEY_LEN - SUR_LEN)*4))	    
+	    namekey = ((key << (SUR_LEN*4)) >> (TAG_LEN*4))
+
+	    # EVEN SORT of terms over distribution of lists
+	    surkey = surkey % (len(SURS)) # 256 mod ~25 - CHANGES W NAMES.PY
+	    namekey = namekey % (len(NAMES))# [16]^(27 chars) mod ~2000, "    	
+	    
+	    alias = SURS[surkey] + " " + NAMES[namekey]	
+	    return alias
+
 	# MULTIPURPOSE functions - unrelated to self object 
 	
 	def parse_command(self, message):
