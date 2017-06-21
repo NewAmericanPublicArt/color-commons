@@ -2,10 +2,20 @@
 # Implementation of FIEND class for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
 
-import datetime
-import md5
+from xkcd_colors import xkcd_names_to_hex 	# look_up_color
+from random import randint			# generate rand color
+import socket					#
+from math import sin				# parse_command rainbow gen
+import itertools				# p_cmd array/iterable loops
+import array					# p_cmd array of 'B'
+import sys					#
+import webcolors				# look_up_color
+import datetime					# get_date, get_time
+import md5					# get_hashable
 
-# FIEND CLASS - CONTROLS RPI, ETC FROM LINODE SERVER
+# FIEND CLASS
+# CONTROLS RPI FROM LINODE SERVER
+
 class Fiend():
 	
 	def __init__(self):
