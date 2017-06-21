@@ -50,7 +50,7 @@ def parse_sms():
     sender = repo.get_hashable(str(request.form['From']))
     if (repo.new_entry({'name':sender,'msg':message})): # Also generates date/time specs with new_entry
     	data = repo.parse_command(message)
-    package = convert_to_str(data)
+    package = repo.convert_to_str(data)
     response = requests.post('http://127.0.0.1:54321/colors',data={'raw': package}) # Passes dict as FORM-ENCODED object to pi
     return "POSTED"
 
