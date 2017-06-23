@@ -82,18 +82,20 @@ class Fiend():
 	def generate_alias(self,hash):
 	    KEY_LEN = 32
 	    SUR_LEN = 2 # front 2 chars
+	    NAME_LEN = 27 # middy 27 chars	
 	    TAG_LEN = 3 # back 3 chars
 	    key = int(hash,16)
 
 	    # Bit manipulation to isolate chunks of hex
 	    surkey = (key >> ((KEY_LEN - SUR_LEN)*4))	    
 	    namekey = ((key << (SUR_LEN*4)) >> (TAG_LEN*4))
+	    tagtrail = ((key << (NAME_LEN+SUR_LEN)*4) >> (NAME_LEN+SUR_LEN)*4)	
 
 	    # EVEN SORT of terms over distribution of lists
 	    surkey = surkey % (len(SURS)) # 256 mod ~25 - CHANGES W NAMES.PY
 	    namekey = namekey % (len(NAMES))# [16]^(27 chars) mod ~2000, "    	
 	    
-	    alias = SURS[surkey] + " " + NAMES[namekey]	
+	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + tagtrail
 	    return alias
 
 	# MULTIPURPOSE functions - unrelated to self object 
