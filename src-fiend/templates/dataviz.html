@@ -4,14 +4,40 @@
     <link rel="stylesheet" href="css/dviz.css" type="text/css">
     <!-- <style type="text/css" media="all">@import url('./css/dataviz.css');</style> -->
     <script src="//d3js.org/d3.v3.min.js"></script>
+    <script src="burst.js"></script>
     <title>COLOR COMMONS</title>
 </head>
-<body>
+<body onload="main( {{log}} )">
 <div class="buffer"></div>
 <div id="page">
         <h1>Interactive Data Vizualizaton: Color Commons</h1>
-        <p><a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
-	<p>Last Updated: {{time}}</p>
+	
+	<div id="canvas"></div>
+	
+	<div class="info">
+	    <div class=tabs">
+	    	<p onclick="showtab(0)">INFO</p>
+		<p onclick="showtab(1)">VIEWS</p>
+		<p onclick="showtab(2)">ADVANCED</p>
+	    </div>
+	    <div id="about">
+            	<p>Last Updated: {{time}}</p>
+            	<p><a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
+            </div>
+	    <div id="options">
+		<form action="update_burst( {{log}} )">
+		    <input type="radio" name="sort1" value="Today"></input>
+                    <input type="radio" name="sort2" value="This Week"></input>
+                    <input type="radio" name="sort3" value="This Month"></input>
+                    <input type="submit" name="sub" value="Refresh"></input>
+		</form>
+	    </div>
+	    <div id="advanced">
+		<form action="update_burst( {{log}} )">
+		    <input type="submit" name="sub2" value="Refresh"></input>
+		</form>
+	    </div>
+	</div>
 </div>
 <div class="buffer"></div>
 </body>
