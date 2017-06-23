@@ -29,7 +29,7 @@ class Fiend():
 	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorporate tzinfo, convert format
 	def get_date(self):
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
-	def get_dict(self):
+	def get_log(self):
 	    return self.log
 	
 	# Generator for new log items - majority of input validation executed here

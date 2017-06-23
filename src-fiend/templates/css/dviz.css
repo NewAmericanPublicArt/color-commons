@@ -2,3 +2,11 @@
  * Modifyer/Styler for Data Viz page
  * Link: http://www.newamericanpublicart.com/color-commons-2017
  */
+
+* { margin: 0;
+    padding: 0;
+    border: 0;
+    text-align: center,
+    font: 12px/30px "Times New Roman", serif;
+    display: flex
+}
