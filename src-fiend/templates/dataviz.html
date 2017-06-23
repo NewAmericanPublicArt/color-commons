@@ -5,7 +5,6 @@
     <!-- <style type="text/css" media="all">@import url('./css/dataviz.css');</style> -->
     <script src="//d3js.org/d3.v3.min.js"></script>
     <script src="burst.js"></script>
-    <title>COLOR COMMONS</title>
 </head>
 <body onload="main( {{log}} )">
 <div class="buffer"></div>
@@ -14,14 +13,15 @@
 	
 	<div id="canvas"></div>
 	
-	<div class="info">
-	    <div class=tabs">
+	<div id="info">
+	    <div class="tabs">
 	    	<p onclick="showtab(0)">INFO</p>
 		<p onclick="showtab(1)">VIEWS</p>
 		<p onclick="showtab(2)">ADVANCED</p>
 	    </div>
 	    <div id="about">
-            	<p>Last Updated: {{time}}</p>
+            	<p>Last Updated: {{time}} &nbsp;</p>
+                <br>
             	<p><a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
             </div>
 	    <div id="options">
