@@ -159,3 +159,10 @@ class Fiend():
 		    condensed += ","
 		# Else, add nothing - last values
 	    return condensed
+	
+	def send_to_csv(self):
+	    log = open("log.csv",'w')
+	    for (x in self.log):
+                newline = str(x['name'])+","+str(x['msg'])+","+x['date']+","+x['time']+"\r\n"
+		log.write(newline)
+	    log.close()
