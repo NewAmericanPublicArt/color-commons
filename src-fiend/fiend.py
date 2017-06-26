@@ -13,6 +13,7 @@ import re					# regexing
 import sys					#
 import webcolors				# look_up_color
 import datetime					# get_date, get_time
+import calendar
 import md5					# get_hashable
 
 # FIEND CLASS
@@ -31,6 +32,21 @@ class Fiend():
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
 	def get_log(self):
 	    return self.log
+	
+	# FANCY GETTERS
+
+	def send_to_csv(self):
+            log = open("log.csv",'w')
+            for (x in self.log):
+                newline = str(x['name'])+","+str(x['msg'])+","+x['date']+","+x['time']+"\r\n"
+                log.write(newline)
+            log.close()
+	
+	def by_days(no):
+	    today = calendar.day_name[datetime.date.today().weekday()]
+	    
+	
+	
 	
 	# Generator for new log items - majority of input validation executed here
         def new_entry(self,elem):
@@ -56,11 +72,15 @@ class Fiend():
                    query['date'] = False
 		if 'time' not in query:
 		   query['time'] = False
-                found = conditional_find(self.log,query)
+
+		if ('start' in query['date'] or 'start' in query['time']): 		   
+		   found = range_find(self.log,query) #More precise range find
+		else:
+        	   found = match_find(self.log,query) #Regular == find
             return found # if !query, returns empty list
 	
 	# Aggregator given all fields ( groomed by FIND() )
-	def conditional_find(arr,test):
+	def match_find(arr,test):
             temp = []
             for x in arr:
             	if ((x['name']==test['name'] or test['name']==False) and
@@ -69,7 +89,26 @@ class Fiend():
 	            (x['time']==test['time'] or test['time']==False)):
            	   temp.append(x)
             return temp
-	
+
+	# Aggregator given all field WITH ADDED RANGE FUNCTIONALITY
+	def range_find(arr,test):
+	    temp = []
+	    for x in arr:
+		if ((test['name']==False or in_range(x['name'],test['name'])) and
+		    (test['msg']==False or in_range(x['msg'],test['msg'])) and
+                    (test['msg']==False or in_range(x['msg'],test['msg'])) and
+                    (test['msg']==False or in_range(x['msg'],test['msg']))):
+		    temp.append(x)
+	    return temp
+
+	# Either compares against range (noted by 'start' value in test) or test itself
+	# Returns a bool indicating val falls in this range
+	def in_range(val,test):
+	    if 'start' in test:
+		return ((val>=test['start']) and (val<=test['end']))
+	    else:
+		return (val == test)
+
 	# MD5-compliant hashing & indexing functions
 	
 	def get_hashable(self,nos):
@@ -159,10 +198,3 @@ class Fiend():
 		    condensed += ","
 		# Else, add nothing - last values
 	    return condensed
-	
-	def send_to_csv(self):
-	    log = open("log.csv",'w')
-	    for (x in self.log):
-                newline = str(x['name'])+","+str(x['msg'])+","+x['date']+","+x['time']+"\r\n"
-		log.write(newline)
-	    log.close()
