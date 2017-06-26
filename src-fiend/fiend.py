@@ -95,7 +95,7 @@ class Fiend():
 	    surkey = surkey % (len(SURS)) # 256 mod ~25 - CHANGES W NAMES.PY
 	    namekey = namekey % (len(NAMES))# [16]^(27 chars) mod ~2000, "    	
 	    
-	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + tagtrail
+	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + str(tagtrail)
 	    return alias
 
 	# MULTIPURPOSE functions - unrelated to self object 
