@@ -4,10 +4,12 @@
 
 from xkcd_colors import xkcd_names_to_hex 	# look_up_color
 from random import randint			# generate rand color
+from names import *				# brings in NAMES, SURS
 import socket					#
 from math import sin				# parse_command rainbow gen
 import itertools				# p_cmd array/iterable loops
 import array					# p_cmd array of 'B'
+import re					# regexing
 import sys					#
 import webcolors				# look_up_color
 import datetime					# get_date, get_time
@@ -71,70 +73,69 @@ class Fiend():
 	# MD5-compliant hashing & indexing functions
 	
 	def get_hashable(self,nos):
-	    self.hasher.update(str(nos)) # Feeds #s as str
+	    nos = re.sub("[^0-9]",'',nos) #rmvs + from Twilio formatting
+	    self.hasher.update(nos) # Feeds #s as str
 	    hex = self.hasher.hexdigest()# Spits out encoded str
 	    alias = self.generate_alias(hex)# Cross-indexes w extant baby names	   
 	    return alias	    
 	
 	def generate_alias(self,hash):
-	    # TODO - THIS FUNCTION CROSS-REFERENCES W 2 LISTS ND LAST 4 DIGITS
-	    return "Capt. Bev"	
-	
+	    KEY_LEN = 32
+	    SUR_LEN = 2 # front 2 chars
+	    NAME_LEN = 27 # middy 27 chars	
+	    TAG_LEN = 3 # back 3 chars
+	    key = int(hash,16)
+
+	    # Bit manipulation to isolate chunks of hex
+	    surkey = (key >> ((KEY_LEN - SUR_LEN)*4))	    
+	    namekey = ((key << (SUR_LEN*4)) >> (TAG_LEN*4))
+	    tagtrail = ((key << (NAME_LEN+SUR_LEN)*4) >> (NAME_LEN+SUR_LEN)*4)	
+
+	    # EVEN SORT of terms over distribution of lists
+	    surkey = surkey % (len(SURS)) # 256 mod ~25 - CHANGES W NAMES.PY
+	    namekey = namekey % (len(NAMES))# [16]^(27 chars) mod ~2000, "    	
+	    
+	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + tagtrail
+	    return alias
+
 	# MULTIPURPOSE functions - unrelated to self object 
 	
 	def parse_command(self, message):
-	    num_fixtures = 24
-	    data = array.array('B')
+	    FIXTURES = 24
+	    populate = True
+	    data = [] # Starts life as an array object
 	    if(message == "secret"):
-		data.append(0)
-		data.append(0)
-		data.append(255)
-		data.append(255)
-		data.append(0)
-		data.append(0)
-		data = data * (num_fixtures/2)
+		data.append((0,0,255)) # top
+		data.append((255,0,0)) # bot	
 	    elif(message == "flip white"):
-		data.append(255)
-		data.append(255)
-		data.append(255)
-		data.append(0)
-		data.append(0)
-		data.append(0)
-		data = data * (num_fixtures/2)
+                data.append((255,255,255))
+                data.append((0,0,0))
 	    elif(message == "flip black"):
-		data.append(0)
-		data.append(0)
-		data.append(0)
-		data.append(255)
-		data.append(255)
-		data.append(255)
-		data = data * (num_fixtures/2)
+                data.append((0,0,0))
+                data.append((255,255,255))
 	    elif(message == "rainbow"):
-		rainbow_tuples = [(int(128 + 128 * sin(phase)), \
-		int(128 + 128 * sin(2.094 + phase)), \
-		int(128 + 128 * sin(4.189 + phase))) \
-		for phase in [x/1000.0 for x in range(0, 6282, 6282/24)]]
-		data = array.array('B', itertools.chain.from_iterable(rainbow_tuples))
+		data = [(int(128 + 128 * sin(phase)), \
+			 int(128 + 128 * sin(2.094 + phase)), \
+			 int(128 + 128 * sin(4.189 + phase))) \
+		for phase in [x/1000.0 for x in range(0, 6282, 6282/FIXTURES)]]
+	    	del data[(FIXTURES):] # TRIMS - was @ 75 generated (BRANDON?)
+		populate = False
 	    elif(message.startswith("flip")):
 		remainder = message[4:].strip() # chop off flip and strip any spaces
-		print(remainder)
-		color = look_up_color(remainder)
-		inverse = complement(color)
-		print(color)
-		print(inverse)
-		data.append(color[0])
-		data.append(color[1])
-		data.append(color[2])
-		data.append(inverse[0])
-		data.append(inverse[1])
-		data.append(inverse[2])
-		data = data * (num_fixtures/2)
+		color = self.look_up_color(remainder)
+		inverse = self.complement(color)
+		data.append(color)
+		data.append(inverse)
 	    else:
-		color = look_up_color(message)
-		data.append(color[0])
-		data.append(color[1])
-		data.append(color[2])
-		data = data * num_fixtures
+		color = self.look_up_color(message) #rets (x,y,z)(x,y,z)
+		data.append(color)
+		data.append(color)
+	    # FORMAT data from 2 RGB tuples to chain of (24*3) numbers  
+   	    if (populate):	
+		data = data * (FIXTURES/2)
+            # DO STUFF HERE TO CHANGE INTO A ARRAY.ARRAY?
+	    data = array.array('B', itertools.chain.from_iterable(data))
+	    return data
 
 	def complement(self, color): # pass color as (r, g, b) tuple
 	    # simpler, slower version of http://stackoverflow.com/a/40234924
@@ -142,9 +143,9 @@ class Fiend():
 
 	def look_up_color(self, name):
 	    try:
-		color = webcolors.hex_to_rgb(xkcd_names_to_hex[name])
+		color = tuple(webcolors.hex_to_rgb(xkcd_names_to_hex[name]))
 	    except: # if we can't find a color, make up a random one
-		color = [randint(0, 255), randint(0, 255), randint(0, 255)]
+		color = (randint(0, 255), randint(0, 255), randint(0, 255))
 	    return color
 
 	def convert_to_str(self, arr):
