@@ -38,33 +38,29 @@ test.new_entry({'name':'bevan','msg':'hi',      'date':d8,      'time':t8})
 test.new_entry({'name':'bevan','msg':'hi',      'date':d9,	'time':t9})
 test.new_entry({'name':'bevan','msg':'hi',      'date':d0,	'time':t0})
 
-empty = {}
-
-alll = test.find(empty)
-casses = test.find({'name':'cass'})
-his = test.find({'msg':'hi'})
-agg = test.find({'msg':'hi','time':t0})
-
 r1 = time(2,0)
 r2 = time(22,0)
-agg1 = test.find({'time':{'start':r1,'end':r2}})
+empty = {}
 
-
-# THEN PRINT THEM TO CHECK
+alll = test.find(empty,None)
 print("all")
 for x in alll:
 	print(x)
-print("casses")
-for x in casses:
+
+agg1 = test.find({'time':{'start':r1,'end':r2}},None)
+print("Range hr:2-22\n")
+for x in agg1:
 	print(x)
-print("hi-s")
-for x in his:
+
+agg2 = test.find({'name':{'start':"c",'end':"sa"}},None)
+print("Range name:c-sa\n")
+for x in agg2:
 	print(x)
-print("agg: hi 8:24")
-for x in agg:
+
+bymos = test.sort_by("month",test.get_log())
+print("Orgz by months")
+for x in bymos:
 	print(x)
-print("range: TIME from 2:00 to 22:00")
-for 
 
 
 

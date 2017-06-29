@@ -27,42 +27,24 @@ class Fiend():
 
 	# Getters
 	def get_time(self):
-	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorporate tzinfo, convert format
+	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorp tzinfo, convert
 	def get_date(self):
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
 	def get_log(self):
 	    return self.log
 	
-	# FANCY GETTERS
+	# EXPORT function
 
 	def send_to_csv(self):
             log = open("log.csv",'w')
-            for (x in self.log):
+            for x in self.log:
                 newline = str(x['name'])+","+str(x['msg'])+","+x['date']+","+x['time']+"\r\n"
                 log.write(newline)
             log.close()
-	
-	# DAY aggregator - from 1->; brings back all by day
-	def by_days(no):
-            TODAY = datetime.date.today()
-	    DAY = calendar.day_name[TODAY.weekday()]
-	    if (no > 1):
-                DAYS = calendar.monthrange(TODAY.year,TODAY.month)[1]
-		back = TODAY.day-no+1
-		if (back<1): # Fix month overflow scenario
-		    TIL = TODAY.replace(month = TODAY.month-1)
-		    DAYS = calendar.monthrange(TIL.year,TIL.month)[1]
-		    back = DAYS+add # SHOULD bring us to 1st  
-		for i in range(0, no):
-		    TIL = TIL.replace(day = (TODAY.day+i)%DAYS)
-		    DAY = calendar.day_name[TIL.weekday()]	
-	    else:
-		all = [{DAY:self.find({'date':TODAY})}]
-	    return all
-	    
-	
-	# Generator for new log items - majority of input validation executed here
-        def new_entry(self,elem):
+
+	# GENERATE new log entries: input validation executed
+        
+	def new_entry(self,elem):
             # Elem should be of type {'name':'x','msg':'y'}
             if not(elem and ('name' in elem) and ('msg' in elem)):
                 print("improper entry format")
@@ -73,8 +55,9 @@ class Fiend():
             self.log.append(elem) # Elem is in type {'name':'x','msg':'y','date':x,'time':y}
             return True
      
-	# Interacts with incomplete/variable-length queries
-	def find(self,entry):
+	# HANDLER for dict-defined queries
+
+	def find(self,set,query):
 	    found = []
 	    if query: #Essentially generates placeholders for cond_find
                 if 'name' not in query:
@@ -85,22 +68,15 @@ class Fiend():
                    query['date'] = False
 		if 'time' not in query:
 		   query['time'] = False 
-                found = range_find(self.log,query) #More precise range find
+                if set is None:
+		    found = self.range_find(self.log,query) #More precise range find
+	        else:
+		    found = self.range_find(set,query)
 	    return found # if !query, returns empty list
 	
-	# Aggregator given all fields ( groomed by FIND() )
-	#def match_find(arr,test):
-        #    temp = []
-        #    for x in arr:
-        #    	if ((x['name']==test['name'] or test['name']==False) and
-        #       	    (x['msg']==test['msg'] or test['msg']==False) and
-        #            (x['date']==test['date'] or test['date']==False) and
-	#            (x['time']==test['time'] or test['time']==False)):
-        #   	   temp.append(x)
-        #    return temp
+	# AGGREGATOR for SEARCH through given arr
 
-	# Aggregator given all field WITH ADDED RANGE FUNCTIONALITY
-	def range_find(arr,test):
+	def range_find(self,arr,test):
 	    temp = []
 	    for x in arr:
 		if ((test['name']==False or in_range(x['name'],test['name'])) and
@@ -110,15 +86,41 @@ class Fiend():
 		    temp.append(x)
 	    return temp
 
-	# Either compares against range (noted by 'start' value in test) or test itself
-	# Returns a bool indicating val falls in this range
+	# RANGE checker, returns a boolean
+
 	def in_range(val,test):
 	    if 'start' in test:
 		return ((val>=test['start']) and (val<=test['end']))
 	    else:
 		return (val == test)
+	
+	# SORT function, returns a tree tier of lists
 
-	# MD5-compliant hashing & indexing functions
+	def sort_by(self, root, raw):
+	    SORTS = ["month","day","hour"]
+	    if root not in SORTS:
+		return raw
+	    else:
+		tier = []
+		max = datetime.datetime.today()
+                ourmonth = raw[0]['date'].month # Assume vals within same month
+                ouryear = raw[0]['date'].year # And same for year
+		if root is SORTS[0]:		#12-MONTH
+		    for i in range(0,12):
+			bmo = datetime.datetime(ouryear, (i+1), 1)# begin month
+			emo = datetime.datetime(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
+		        tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
+		elif root is SORTS[1]:		#30-DAY, 1/30 BY MONTH
+		    for i in range(0, calendar.monthrange(ouryear,ourmonth)[1]):
+		        day = datetime.date(ouryear, ourmonth, (i+1))
+			tier.append(find(raw,{'date':day}))
+		elif root is SORTS[2]:		#24-HR, 1/24 BY DAY
+		    for i in range(0,24):
+			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
+			tier.append(find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
+		return tier
+
+	# MD5-compliant HASHER & indexing functions
 	
 	def get_hashable(self,nos):
 	    nos = re.sub("[^0-9]",'',nos) #rmvs + from Twilio formatting
@@ -133,21 +135,20 @@ class Fiend():
 	    NAME_LEN = 27 # middy 27 chars	
 	    TAG_LEN = 3 # back 3 chars
 	    key = int(hash,16)
-
 	    # Bit manipulation to isolate chunks of hex
 	    surkey = (key >> ((KEY_LEN - SUR_LEN)*4))	    
 	    namekey = ((key << (SUR_LEN*4)) >> (TAG_LEN*4))
 	    tagtrail = ((key << (NAME_LEN+SUR_LEN)*4) >> (NAME_LEN+SUR_LEN)*4)	
-
 	    # EVEN SORT of terms over distribution of lists
-	    surkey = surkey % (len(SURS)) # 256 mod ~25 - CHANGES W NAMES.PY
-	    namekey = namekey % (len(NAMES))# [16]^(27 chars) mod ~2000, "    	
-	    
+	    surkey = surkey % (len(SURS))	# 256 mod ~25 - CHANGES W NAMES.PY
+	    namekey = namekey % (len(NAMES))	# [16]^(27 chars) mod ~2000  
 	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + str(tagtrail)
 	    return alias
 
 	# MULTIPURPOSE functions - unrelated to self object 
 	
+	# PARSER for PHAROS
+
 	def parse_command(self, message):
 	    FIXTURES = 24
 	    populate = True
