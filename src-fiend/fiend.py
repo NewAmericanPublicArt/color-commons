@@ -24,7 +24,7 @@ class Fiend():
 	def __init__(self):
             self.log = [] # Empty dict of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
-	
+
 	# Getters
 	def get_time(self):
 	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorporate tzinfo, convert format
@@ -42,11 +42,24 @@ class Fiend():
                 log.write(newline)
             log.close()
 	
+	# DAY aggregator - from 1->; brings back all by day
 	def by_days(no):
-	    today = calendar.day_name[datetime.date.today().weekday()]
+            TODAY = datetime.date.today()
+	    DAY = calendar.day_name[TODAY.weekday()]
+	    if (no > 1):
+                DAYS = calendar.monthrange(TODAY.year,TODAY.month)[1]
+		back = TODAY.day-no+1
+		if (back<1): # Fix month overflow scenario
+		    TIL = TODAY.replace(month = TODAY.month-1)
+		    DAYS = calendar.monthrange(TIL.year,TIL.month)[1]
+		    back = DAYS+add # SHOULD bring us to 1st  
+		for i in range(0, no):
+		    TIL = TIL.replace(day = (TODAY.day+i)%DAYS)
+		    DAY = calendar.day_name[TIL.weekday()]	
+	    else:
+		all = [{DAY:self.find({'date':TODAY})}]
+	    return all
 	    
-	
-	
 	
 	# Generator for new log items - majority of input validation executed here
         def new_entry(self,elem):
@@ -71,24 +84,20 @@ class Fiend():
                 if 'date' not in query:
                    query['date'] = False
 		if 'time' not in query:
-		   query['time'] = False
-
-		if ('start' in query['date'] or 'start' in query['time']): 		   
-		   found = range_find(self.log,query) #More precise range find
-		else:
-        	   found = match_find(self.log,query) #Regular == find
-            return found # if !query, returns empty list
+		   query['time'] = False 
+                found = range_find(self.log,query) #More precise range find
+	    return found # if !query, returns empty list
 	
 	# Aggregator given all fields ( groomed by FIND() )
-	def match_find(arr,test):
-            temp = []
-            for x in arr:
-            	if ((x['name']==test['name'] or test['name']==False) and
-               	    (x['msg']==test['msg'] or test['msg']==False) and
-                    (x['date']==test['date'] or test['date']==False) and
-	            (x['time']==test['time'] or test['time']==False)):
-           	   temp.append(x)
-            return temp
+	#def match_find(arr,test):
+        #    temp = []
+        #    for x in arr:
+        #    	if ((x['name']==test['name'] or test['name']==False) and
+        #       	    (x['msg']==test['msg'] or test['msg']==False) and
+        #            (x['date']==test['date'] or test['date']==False) and
+	#            (x['time']==test['time'] or test['time']==False)):
+        #   	   temp.append(x)
+        #    return temp
 
 	# Aggregator given all field WITH ADDED RANGE FUNCTIONALITY
 	def range_find(arr,test):
