@@ -26,15 +26,15 @@ t9 = time(8,24)
 t0 = time(23,0)
 
 test = Fiend()
-test.new_entry({'name':'cass','msg':'hi',	'date':d0,	'time':t0})
-test.new_entry({'name':'cass','msg':'hi',       'date':d1,      'time':t1})
-test.new_entry({'name':'cass','msg':'hi',       'date':d2,      'time':t2})
-test.new_entry({'name':'cass','msg':'hi',       'date':d3,      'time':t3})
-test.new_entry({'name':'syd','msg':'bye',       'date':d4,      'time':t4})
-test.new_entry({'name':'cass','msg':'hola',     'date':d5,      'time':t5})
-test.new_entry({'name':'False','msg':'oh no',   'date':d6,      'time':t6})
-test.new_entry({'name':'bevan','msg':'hi',      'date':d7,      'time':t7})
-test.new_entry({'name':'bevan','msg':'hi',      'date':d8,      'time':t8})
+#test.new_entry({'name':'cass','msg':'hi',	'date':d0,	'time':t0})
+#test.new_entry({'name':'cass','msg':'hi',       'date':d1,      'time':t1})
+#test.new_entry({'name':'cass','msg':'hi',       'date':d2,      'time':t2})
+#test.new_entry({'name':'cass','msg':'hi',       'date':d3,      'time':t3})
+#test.new_entry({'name':'syd','msg':'bye',       'date':d4,      'time':t4})
+#test.new_entry({'name':'cass','msg':'hola',     'date':d5,      'time':t5})
+#test.new_entry({'name':'False','msg':'oh no',   'date':d6,      'time':t6})
+#test.new_entry({'name':'bevan','msg':'hi',      'date':d7,      'time':t7})
+#test.new_entry({'name':'bevan','msg':'hi',      'date':d8,      'time':t8})
 test.new_entry({'name':'bevan','msg':'hi',      'date':d9,	'time':t9})
 test.new_entry({'name':'bevan','msg':'hi',      'date':d0,	'time':t0})
 
@@ -42,17 +42,17 @@ r1 = time(2,0)
 r2 = time(22,0)
 empty = {}
 
-alll = test.find(empty,None)
+alll = test.find(None,empty)
 print("all")
 for x in alll:
 	print(x)
 
-agg1 = test.find({'time':{'start':r1,'end':r2}},None)
+agg1 = test.find(None,{'time':{'start':r1,'end':r2}})
 print("Range hr:2-22\n")
 for x in agg1:
 	print(x)
 
-agg2 = test.find({'name':{'start':"c",'end':"sa"}},None)
+agg2 = test.find(None,{'name':{'start':"c",'end':"sa"}})
 print("Range name:c-sa\n")
 for x in agg2:
 	print(x)

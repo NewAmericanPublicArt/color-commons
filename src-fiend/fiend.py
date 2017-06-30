@@ -57,7 +57,7 @@ class Fiend():
      
 	# HANDLER for dict-defined queries
 
-	def find(self,set,query):
+	def find(self,arr,query):
 	    found = []
 	    if query: #Essentially generates placeholders for cond_find
                 if 'name' not in query:
@@ -68,31 +68,37 @@ class Fiend():
                    query['date'] = False
 		if 'time' not in query:
 		   query['time'] = False 
-                if set is None:
+                if arr is None:
 		    found = self.range_find(self.log,query) #More precise range find
 	        else:
-		    found = self.range_find(set,query)
+		    found = self.range_find(arr,query)
 	    return found # if !query, returns empty list
 	
 	# AGGREGATOR for SEARCH through given arr
 
-	def range_find(self,arr,test):
+	def range_find(self,arr,query):
 	    temp = []
 	    for x in arr:
-		if ((test['name']==False or in_range(x['name'],test['name'])) and
-		    (test['msg']==False or in_range(x['msg'],test['msg'])) and
-                    (test['msg']==False or in_range(x['msg'],test['msg'])) and
-                    (test['msg']==False or in_range(x['msg'],test['msg']))):
+		if ((query['name']==False or self.in_range(x['name'],query['name'])) and
+		    (query['msg']==False or self.in_range(x['msg'],query['msg'])) and
+                    (query['date']==False or self.in_range(x['date'],query['date'])) and
+                    (query['time']==False or self.in_range(x['time'],query['time']))):
 		    temp.append(x)
 	    return temp
 
 	# RANGE checker, returns a boolean
 
-	def in_range(val,test):
+	def in_range(self,elem,test):
 	    if 'start' in test:
-		return ((val>=test['start']) and (val<=test['end']))
+		return ((elem>=test['start']) and (elem<=test['end']))
 	    else:
-		return (val == test)
+		if (type(elem) is datetime.time) and (type(test) is datetime.time):
+		    # For now, we will get it within the 10min range
+		    return (test.hour == elem.hour and (elem.minute>=(test.minute-5)) and (elem.minute<=(test.minute+5))) 
+#		elif type(val) is datetime.date:
+#		    # Corresponding
+		else:
+	            return (elem == test)
 	
 	# SORT function, returns a tree tier of lists
 
@@ -107,8 +113,8 @@ class Fiend():
                 ouryear = raw[0]['date'].year # And same for year
 		if root is SORTS[0]:		#12-MONTH
 		    for i in range(0,12):
-			bmo = datetime.datetime(ouryear, (i+1), 1)# begin month
-			emo = datetime.datetime(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
+			bmo = datetime.date(ouryear, (i+1), 1)# begin month
+			emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
 		        tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
 		elif root is SORTS[1]:		#30-DAY, 1/30 BY MONTH
 		    for i in range(0, calendar.monthrange(ouryear,ourmonth)[1]):
@@ -138,11 +144,11 @@ class Fiend():
 	    # Bit manipulation to isolate chunks of hex
 	    surkey = (key >> ((KEY_LEN - SUR_LEN)*4))	    
 	    namekey = ((key << (SUR_LEN*4)) >> (TAG_LEN*4))
-	    tagtrail = ((key << (NAME_LEN+SUR_LEN)*4) >> (NAME_LEN+SUR_LEN)*4)	
-	    # EVEN SORT of terms over distribution of lists
+	    tagMASK = 4095
+	    tagtrail = str(hex(key & tagMASK)).lstrip('xL')[-3:]	# TODO - EXAMINE FURTHER
 	    surkey = surkey % (len(SURS))	# 256 mod ~25 - CHANGES W NAMES.PY
 	    namekey = namekey % (len(NAMES))	# [16]^(27 chars) mod ~2000  
-	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + str(tagtrail)
+	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + tagtrail
 	    return alias
 
 	# MULTIPURPOSE functions - unrelated to self object 
