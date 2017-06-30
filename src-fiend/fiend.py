@@ -22,7 +22,7 @@ import md5					# get_hashable
 class Fiend():
 	
 	def __init__(self):
-            self.log = [] # Empty dict of log entry
+            self.log = [] # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
 
 	# Getters
@@ -42,8 +42,8 @@ class Fiend():
                 log.write(newline)
             log.close()
 
-	# GENERATE new log entries: input validation executed
-        
+	# GENERATE new log entries: input validation executed        
+
 	def new_entry(self,elem):
             # Elem should be of type {'name':'x','msg':'y'}
             if not(elem and ('name' in elem) and ('msg' in elem)):
@@ -54,7 +54,16 @@ class Fiend():
             elem['time'] = self.get_time() #It is worth noting that these are times RECEIVED
             self.log.append(elem) # Elem is in type {'name':'x','msg':'y','date':x,'time':y}
             return True
-     
+
+	# ALTERNATE ENTRY - for testing purposes
+	def new_entry2(self,elem):
+	    # Elem should be of form {'name':x,'msg':y,'date':z}
+  	    if not(elem and ('name' in elem) and ('msg' in elem)):
+                print("improper entry format")
+                return False
+            elem['name'] = self.get_hashable(elem['name'])
+	    elem['time'] = self.get_time()
+	    self.log.append(elem)
 	# HANDLER for dict-defined queries
 
 	def find(self,arr,query):
@@ -102,28 +111,49 @@ class Fiend():
 	# SORT function, returns a tree tier of lists
 
 	def sort_by(self, root, raw):
-	    SORTS = ["month","day","hour"]
+	    SORTS = ["month","day","hour","users","newuser"]
 	    if root not in SORTS:
 		return raw
 	    else:
-		tier = []
-		max = datetime.datetime.today()
-                ourmonth = raw[0]['date'].month # Assume vals within same month
-                ouryear = raw[0]['date'].year # And same for year
-		if root is SORTS[0]:		#12-MONTH
-		    for i in range(0,12):
-			bmo = datetime.date(ouryear, (i+1), 1)# begin month
-			emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
-		        tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
-		elif root is SORTS[1]:		#30-DAY, 1/30 BY MONTH
-		    for i in range(0, calendar.monthrange(ouryear,ourmonth)[1]):
-		        day = datetime.date(ouryear, ourmonth, (i+1))
-			tier.append(find(raw,{'date':day}))
-		elif root is SORTS[2]:		#24-HR, 1/24 BY DAY
+		tier = [] # RET item
+		if root is SORTS[0] or root is SORTS[1]: # need date object vals
+		    ourmonth = raw[0]['date'].month # Assume vals within same month
+                    ouryear = raw[0]['date'].year # And same for year
+		    if root is SORTS[0]: # by MONTH	
+			for i in range(0,12):
+			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
+			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
+		            tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
+		    elif root is SORTS[1]:		#30-DAY, 1/30 BY MONTH
+		    	for i in range(0, calendar.monthrange(ouryear,ourmonth)[1]):
+		            day = datetime.date(ouryear, ourmonth, (i+1))
+			    tier.append(find(raw,{'date':day}))
+		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
 			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
 			tier.append(find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
+		elif root is SORTS[3]: # UNIQUE USERS IN THIS PERIOD
+		    for i in raw:
+                        found = False
+			for j in tier:
+			    if (i['name'] == j['name']): # EQ compare, not ID
+				found = True
+			if not found:
+			    tier.append(i) # Adds as new j entry, restarts i-iter
+		elif root is SORTS[4]: # NEW(fr LOG) USERS IN THIS PERIOD
+		    A = self.sort_by("users",raw)
+		    bot = datetime.date(2013,1,1)
+		    top = min(raw, key=lambda x:x['name'])
+		    B = self.sort_by("users",self.find(None,{'date':{'start':bot,'end':top}}))
+		    for i in A:
+			for j in B:
+			    if (i['name'] == j['name']):
+				A = A.remove(i)
 		return tier
+
+	# OPTIONAL function call - cleans empty list creations (ie, range MO:2-10 will gen arr[12] with empty)
+	def clean_sort(self,raw):
+	    return filter(None, raw)
 
 	# MD5-compliant HASHER & indexing functions
 	
