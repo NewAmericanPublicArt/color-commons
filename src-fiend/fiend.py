@@ -58,7 +58,7 @@ class Fiend():
 	# HANDLER for dict-defined queries
 
 	def find(self,arr,query):
-	    found = []
+	    found = self.log # Uneccessary assignment - note bottom functional for ALL implementation
 	    if query: #Essentially generates placeholders for cond_find
                 if 'name' not in query:
              	   query['name'] = False
@@ -72,7 +72,7 @@ class Fiend():
 		    found = self.range_find(self.log,query) #More precise range find
 	        else:
 		    found = self.range_find(arr,query)
-	    return found # if !query, returns empty list
+	    return found # if !query, returns full list
 	
 	# AGGREGATOR for SEARCH through given arr
 
@@ -93,10 +93,9 @@ class Fiend():
 		return ((elem>=test['start']) and (elem<=test['end']))
 	    else:
 		if (type(elem) is datetime.time) and (type(test) is datetime.time):
-		    # For now, we will get it within the 10min range
+		    # For now, we will get it within the 10min range TODO - MOD OVER 60, THEN ADD/SUB HR AS NEEDED
 		    return (test.hour == elem.hour and (elem.minute>=(test.minute-5)) and (elem.minute<=(test.minute+5))) 
 #		elif type(val) is datetime.date:
-#		    # Corresponding
 		else:
 	            return (elem == test)
 	
