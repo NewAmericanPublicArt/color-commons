@@ -13,6 +13,7 @@ import re					# regexing
 import sys					#
 import webcolors				# look_up_color
 import datetime					# get_date, get_time
+import calendar
 import md5					# get_hashable
 
 # FIEND CLASS
@@ -23,17 +24,27 @@ class Fiend():
 	def __init__(self):
             self.log = [] # Empty dict of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
-	
+
 	# Getters
 	def get_time(self):
-	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorporate tzinfo, convert format
+	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorp tzinfo, convert
 	def get_date(self):
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
-	def get_dict(self):
+	def get_log(self):
 	    return self.log
 	
-	# Generator for new log items - majority of input validation executed here
-        def new_entry(self,elem):
+	# EXPORT function
+
+	def send_to_csv(self):
+            log = open("log.csv",'w')
+            for x in self.log:
+                newline = str(x['name'])+","+str(x['msg'])+","+x['date']+","+x['time']+"\r\n"
+                log.write(newline)
+            log.close()
+
+	# GENERATE new log entries: input validation executed
+        
+	def new_entry(self,elem):
             # Elem should be of type {'name':'x','msg':'y'}
             if not(elem and ('name' in elem) and ('msg' in elem)):
                 print("improper entry format")
@@ -44,9 +55,10 @@ class Fiend():
             self.log.append(elem) # Elem is in type {'name':'x','msg':'y','date':x,'time':y}
             return True
      
-	# Interacts with incomplete/variable-length queries
-	def find(self,entry):
-	    found = []
+	# HANDLER for dict-defined queries
+
+	def find(self,arr,query):
+	    found = self.log # Uneccessary assignment - note bottom functional for ALL implementation
 	    if query: #Essentially generates placeholders for cond_find
                 if 'name' not in query:
              	   query['name'] = False
@@ -55,22 +67,65 @@ class Fiend():
                 if 'date' not in query:
                    query['date'] = False
 		if 'time' not in query:
-		   query['time'] = False
-                found = conditional_find(self.log,query)
-            return found # if !query, returns empty list
+		   query['time'] = False 
+                if arr is None:
+		    found = self.range_find(self.log,query) #More precise range find
+	        else:
+		    found = self.range_find(arr,query)
+	    return found # if !query, returns full list
 	
-	# Aggregator given all fields ( groomed by FIND() )
-	def conditional_find(arr,test):
-            temp = []
-            for x in arr:
-            	if ((x['name']==test['name'] or test['name']==False) and
-               	    (x['msg']==test['msg'] or test['msg']==False) and
-                    (x['date']==test['date'] or test['date']==False) and
-	            (x['time']==test['time'] or test['time']==False)):
-           	   temp.append(x)
-            return temp
+	# AGGREGATOR for SEARCH through given arr
+
+	def range_find(self,arr,query):
+	    temp = []
+	    for x in arr:
+		if ((query['name']==False or self.in_range(x['name'],query['name'])) and
+		    (query['msg']==False or self.in_range(x['msg'],query['msg'])) and
+                    (query['date']==False or self.in_range(x['date'],query['date'])) and
+                    (query['time']==False or self.in_range(x['time'],query['time']))):
+		    temp.append(x)
+	    return temp
+
+	# RANGE checker, returns a boolean
+
+	def in_range(self,elem,test):
+	    if 'start' in test:
+		return ((elem>=test['start']) and (elem<=test['end']))
+	    else:
+		if (type(elem) is datetime.time) and (type(test) is datetime.time):
+		    # For now, we will get it within the 10min range TODO - MOD OVER 60, THEN ADD/SUB HR AS NEEDED
+		    return (test.hour == elem.hour and (elem.minute>=(test.minute-5)) and (elem.minute<=(test.minute+5))) 
+#		elif type(val) is datetime.date:
+		else:
+	            return (elem == test)
 	
-	# MD5-compliant hashing & indexing functions
+	# SORT function, returns a tree tier of lists
+
+	def sort_by(self, root, raw):
+	    SORTS = ["month","day","hour"]
+	    if root not in SORTS:
+		return raw
+	    else:
+		tier = []
+		max = datetime.datetime.today()
+                ourmonth = raw[0]['date'].month # Assume vals within same month
+                ouryear = raw[0]['date'].year # And same for year
+		if root is SORTS[0]:		#12-MONTH
+		    for i in range(0,12):
+			bmo = datetime.date(ouryear, (i+1), 1)# begin month
+			emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
+		        tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
+		elif root is SORTS[1]:		#30-DAY, 1/30 BY MONTH
+		    for i in range(0, calendar.monthrange(ouryear,ourmonth)[1]):
+		        day = datetime.date(ouryear, ourmonth, (i+1))
+			tier.append(find(raw,{'date':day}))
+		elif root is SORTS[2]:		#24-HR, 1/24 BY DAY
+		    for i in range(0,24):
+			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
+			tier.append(find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
+		return tier
+
+	# MD5-compliant HASHER & indexing functions
 	
 	def get_hashable(self,nos):
 	    nos = re.sub("[^0-9]",'',nos) #rmvs + from Twilio formatting
@@ -85,21 +140,20 @@ class Fiend():
 	    NAME_LEN = 27 # middy 27 chars	
 	    TAG_LEN = 3 # back 3 chars
 	    key = int(hash,16)
-
 	    # Bit manipulation to isolate chunks of hex
 	    surkey = (key >> ((KEY_LEN - SUR_LEN)*4))	    
 	    namekey = ((key << (SUR_LEN*4)) >> (TAG_LEN*4))
-	    tagtrail = ((key << (NAME_LEN+SUR_LEN)*4) >> (NAME_LEN+SUR_LEN)*4)	
-
-	    # EVEN SORT of terms over distribution of lists
-	    surkey = surkey % (len(SURS)) # 256 mod ~25 - CHANGES W NAMES.PY
-	    namekey = namekey % (len(NAMES))# [16]^(27 chars) mod ~2000, "    	
-	    
-	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + str(tagtrail)
+	    tagMASK = 4095
+	    tagtrail = str(hex(key & tagMASK)).lstrip('xL')[-3:]	# TODO - EXAMINE FURTHER
+	    surkey = surkey % (len(SURS))	# 256 mod ~25 - CHANGES W NAMES.PY
+	    namekey = namekey % (len(NAMES))	# [16]^(27 chars) mod ~2000  
+	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + tagtrail
 	    return alias
 
 	# MULTIPURPOSE functions - unrelated to self object 
 	
+	# PARSER for PHAROS
+
 	def parse_command(self, message):
 	    FIXTURES = 24
 	    populate = True

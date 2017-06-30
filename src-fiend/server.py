@@ -8,25 +8,22 @@
 from flask import Flask, render_template, request
 import requests # WILL ALLOW US TO POST TO THE PI
 from fiend import Fiend # Personal module
-import jinja2
-
+# from jinja2 import FileSystemLoader, Environment
+from os import path
 
 global app
 app = Flask(__name__)
 app.config['PROPAGATE_EXCEPTIONS'] = True
-
-# JINJA PREP - loads template root paths, prepares environment
-templateLoader = jinja2.FileSystemLoader( searchpath="/templates" )
-templateEnv = jinja2.Environment( loader=templateLoader )
 
 ## FIEND FRAMEWORK INITIALIZER ##
 @app.before_first_request
 def initialize():
     global repo
     repo = Fiend()
+#   repo.tEnv = Environment( loader=FileSystemLoader('/templates',encoding='utf=8'),auto_reload=True )
     print("*** SERVER RUNNING, WAITING ON POST REQUEST ***\n")
 
-# Include "no-cache" header in all POST responses
+## Include "no-cache" header in all POST responses
 @app.after_request
 def add_no_cache(response):
     if request.method == 'POST':
@@ -37,11 +34,14 @@ def add_no_cache(response):
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
-#    vizvars = repo.get_dict() # Gets current incarnation of DB in dict-format
-#    TEMPLATE_FILE = "/dataviz.html"
-#    template = templateEnv.get_template( TEMPLATE_FILE )
-#    return template.render(vizvars)
-     return render_template('/dataviz.html')
+#   PAGE = 'dataviz.html'
+#   template = repo.tEnv.get_template(PAGE) 
+    list = repo.get_log() # Gets current incarnation of DB in dict-format
+    time = repo.get_time()
+    try:
+	return render_template('/dataviz.html',log=list,time=time)
+    except:
+	return render_template('/except.html')
 
 ## SMS API - PASSES TO PI ##
 @app.route('/sms', methods=['POST'])
