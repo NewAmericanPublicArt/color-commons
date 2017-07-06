@@ -14,7 +14,9 @@ import sys					#
 import webcolors				# look_up_color
 import datetime					# get_date, get_time
 import calendar
+import csv					# file format
 import md5					# get_hashable
+import xlrd					# PACKAGE for excel date conv
 
 # FIEND CLASS
 # CONTROLS RPI FROM LINODE SERVER
@@ -42,10 +44,22 @@ class Fiend():
                 log.write(newline)
             log.close()
 
-	def get_fr_csv(iself,FILE):
-	    log = open(str(FILE),'r')
-	    # TODO - throw into log
-	    return true
+	def get_fr_csv(self,FILE):
+	    with open(str(FILE), 'rb') as csvfile:
+		parse = csv.reader(csvfile, strict=True)
+		next(parse) #Skips intro line
+	    	for row in parse:
+		    if len(row) is not 6:
+			print(row)
+		    else:
+			elem = {}
+			elem['name'] = str(row[0])
+			elem['msg'] = str(row[1]).translate(None,'|') # remove delimiters
+			
+			elem['date'] = 0
+			elem['time'] = 0
+	    		if not (self.new_entry2(elem)):
+			    print("Error pushing val to log")
 
 	# GENERATE new log entries: input validation executed        
 
@@ -54,6 +68,7 @@ class Fiend():
             if not(elem and ('name' in elem) and ('msg' in elem)):
                 print("improper entry format")
                 return False
+	    elem['name'] = elem['name'].translate(None,'+')
 	    elem['name'] = self.get_hashable(elem['name'])
             elem['date'] = self.get_date() #Bc TWILIO does not provide a timestamp when SENT
             elem['time'] = self.get_time() #It is worth noting that these are times RECEIVED
@@ -62,13 +77,14 @@ class Fiend():
 
 	# ALTERNATE ENTRY - for testing purposes
 	def new_entry2(self,elem):
-	    # Elem should be of form {'name':x,'msg':y,'date':z}
-  	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem)):
-                print("improper entry format")
+	    # Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
+  	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
+                print("improper entry2 format")
                 return False
-            elem['name'] = self.get_hashable(elem['name'])
-	    elem['time'] = self.get_time()
-	    self.log.append(elem)
+            elem['name'] = self.get_hashable(elem['name']) # No need for + removal
+      	    self.log.append(elem)
+	    return True
+
 	# HANDLER for dict-defined queries
 
 	def find(self,arr,query):
@@ -184,7 +200,7 @@ class Fiend():
 	    surkey = (key >> ((KEY_LEN - SUR_LEN)*4))	    
 	    namekey = ((key << (SUR_LEN*4)) >> (TAG_LEN*4))
 	    tagMASK = 4095
-	    tagtrail = str(hex(key & tagMASK)).lstrip('xL')[-3:]	# TODO - EXAMINE FURTHER
+	    tagtrail = ("%x" % (key & tagMASK))[-3:] #Strips/rets last 3 vals	
 	    surkey = surkey % (len(SURS))	# 256 mod ~25 - CHANGES W NAMES.PY
 	    namekey = namekey % (len(NAMES))	# [16]^(27 chars) mod ~2000  
 	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + tagtrail
