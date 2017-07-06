@@ -33,7 +33,7 @@ class Fiend():
 	def get_log(self):
 	    return self.log
 	
-	# EXPORT function
+	# IMPORT/EXPORT function
 
 	def send_to_csv(self):
             log = open("log.csv",'w')
@@ -41,6 +41,11 @@ class Fiend():
                 newline = str(x['name'])+","+str(x['msg'])+","+x['date']+","+x['time']+"\r\n"
                 log.write(newline)
             log.close()
+
+	def get_fr_csv(iself,FILE):
+	    log = open(str(FILE),'r')
+	    # TODO - throw into log
+	    return true
 
 	# GENERATE new log entries: input validation executed        
 
@@ -58,7 +63,7 @@ class Fiend():
 	# ALTERNATE ENTRY - for testing purposes
 	def new_entry2(self,elem):
 	    # Elem should be of form {'name':x,'msg':y,'date':z}
-  	    if not(elem and ('name' in elem) and ('msg' in elem)):
+  	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem)):
                 print("improper entry format")
                 return False
             elem['name'] = self.get_hashable(elem['name'])
@@ -77,8 +82,9 @@ class Fiend():
                    query['date'] = False
 		if 'time' not in query:
 		   query['time'] = False 
+
                 if arr is None:
-		    found = self.range_find(self.log,query) #More precise range find
+		    found = self.range_find(found,query) #More precise range find
 	        else:
 		    found = self.range_find(arr,query)
 	    return found # if !query, returns full list
@@ -117,7 +123,7 @@ class Fiend():
 	    else:
 		tier = [] # RET item
 		if root is SORTS[0] or root is SORTS[1]: # need date object vals
-		    ourmonth = raw[0]['date'].month # Assume vals within same month
+		    ourmonth = raw[0]['date'].month # Assume vals within same month - ONLY ACCESSED by day
                     ouryear = raw[0]['date'].year # And same for year
 		    if root is SORTS[0]: # by MONTH	
 			for i in range(0,12):
@@ -126,13 +132,14 @@ class Fiend():
 		            tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
 		    elif root is SORTS[1]:		#30-DAY, 1/30 BY MONTH
 		    	for i in range(0, calendar.monthrange(ouryear,ourmonth)[1]):
-		            day = datetime.date(ouryear, ourmonth, (i+1))
+		            print(i)
+			    day = datetime.date(ouryear, ourmonth, (i+1))
 			    tier.append(find(raw,{'date':day}))
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
 			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
 			tier.append(find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
-		elif root is SORTS[3]: # UNIQUE USERS IN THIS PERIOD
+		elif root is SORTS[3]: # UNIQUE users
 		    for i in raw:
                         found = False
 			for j in tier:
@@ -140,15 +147,18 @@ class Fiend():
 				found = True
 			if not found:
 			    tier.append(i) # Adds as new j entry, restarts i-iter
-		elif root is SORTS[4]: # NEW(fr LOG) USERS IN THIS PERIOD
-		    A = self.sort_by("users",raw)
+		elif root is SORTS[4]: # NEW UNIQUE users
+		    tier = self.sort_by("users",raw) # ranged unique users for our set
 		    bot = datetime.date(2013,1,1)
-		    top = min(raw, key=lambda x:x['name'])
-		    B = self.sort_by("users",self.find(None,{'date':{'start':bot,'end':top}}))
-		    for i in A:
+		    top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
+		    top = top.replace(day=top.day-1)
+		    print("calculated earliest = "+str(top))			
+		    B = self.find(None,{'date':{'start':bot,'end':top}}) # comparing against prev vals
+		    
+		    for i in tier[:]: # [SO]/questions/742371/python-strange-behavior-in-for-loop-or-lists
 			for j in B:
 			    if (i['name'] == j['name']):
-				A = A.remove(i)
+				tier.remove(i)
 		return tier
 
 	# OPTIONAL function call - cleans empty list creations (ie, range MO:2-10 will gen arr[12] with empty)
