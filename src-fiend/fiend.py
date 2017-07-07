@@ -52,25 +52,25 @@ class Fiend():
 	    with open(str(FILE), 'rb') as csvfile:
 		parse = csv.reader(csvfile, strict=True)
 		next(parse,None) #Skips intro line
-		for row in parse:
+		for row in parse:# FILE looper
                     elem = {}
-                    elem['name'] = str(row[0])
+                    elem['name'] = str(row[0]).translate(None,'"') # name acquired
 		    if len(row) is not 6:
 		    	endmsg = False
-		    	msg = row[2] # combine row[2] onwards till |
+		    	msg = row[2].translate(None, '|"')  # combine row[2] onwards till |
 		    	for s in row[3:]:    
 			    if not endmsg:
-				s = str(s)
-				if s.endswith('|'):		
+				s = str(s).translate(None,'"') #cleans
+				if s.find('|') != -1:		
 				    endmsg = True
 				msg += s
 			    else:
-				msg = msg.translate(None,'|') #rmv delim
+				msg = msg.translate(None,'|"') #rmv delim
 				elem['msg'] = msg
 				xdate = s
 				break    
 		    else:
-			elem['msg'] = str(row[2]).translate(None,'|') # remove delimiters
+			elem['msg'] = str(row[2]).translate(None,'|"') # remove delimiters
 		        xdate = row[3]
 		    dtime = self.convertexcel(xdate)
 		    elem['date'] = dtime.date() 
@@ -81,6 +81,7 @@ class Fiend():
 	# DATETIME converter
 	
 	def convertexcel(self,raw):
+	    raw = raw.strip('"')
 	    raw = raw.split(' ',1) #maxsplit property splits date/time
 	    dat = raw[0]
 	    tim = raw[1]
