@@ -35,9 +35,10 @@ week2 = [app.find(None,{'date':{'start':requested[1][1],'end':requested[1][2]}})
 week3 = [app.find(None,{'date':{'start':requested[2][1],'end':requested[2][2]}}),requested[2][0]] # 3rd week chunk
 weeks = [week1, week2, week3]
 
-for i in weeks:
-    print(i[1])	
-    print(i[0])
+#for i in weeks:
+#    for j in i[0]:
+#   	print(j['name'])	
+#  print(i[1]+"****************************************")
 
 file = open("GWAY.md",'w')
 file.write("# Stats for the Color Commons\n")
@@ -46,14 +47,18 @@ file.write("### Link\n")
 file.write("[NAPA](http://www.newamericanpublicart.com/color-commons-2017)\n")
 
 for week in weeks:
-    total_texts = len(week[0])
+    total_texts = week[0]
     unique_users = app.sort_by("users",week[0])
     new_users = app.sort_by("newuser",week[0])
-
-    print("unique users")
-    print(unique_users)	
-    print("new_users")
-    print(new_users)	
+    print("all users for "+week[1]+"**********************")
+    for x in total_texts:
+	print(x['name']) 
+    print("unique users**********************************")
+    for x in unique_users:
+       	print(x['name'])
+    print("new_users************************************")
+    for x in new_users:
+    	print(x['name'])	
 
     file.write("## FOR THE WEEK OF:\n")
     file.write(week[1]+'\n')

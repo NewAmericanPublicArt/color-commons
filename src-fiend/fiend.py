@@ -114,7 +114,7 @@ class Fiend():
 		print(elem['date'])
 		print(elem['time'])
 		return False
-            elem['name'] = self.get_hashable(elem['name']) # No need for + removal
+#            elem['name'] = self.get_hashable(elem['name']) # No need for + removal
       	    self.log.append(elem)
 	    return True
 
@@ -181,15 +181,15 @@ class Fiend():
 		    elif root is SORTS[1]:		#30-DAY, 1/30 BY MONTH
 		    	for i in range(1, calendar.monthrange(ouryear,ourmonth)[1]):
 			    day = datetime.date(ouryear, ourmonth, i)
-			    tier.append(find(raw,{'date':day}))
+			    tier.append(self.find(raw,{'date':day}))
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
 			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
-			tier.append(find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
+			tier.append(self.find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
 		elif root is SORTS[3]: # UNIQUE users
-		    for i in raw:
+		    for i in raw[:]:
                         found = False
-			for j in tier:
+			for j in tier[:]:
 			    if (i['name'] == j['name']): # EQ compare, not ID
 				found = True
 			if not found:
@@ -199,12 +199,14 @@ class Fiend():
 		    bot = datetime.date(2013,1,1)
 		    top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
 		    top = top - datetime.timedelta(days = 1) # Should reset BEFORE line far enough		
-		    B = self.find(None,{'date':{'start':bot,'end':top}}) # comparing against prev vals
+		    B = self.sort_by("users",(self.find(None,{'date':{'start':bot,'end':top}}))) # comparing against prev vals
 		    
 		    for i in tier[:]: # [SO]/questions/742371/python-strange-behavior-in-for-loop-or-lists
-			for j in B:
+			for j in B[:]:
 			    if (i['name'] == j['name']):
 				tier.remove(i)
+				if tier is None:
+				    print("empty tier")
 		return tier
 
 	# OPTIONAL function call - cleans empty list creations (ie, range MO:2-10 will gen arr[12] with empty)
