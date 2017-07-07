@@ -39,7 +39,7 @@ weeks = [week1, week2, week3]
 upto1 = [weeks[0][0], requested[0][2]]
 upto2 = [app.find(None,{'date':{'start':requested[0][1],'end':requested[1][2]}}), requested[1][2]]
 upto3 = [app.find(None,{'date':{'start':requested[0][1],'end':requested[2][2]}}), requested[2][2]]
-upto = [upto1, upto2, upto2]
+upto = [upto1, upto2, upto3]
 
 file = open("GWAY.md",'w')
 file.write("# Stats for the Color Commons\n")
