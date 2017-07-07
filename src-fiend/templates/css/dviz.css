@@ -2,3 +2,55 @@
  * Modifyer/Styler for Data Viz page
  * Link: http://www.newamericanpublicart.com/color-commons-2017
  */
+
+* { margin: 0;
+    padding: 0;
+    border: 0;
+    text-align: center,
+    font: 12px/30px "Times New Roman", serif;
+    display: flex
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+}
+    .buffer {
+        flex: 1 1 30px;
+        background-color: #FFFFFF;
+    }
+
+    #page {
+        display: flex;
+        flex-flow: column wrap;
+        flex: 0 1 auto;
+
+        background-color: #FFCC99;
+        margin: 3px;
+    }
+
+#canvas {
+    flex: 0 1 auto;
+    background-color: #0000666;
+}
+
+#info {
+    flex-flow: column nowrap;
+    flex: 0 1 auto;
+    background-color: #CC0066;
+}
+
+    .tabs {
+        display: flex;
+        flex-flow: row nowrap;
+    }
+
+    .tabs p {
+        flex: 0 1 auto;
+    }
+
+    #options, #advanced {
+    display: none;
+    }

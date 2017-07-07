@@ -2,36 +2,42 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="css/dviz.css" type="text/css">
-    <!-- <style type="text/css" media="all">@import url('./css/dataviz.css');</style> -->
-    <script src="//d3js.org/d3.v3.min.js"></script>
-    <title>COLOR COMMONS</title>
+    <script src="//d3js.org/d3.v4.min.js"></script>
+    <script src="burst.js"></script>
 </head>
-<body>
+<body onload="main( {{log}} )">
 <div class="buffer"></div>
-<div id="redirect">
-	<h1>Under Construction</h1>
-	<p>Soon this page will host the DATA VIZUALIZATION of the New American Public Art "Color Commons" project, as seen on the Boston Greenway. Interested? <a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a> or <a href="http://www.newamericanpublicart.com/interactivepublicart/">Explore!</a>
-	</p>
+<div id="page">
+        <h1>Interactive Data Vizualizaton: Color Commons</h1>
+	
+	<div id="canvas"></div>
+	
+	<div id="info">
+	    <div class="tabs">
+	    	<p onclick="showtab(0)">INFO</p>
+		<p onclick="showtab(1)">VIEWS</p>
+		<p onclick="showtab(2)">ADVANCED</p>
+	    </div>
+	    <div id="about">
+            	<p>Last Updated: {{time}} &nbsp;</p>
+                <br>
+            	<p><a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
+            </div>
+	    <div id="options">
+		<form action="update_burst( {{log}} )">
+		    <input type="radio" name="sort1" value="Today"></input>
+                    <input type="radio" name="sort2" value="This Week"></input>
+                    <input type="radio" name="sort3" value="This Month"></input>
+                    <input type="submit" name="sub" value="Refresh"></input>
+		</form>
+	    </div>
+	    <div id="advanced">
+		<form action="update_burst( {{log}} )">
+		    <input type="submit" name="sub2" value="Refresh"></input>
+		</form>
+	    </div>
+	</div>
 </div>
 <div class="buffer"></div>
 </body>
 </html>
-
-<!-- LEFTOVER/LEGACY FR INDEX.HTML
-<html>
-<head>
-    <link rel="stylesheet" href="css/switch.css" type="text/css">
-</head>
-<body>
-<div class="onoffswitch">
-    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" checked>
-    <label class="onoffswitch-label" for="myonoffswitch">
-        <span class="onoffswitch-inner"></span>
-        <span class="onoffswitch-switch"></span>
-    </label>
-</div>
-</body>
-</html>
--->
-
-
