@@ -51,22 +51,22 @@ class Fiend():
 	def get_fr_csv(self,FILE):
 	    with open(str(FILE), 'rb') as csvfile:
 		parse = csv.reader(csvfile, strict=True)
-		next(parse) #Skips intro line
+		next(parse,None) #Skips intro line
 		for row in parse:
                     elem = {}
                     elem['name'] = str(row[0])
 		    if len(row) is not 6:
-			print(row)
 		    	endmsg = False
-		    	msg = row[2] #combine row[2] onwards till |
+		    	msg = row[2] # combine row[2] onwards till |
 		    	for s in row[3:]:    
 			    if not endmsg:
 				s = str(s)
-				if s.endswith('|'):
-				    s = s.translate(None,'|')
+				if s.endswith('|'):		
 				    endmsg = True
 				msg += s
 			    else:
+				msg = msg.translate(None,'|') #rmv delim
+				elem['msg'] = msg
 				xdate = s
 				break    
 		    else:
@@ -75,8 +75,10 @@ class Fiend():
 		    dtime = self.convertexcel(xdate)
 		    elem['date'] = dtime.date() 
 		    elem['time'] = dtime.time()
-	    	    if not (self.new_entry2(elem)):
+		    if not (self.new_entry2(elem)):
 			    print("Error pushing val to log")
+	
+	# DATETIME converter
 	
 	def convertexcel(self,raw):
 	    raw = raw.split(' ',1) #maxsplit property splits date/time
@@ -106,8 +108,12 @@ class Fiend():
 	def new_entry2(self,elem):
 	    # Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
   	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
-                print("improper entry2 format")
-                return False
+                print("improper entry2 format")              
+                print(elem['name'])
+                print(elem['msg'])
+		print(elem['date'])
+		print(elem['time'])
+		return False
             elem['name'] = self.get_hashable(elem['name']) # No need for + removal
       	    self.log.append(elem)
 	    return True
@@ -192,8 +198,7 @@ class Fiend():
 		    tier = self.sort_by("users",raw) # ranged unique users for our set
 		    bot = datetime.date(2013,1,1)
 		    top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
-		    top = top - datetime.timedelta(day = 1) # Should reset BEFORE line far enough
-		    print("calculated earliest = "+str(top))			
+		    top = top - datetime.timedelta(days = 1) # Should reset BEFORE line far enough		
 		    B = self.find(None,{'date':{'start':bot,'end':top}}) # comparing against prev vals
 		    
 		    for i in tier[:]: # [SO]/questions/742371/python-strange-behavior-in-for-loop-or-lists
