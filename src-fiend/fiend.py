@@ -16,7 +16,6 @@ import datetime					# get_date, get_time
 import calendar
 import csv					# file format
 import md5					# get_hashable
-import xlrd					# PACKAGE for excel date conv
 
 # FIEND CLASS
 # CONTROLS RPI FROM LINODE SERVER
@@ -34,6 +33,11 @@ class Fiend():
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
 	def get_log(self):
 	    return self.log
+
+	# PRINTER
+        def fprint(self):
+	    for i in self.log:
+		print(i)
 	
 	# IMPORT/EXPORT function
 
@@ -48,18 +52,41 @@ class Fiend():
 	    with open(str(FILE), 'rb') as csvfile:
 		parse = csv.reader(csvfile, strict=True)
 		next(parse) #Skips intro line
-	    	for row in parse:
+		for row in parse:
+                    elem = {}
+                    elem['name'] = str(row[0])
 		    if len(row) is not 6:
 			print(row)
+		    	endmsg = False
+		    	msg = row[2] #combine row[2] onwards till |
+		    	for s in row[3:]:    
+			    if not endmsg:
+				s = str(s)
+				if s.endswith('|'):
+				    s = s.translate(None,'|')
+				    endmsg = True
+				msg += s
+			    else:
+				xdate = s
+				break    
 		    else:
-			elem = {}
-			elem['name'] = str(row[0])
-			elem['msg'] = str(row[1]).translate(None,'|') # remove delimiters
-			
-			elem['date'] = 0
-			elem['time'] = 0
-	    		if not (self.new_entry2(elem)):
+			elem['msg'] = str(row[2]).translate(None,'|') # remove delimiters
+		        xdate = row[3]
+		    dtime = self.convertexcel(xdate)
+		    elem['date'] = dtime.date() 
+		    elem['time'] = dtime.time()
+	    	    if not (self.new_entry2(elem)):
 			    print("Error pushing val to log")
+	
+	def convertexcel(self,raw):
+	    raw = raw.split(' ',1) #maxsplit property splits date/time
+	    dat = raw[0]
+	    tim = raw[1]
+	    yr,mo,day = dat.split('-')
+	    hr,min,sec = tim.split(':')
+	    sec = (sec.split(' '))[0]
+	    dtime = datetime.datetime(int(yr),int(mo),int(day),int(hr),int(min),int(sec))
+	    return (dtime - datetime.timedelta(hours=4)) # CONVERT from UTC format to boston
 
 	# GENERATE new log entries: input validation executed        
 
@@ -124,9 +151,8 @@ class Fiend():
 		return ((elem>=test['start']) and (elem<=test['end']))
 	    else:
 		if (type(elem) is datetime.time) and (type(test) is datetime.time):
-		    # For now, we will get it within the 10min range TODO - MOD OVER 60, THEN ADD/SUB HR AS NEEDED
-		    return (test.hour == elem.hour and (elem.minute>=(test.minute-5)) and (elem.minute<=(test.minute+5))) 
-#		elif type(val) is datetime.date:
+		    devi = datetime.timedelta(second=30) # Grabbing all within minute range
+		    return (elem>=(test-devi) and elem<=(test+devi))
 		else:
 	            return (elem == test)
 	
@@ -147,9 +173,8 @@ class Fiend():
 			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
 		            tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
 		    elif root is SORTS[1]:		#30-DAY, 1/30 BY MONTH
-		    	for i in range(0, calendar.monthrange(ouryear,ourmonth)[1]):
-		            print(i)
-			    day = datetime.date(ouryear, ourmonth, (i+1))
+		    	for i in range(1, calendar.monthrange(ouryear,ourmonth)[1]):
+			    day = datetime.date(ouryear, ourmonth, i)
 			    tier.append(find(raw,{'date':day}))
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
@@ -167,7 +192,7 @@ class Fiend():
 		    tier = self.sort_by("users",raw) # ranged unique users for our set
 		    bot = datetime.date(2013,1,1)
 		    top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
-		    top = top.replace(day=top.day-1)
+		    top = top - datetime.timedelta(day = 1) # Should reset BEFORE line far enough
 		    print("calculated earliest = "+str(top))			
 		    B = self.find(None,{'date':{'start':bot,'end':top}}) # comparing against prev vals
 		    

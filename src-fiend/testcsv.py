@@ -1,14 +1,11 @@
 # TESTER FOR CSV FILE INPUT
 # Sydney Strzempko (c) for New American Public Art Color Commons project
 from fiend import Fiend
-import datetime
 
 app = Fiend()
 
-app.get_fr_csv('test.csv')
+app.get_fr_csv('bigtest.csv')
 
-list = app.get_log()
+app.fprint()
 
-for i in list:
-	print(i['name'])
-
+print("***********************************************")
