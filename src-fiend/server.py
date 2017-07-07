@@ -1,5 +1,5 @@
 # File created by Sydney Strzempko(c) for NEW AMERICAN PUBLIC ART association
-# Implementation of Linode APP for use in server of color commons project
+# Implementation of Linode app for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
 
 # from __future__ import print_function
@@ -11,12 +11,12 @@ from fiend import Fiend # Personal module
 # from jinja2 import FileSystemLoader, Environment
 from os import path
 
-global app
-app = Flask(__name__)
-app.config['PROPAGATE_EXCEPTIONS'] = True
+global public
+public = Flask(__name__)
+public.config['PROPAGATE_EXCEPTIONS'] = True
 
 ## FIEND FRAMEWORK INITIALIZER ##
-@app.before_first_request
+@public.before_first_request
 def initialize():
     global repo
     repo = Fiend()
@@ -24,15 +24,15 @@ def initialize():
     print("*** SERVER RUNNING, WAITING ON POST REQUEST ***\n")
 
 ## Include "no-cache" header in all POST responses
-@app.after_request
+@public.after_request
 def add_no_cache(response):
     if request.method == 'POST':
         response.cache_control.no_cache = True
     return response
 
 ## HOMEPAGE API ##    
-@app.route('/', methods=['GET'])
-@app.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
+@public.route('/', methods=['GET'])
+@public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
 #   PAGE = 'dataviz.html'
 #   template = repo.tEnv.get_template(PAGE) 
@@ -44,7 +44,7 @@ def serve():
 	return render_template('/except.html')
 
 ## SMS API - PASSES TO PI ##
-@app.route('/sms', methods=['POST'])
+@public.route('/sms', methods=['POST'])
 def parse_sms():
     message = str(request.form['Body']).strip().lower() # NOTE - Fiend object handles most input validation in-module
     sender = repo.get_hashable(str(request.form['From']))
@@ -55,4 +55,4 @@ def parse_sms():
     return "POSTED"
 
 if __name__ == "__main__":
-   app.run(host='0.0.0.0', port=12345, debug=True)
+   public.run(host='0.0.0.0', port=12345, debug=True)
