@@ -115,7 +115,7 @@ class Fiend():
 		print(elem['date'])
 		print(elem['time'])
 		return False
-#            elem['name'] = self.get_hashable(elem['name']) # No need for + removal
+            elem['name'] = self.get_hashable(elem['name']) # No need for + removal
       	    self.log.append(elem)
 	    return True
 
@@ -166,12 +166,15 @@ class Fiend():
 	# SORT function, returns a tree tier of lists
 
 	def sort_by(self, root, raw):
-	    SORTS = ["month","day","hour","users","newuser"]
+	    SORTS = ["month","day","hour","users","newuser","color"]
 	    if root not in SORTS:
 		return raw
 	    else:
 		tier = [] # RET item
-		if root is SORTS[0] or root is SORTS[1]: # need date object vals
+
+		# MONTH/DAY sorts - generate stdz. sized-list
+		if root is SORTS[0] or root is SORTS[1]:
+
 		    ourmonth = raw[0]['date'].month # Assume vals within same month - ONLY ACCESSED by day
                     ouryear = raw[0]['date'].year # And same for year
 		    if root is SORTS[0]: # by MONTH	
@@ -183,10 +186,14 @@ class Fiend():
 		    	for i in range(1, calendar.monthrange(ouryear,ourmonth)[1]):
 			    day = datetime.date(ouryear, ourmonth, i)
 			    tier.append(self.find(raw,{'date':day}))
+
+		# HOUR sorts - separate TIME item from DATE
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
 			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
 			tier.append(self.find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
+
+		# USERS sorts - parses down to unique subset of USERS
 		elif root is SORTS[3]: # UNIQUE users
 		    for i in raw[:]:
                         found = False
@@ -195,6 +202,8 @@ class Fiend():
 				found = True
 			if not found:
 			    tier.append(i) # Adds as new j entry, restarts i-iter
+
+		# UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
 		elif root is SORTS[4]: # NEW UNIQUE users
 		    tier = self.sort_by("users",raw) # ranged unique users for our set
 		    bot = datetime.date(2013,1,1)
@@ -208,6 +217,17 @@ class Fiend():
 				tier.remove(i)
 				if tier is None:
 				    print("empty tier")
+		
+		# COLORS sort - parses down to unique subset of MSGs
+		elif root is SORTS[5]:
+		    for i in raw[:]:
+			found = False
+			for j in tier[:]:
+			    if(i['msg'] == j['msg']):
+				found = True
+			if not found:
+			    tier.append(i) # Only adds unique/1st instance of msg
+
 		return tier
 
 	# OPTIONAL function call - cleans empty list creations (ie, range MO:2-10 will gen arr[12] with empty)
