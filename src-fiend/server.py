@@ -2,13 +2,9 @@
 # Implementation of Linode app for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
 
-# from __future__ import print_function
-#from uwsgidecorators import *
-
 from flask import Flask, render_template, request
 import requests # WILL ALLOW US TO POST TO THE PI
 from fiend import Fiend # Personal module
-# from jinja2 import FileSystemLoader, Environment
 from os import path
 
 global public
@@ -20,7 +16,7 @@ public.config['PROPAGATE_EXCEPTIONS'] = True
 def initialize():
     global repo
     repo = Fiend()
-#   repo.tEnv = Environment( loader=FileSystemLoader('/templates',encoding='utf=8'),auto_reload=True )
+    repo.get_fr_csv('6-7forward.csv')
     print("*** SERVER RUNNING, WAITING ON POST REQUEST ***\n")
 
 ## Include "no-cache" header in all POST responses
@@ -34,12 +30,9 @@ def add_no_cache(response):
 @public.route('/', methods=['GET'])
 @public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
-#   PAGE = 'dataviz.html'
-#   template = repo.tEnv.get_template(PAGE) 
-    list = repo.get_log() # Gets current incarnation of DB in dict-format
-    time = repo.get_time()
+    stdz = {'label':'LatestWeek','log':(repo.get_log())}
     try:
-	return render_template('/dataviz.html',log=list,time=time)
+	return render_template('/dataviz.html',data=stdz,time=(repo.get_time()))
     except:
 	return render_template('/except.html')
 
