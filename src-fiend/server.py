@@ -6,6 +6,7 @@ from flask import Flask, render_template, request
 import requests # WILL ALLOW US TO POST TO THE PI
 from fiend import Fiend # Personal module
 from os import path
+import datetime
 
 global public
 public = Flask(__name__)
@@ -26,13 +27,19 @@ def add_no_cache(response):
         response.cache_control.no_cache = True
     return response
 
+# TEMPLATEfilt for date conversion
+#@public.template_filter('py_to_js')
+#def py_to_js(d):
+#    return int(time.mktime(d.timetuple())) * 1000
+
 ## HOMEPAGE API ##    
 @public.route('/', methods=['GET'])
 @public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
-    stdz = {'label':'LatestWeek','log':(repo.get_log())}
+    now = repo.get_time()
+    stdz = repo.find({'date':'start':(now - datetime.timedelta(days=7)),'end':now})
     try:
-	return render_template('/dataviz.html',data=stdz,time=(repo.get_time()))
+	return render_template('/index.html',data=stdz,time=now)
     except:
 	return render_template('/except.html')
 
