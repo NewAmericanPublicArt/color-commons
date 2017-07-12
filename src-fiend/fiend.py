@@ -22,11 +22,22 @@ import md5					# get_hashable
 
 class Fiend():
 	
+	# INITIALIZE
+
 	def __init__(self):
             self.log = [] # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
 
+	# PRINTER
+
+	def fprint(self):
+            for i in self.log:
+                print(i)
+
 	# GETTERS
+
+        def get_log(self):
+            return self.log
 
 	def get_time(self):
 	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorp tzinfo, convert
@@ -34,11 +45,7 @@ class Fiend():
 	def get_date(self):
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
 
-	def get_log(self):
-	    return self.log
-	
-	# gets in MS; optional D & T entries, if both included adds the 2
-	def get_ms(self,d,t):
+	def get_ms(self,d,t): # gets in MS; optional D & T entries, if both included adds the 2
 	    dstd = datetime.date(1970,1,1)
 	    if d is None:
 		secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds() 
@@ -48,14 +55,8 @@ class Fiend():
 		secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds()
 		secs += (d - dstd).total_seconds()
 	    return int(secs * 1000)
-
-	# PRINTER
-
-        def fprint(self):
-	    for i in self.log:
-		print(i)
 	
-	# IMPORT/EXPORT function
+	# IMPORT/EXPORT function - to CSVs and JAVASCRIPT
 
 	def send_to_csv(self):
             log = open("log.csv",'w')
@@ -94,6 +95,10 @@ class Fiend():
 		    if not (self.new_entry2(elem)):
 			    print("Error pushing val to log")
 	
+	def prep_dts(self):
+	    for x in self.log:
+		x['jsdt'] = get_ms(x['date'],x['time'])
+
 	# DATETIME converter
 	
 	def convertexcel(self,raw):
