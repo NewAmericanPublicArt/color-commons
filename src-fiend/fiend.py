@@ -127,6 +127,7 @@ class Fiend():
             return True
 
 	# ALTERNATE ENTRY - for testing purposes
+	
 	def new_entry2(self,elem):
 	    # Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
   	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
@@ -140,7 +141,7 @@ class Fiend():
       	    self.log.append(elem)
 	    return True
 
-	# HANDLER for dict-defined queries
+	# SEARCH HANDLER for dict-defined queries
 
 	def find(self,arr,query):
 	    found = self.log # Uneccessary assignment - note bottom functional for ALL implementation
@@ -160,7 +161,7 @@ class Fiend():
 		    found = self.range_find(arr,query)
 	    return found # if !query, returns full list
 	
-	# AGGREGATOR for SEARCH through given arr
+	# RANGE SEARCH through given arr
 
 	def range_find(self,arr,query):
 	    temp = []
@@ -254,6 +255,18 @@ class Fiend():
 	# OPTIONAL function call - cleans empty list creations (ie, range MO:2-10 will gen arr[12] with empty)
 	def clean_sort(self,raw):
 	    return filter(None, raw)
+
+	# LOADER for standardized week-old page info
+	def load(self):
+	    now = self.get_date()
+    	    weekago = now - datetime.timedelta(days=7)
+	    all = self.find(None,{'date':{'start':weekago,'end':now}})
+	    tier1 = self.sort_by("day",all)
+	    for tier2 in tier1:
+		tier2 = self.sort_by("color",tier2)
+	    # THIRD tier
+	    print(tier1)
+	    return tier1
 
 	# MD5-compliant HASHER & indexing functions
 	

@@ -10,7 +10,7 @@ import datetime
 import time
 
 global public
-public = Flask(__name__)
+public = Flask(__name__, static_url_path="", static_folder="templates")
 public.config['PROPAGATE_EXCEPTIONS'] = True
 
 ## FIEND FRAMEWORK INITIALIZER ##
@@ -36,6 +36,8 @@ def add_no_cache(response):
 @public.route('/', methods=['GET'])
 @public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
+    print(repo.load())
+    print(repo.get_time())
     try:
         return render_template('/index.html',data=repo.load(),time=repo.get_time())
     except:
