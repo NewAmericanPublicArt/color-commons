@@ -26,15 +26,31 @@ class Fiend():
             self.log = [] # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
 
-	# Getters
+	# GETTERS
+
 	def get_time(self):
 	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorp tzinfo, convert
+
 	def get_date(self):
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
+
 	def get_log(self):
 	    return self.log
+	
+	# gets in MS; optional D & T entries, if both included adds the 2
+	def get_ms(self,d,t):
+	    dstd = datetime.date(1970,1,1)
+	    if d is None:
+		secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds() 
+	    elif t is None:
+		secs = (d - dstd).total_seconds()
+	    else:
+		secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds()
+		secs += (d - dstd).total_seconds()
+	    return int(secs * 1000)
 
 	# PRINTER
+
         def fprint(self):
 	    for i in self.log:
 		print(i)

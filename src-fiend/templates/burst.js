@@ -29,7 +29,7 @@ function load_burst(data)
     var x = d3.scale.linear().range([0, 2 * Math.PI]);
     var y = d3.scale.sqrt().range([0, radius]);
 
-    # var color = d3.scale.category20c(); TODO - color interpreter func from COLORS 
+    // var color = d3.scale.category20c(); TODO - color interpreter func from COLORS 
 
     var partition = d3.layout.partition().value(function(d) { return d.size; });
 

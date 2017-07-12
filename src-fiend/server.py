@@ -18,7 +18,6 @@ public.config['PROPAGATE_EXCEPTIONS'] = True
 def initialize():
     global repo
     repo = Fiend()
-    repo.get_fr_csv('6-7forward.csv')
     print("*** SERVER RUNNING, WAITING ON POST REQUEST ***\n")
 
 ## Include "no-cache" header in all POST responses
@@ -28,10 +27,20 @@ def add_no_cache(response):
         response.cache_control.no_cache = True
     return response
 
-# TEMPLATEfilt for date conversion
-@public.template_filter('py_to_js')
-def py_to_js(d):
-    return int(time.mktime(d.timetuple())) * 1000
+# FILTER which finds & replaces all DT instances for js
+@public.template_filter('format_dt')
+def format_dt(obj):
+    if type(obj) is datetime.date:
+	# convert date to millis TODO
+	return int(time.mktime(d.timetuple())) * 1000
+    elif type(obj) is datetime.time:
+	# convert time to millis TODO
+	return 0
+    elif type(obj) is list:
+    	for val in arr: # add millis together and store as new val
+	    val['dtjs'] = format_dt(val['date'])
+	    val['dtjs'] += format_dt(val['time'])
+    return obj
 
 ## HOMEPAGE API ##    
 @public.route('/', methods=['GET'])
