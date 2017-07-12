@@ -12,28 +12,19 @@
 	<div id="canvas"></div>
 	
 	<div id="info">
+	    
 	    <div class="tabs">
 	    	<p onclick="showtab(0)">INFO</p>
 		<p onclick="showtab(1)">VIEWS</p>
 		<p onclick="showtab(2)">ADVANCED</p>
 	    </div>
+	    
 	    <div id="about">
             	<p>Last Updated: {{time | py_to_js}} &nbsp;</p>
                 <br>
             	<p><a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
             </div>
-	    <div id="options">
-		<form action="update_burst( {{log}} )">
-		    <input type="radio" name="s1" value="Today"></input>
-                    <input type="radio" name="s2" value="This Week"></input>
-                    <input type="radio" name="s3" value="This Month"></input>
-		</form>
-	    </div>
-	    <div id="advanced">
-		<form action="update_burst( {{log}} )">
-		    <input type="radio" name="s4" value="Unique Users">
-		</form>
-	    </div>
+	
 	</div>
 </div>
 <div class="buffer"></div>

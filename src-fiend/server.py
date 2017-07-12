@@ -40,10 +40,10 @@ def serve():
     now = repo.get_date()
     weekago = now - datetime.timedelta(days=7)
     stdz = repo.find(None,{'date':{'start':weekago,'end':now}})
- #   try:
-    return render_template('/index.html',data=stdz,time=now)
-    #except:
-#	return render_template('/except.html')
+    try:
+        return render_template('/index.html',data=stdz,time=now)
+    except:
+	return render_template('/except.html')
 
 ## SMS API - PASSES TO PI ##
 @public.route('/sms', methods=['POST'])
