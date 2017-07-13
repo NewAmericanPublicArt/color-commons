@@ -198,6 +198,8 @@ class Fiend():
                     ouryear = raw[0]['date'].year # And same for year
 		    if root is SORTS[0]: # by MONTH	
 			for i in range(0,12):
+			    print(str(i)+"is i value (1-12)")
+
 			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
 			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
 		            tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
@@ -263,7 +265,7 @@ class Fiend():
 
 	    for tier2 in tier1:
 		print(tier2)
-		print("is 1 day before sort")
+		print("is a day")
 		#tier2 = self.sort_by("color",tier2)
 	    # THIRD tier ?
 	    return tier1
