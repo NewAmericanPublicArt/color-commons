@@ -36,6 +36,9 @@ def add_no_cache(response):
 @public.route('/', methods=['GET'])
 @public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
+    repo.get_fr_csv('current.csv')
+    std = repo.load()
+    print(std)
     try:
         return render_template('/index.html',data=repo.load(),time=repo.get_time())
     except:

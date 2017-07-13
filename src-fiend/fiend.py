@@ -175,7 +175,7 @@ class Fiend():
 	# RANGE checker, returns a boolean
 
 	def in_range(self,elem,test):
-	    if 'start' in test:
+	    if type(test) is dict:
 		return ((elem>=test['start']) and (elem<=test['end']))
 	    else:
 		if (type(elem) is datetime.time) and (type(test) is datetime.time):
@@ -252,9 +252,19 @@ class Fiend():
 	    now = self.get_date()
     	    weekago = now - datetime.timedelta(days=7)
 	    all = self.find(None,{'date':{'start':weekago,'end':now}})
+
+	    print(all)
+	    print("is all")
+
 	    tier1 = self.sort_by("day",all)
+
+	    print(tier1)
+	    print("is day-sorted week")
+
 	    for tier2 in tier1:
-		tier2 = self.sort_by("color",tier2)
+		print(tier2)
+		print("is 1 day before sort")
+		#tier2 = self.sort_by("color",tier2)
 	    # THIRD tier ?
 	    return tier1
 
