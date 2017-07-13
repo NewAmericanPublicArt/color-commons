@@ -8,13 +8,13 @@ import datetime					# get_date, get_time
 import itertools				# p_cmd array/iterable loops
 from math import sin				# parse_command rainbow gen
 import md5
-from names import *				# brings in NAMES, SURS
+from rsrcs.names import *				# brings in NAMES, SURS
 from random import randint			# generate rand color
 import re					# regexing
 import socket					#
 import sys					#
 import webcolors				# look_up_color
-from xkcd_colors import xkcd_names_to_hex 	# look_up_color
+from rsrcs.xkcd_colors import xkcd_names_to_hex # look_up_color
 
 class Fiend():
 	
@@ -81,16 +81,14 @@ class Fiend():
 			    print("Error pushing val to log")
 	
 	# LOADER for standardized week-old page info
+	
 	def load(self):
 	    now = self.get_date()
     	    weekago = now - datetime.timedelta(days=6)
 	    all = self.find(None,{'date':{'start':weekago,'end':now}})
 	    tier1 = self.sort_by("day",all)
-	    for tier2 in tier1:
-		print(tier2)
-		print("is a day")
-		tier2 = self.sort_by("color",tier2)
-	    # THIRD tier ?
+	    for i, tier2 in enumerate(tier1):
+		tier1[i] = self.sort_by("color",tier2) #assigns arr[] to ea var
 	    return tier1
 	
 	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
@@ -119,11 +117,7 @@ class Fiend():
 	    # Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
   	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
                 print("improper entry2 format")              
-                print(elem['name'])
-                print(elem['msg'])
-		print(elem['date'])
-		print(elem['time'])
-		return False
+                return False
             elem['name'] = self.get_hashable(elem['name']) # No need for + removal
       	    self.log.append(elem)
 	    return True
@@ -181,19 +175,16 @@ class Fiend():
 		tier = [] # RET item
             # MONTH/DAY sorts - generate stdz. sized-list
 		if root is SORTS[0] or root is SORTS[1]:
-		    ourmonth = raw[0]['date'].month # Assume vals within same month - ONLY ACCESSED by day
-                    ouryear = raw[0]['date'].year # And same for year
+	            ouryear = raw[0]['date'].year # And same for year
 		    if root is SORTS[0]: # by MONTH	
 			for i in range(0,12):
-			    print(str(i)+"is i value (1-12)")
-
 			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
 			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
 		            tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
-		    elif root is SORTS[1]:		#30-DAY, 1/30 BY MONTH
-		    	for i in range(1, calendar.monthrange(ouryear,ourmonth)[1]):
-			    day = datetime.date(ouryear, ourmonth, i)
-			    tier.append(self.find(raw,{'date':day}))
+		    elif root is SORTS[1]:		# BY DAY
+		        daylist = self.compute_range(raw,'date')
+		    	for x in daylist:
+			    tier.append(self.find(raw,{'date':x})) # consider - removal fr main to avoid olap
 	    # HOUR sorts - separate TIME item from DATE
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
@@ -214,7 +205,7 @@ class Fiend():
 		    bot = datetime.date(2013,1,1)
 		    top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
 		    top = top - datetime.timedelta(days = 1) # Should reset BEFORE line far enough		
-		    B = self.sort_by("users",(self.find(None,{'date':{'start':bot,'end':top}}))) # comparing against prev vals    
+		    B = self.sort_by("users",(self.find(None,{'date':{'start':bot,'end':top}}))) # comp gainst prev vals    
 		    for i in tier[:]: # [SO]/questions/742371/python-strange-behavior-in-for-loop-or-lists
 			for j in B[:]:
 			    if (i['name'] == j['name']):
@@ -223,14 +214,22 @@ class Fiend():
 				    print("empty tier")
 	    # COLORS sort - parses down to unique subset of MSGs
 		elif root is SORTS[5]:
-		    for i in raw[:]:
-			found = False
-			for j in tier[:]:
-			    if(i['msg'] == j['msg']):
-				found = True
-			if not found:
-			    tier.append(i) # Only adds unique/1st instance of msg
+		    colorlist = sorted(self.compute_range(raw,'msg')) 
+		    for i,x in enumerate(colorlist):
+			tier.append(self.find(raw,{'msg':x}))
 		return tier
+	
+	# helper which takes set of data & returns list of (nonrepeat) dates for assembly
+	def compute_range(self,raw,key):
+	    range = []
+	    for i in raw[:]:
+		found = False
+		for j in range: 
+		    if (i[key] == j):
+			found = True
+		if not found:
+		    range.append(i[key])
+	    return range
 
 	# OPTIONAL function call - cleans empty list creations (ie, range MO:2-10 will gen arr[12] with empty)
 	def clean_sort(self,raw):

@@ -38,9 +38,11 @@ def add_no_cache(response):
 def serve():
     repo.get_fr_csv('current.csv')
     std = repo.load()
-    print(std)
+    print("called load; why no render")
+    print(type(std))
+    print(repo.get_time())
     try:
-        return render_template('/index.html',data=repo.load(),time=repo.get_time())
+        return render_template('/index.html',data=std,time=repo.get_time())
     except:
 	return render_template('/except.html')
 
