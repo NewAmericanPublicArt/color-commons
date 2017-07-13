@@ -18,7 +18,7 @@ public.config['PROPAGATE_EXCEPTIONS'] = True
 def initialize():
     global repo
     repo = Fiend()
-    print("*** SERVER RUNNING, WAITING ON POST REQUEST ***\n")
+    print("*** SERVER RUNNING, WAITING ON POST REQUEST ***")
 
 ## Include "no-cache" header in all POST responses
 @public.after_request
@@ -36,8 +36,6 @@ def add_no_cache(response):
 @public.route('/', methods=['GET'])
 @public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
-    print(repo.load())
-    print(repo.get_time())
     try:
         return render_template('/index.html',data=repo.load(),time=repo.get_time())
     except:

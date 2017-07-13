@@ -154,7 +154,6 @@ class Fiend():
                    query['date'] = False
 		if 'time' not in query:
 		   query['time'] = False 
-
                 if arr is None:
 		    found = self.range_find(found,query) #More precise range find
 	        else:
@@ -189,14 +188,12 @@ class Fiend():
 
 	def sort_by(self, root, raw):
 	    SORTS = ["month","day","hour","users","newuser","color"]
-	    if root not in SORTS:
+	    if root not in SORTS or raw is None or raw == []:
 		return raw
 	    else:
 		tier = [] # RET item
-
-		# MONTH/DAY sorts - generate stdz. sized-list
+            # MONTH/DAY sorts - generate stdz. sized-list
 		if root is SORTS[0] or root is SORTS[1]:
-
 		    ourmonth = raw[0]['date'].month # Assume vals within same month - ONLY ACCESSED by day
                     ouryear = raw[0]['date'].year # And same for year
 		    if root is SORTS[0]: # by MONTH	
@@ -208,14 +205,12 @@ class Fiend():
 		    	for i in range(1, calendar.monthrange(ouryear,ourmonth)[1]):
 			    day = datetime.date(ouryear, ourmonth, i)
 			    tier.append(self.find(raw,{'date':day}))
-
-		# HOUR sorts - separate TIME item from DATE
+	    # HOUR sorts - separate TIME item from DATE
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
 			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
 			tier.append(self.find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
-
-		# USERS sorts - parses down to unique subset of USERS
+	    # USERS sorts - parses down to unique subset of USERS
 		elif root is SORTS[3]: # UNIQUE users
 		    for i in raw[:]:
                         found = False
@@ -224,23 +219,20 @@ class Fiend():
 				found = True
 			if not found:
 			    tier.append(i) # Adds as new j entry, restarts i-iter
-
-		# UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
+            # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
 		elif root is SORTS[4]: # NEW UNIQUE users
 		    tier = self.sort_by("users",raw) # ranged unique users for our set
 		    bot = datetime.date(2013,1,1)
 		    top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
 		    top = top - datetime.timedelta(days = 1) # Should reset BEFORE line far enough		
-		    B = self.sort_by("users",(self.find(None,{'date':{'start':bot,'end':top}}))) # comparing against prev vals
-		    
+		    B = self.sort_by("users",(self.find(None,{'date':{'start':bot,'end':top}}))) # comparing against prev vals    
 		    for i in tier[:]: # [SO]/questions/742371/python-strange-behavior-in-for-loop-or-lists
 			for j in B[:]:
 			    if (i['name'] == j['name']):
 				tier.remove(i)
 				if tier is None:
 				    print("empty tier")
-		
-		# COLORS sort - parses down to unique subset of MSGs
+	    # COLORS sort - parses down to unique subset of MSGs
 		elif root is SORTS[5]:
 		    for i in raw[:]:
 			found = False
@@ -249,7 +241,6 @@ class Fiend():
 				found = True
 			if not found:
 			    tier.append(i) # Only adds unique/1st instance of msg
-
 		return tier
 
 	# OPTIONAL function call - cleans empty list creations (ie, range MO:2-10 will gen arr[12] with empty)
@@ -264,8 +255,7 @@ class Fiend():
 	    tier1 = self.sort_by("day",all)
 	    for tier2 in tier1:
 		tier2 = self.sort_by("color",tier2)
-	    # THIRD tier
-	    print(tier1)
+	    # THIRD tier ?
 	    return tier1
 
 	# MD5-compliant HASHER & indexing functions
