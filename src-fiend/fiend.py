@@ -1,24 +1,20 @@
 # FILE created by Sydney Strzempko(c) for NEW AMERICAN PUBLIC ART association
 # Implementation of FIEND class for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
-
-from xkcd_colors import xkcd_names_to_hex 	# look_up_color
-from random import randint			# generate rand color
-from names import *				# brings in NAMES, SURS
-import socket					#
-from math import sin				# parse_command rainbow gen
-import itertools				# p_cmd array/iterable loops
 import array					# p_cmd array of 'B'
+import calendar
+import csv
+import datetime					# get_date, get_time
+import itertools				# p_cmd array/iterable loops
+from math import sin				# parse_command rainbow gen
+import md5
+from names import *				# brings in NAMES, SURS
+from random import randint			# generate rand color
 import re					# regexing
+import socket					#
 import sys					#
 import webcolors				# look_up_color
-import datetime					# get_date, get_time
-import calendar
-import csv					# file format
-import md5					# get_hashable
-
-# FIEND CLASS
-# CONTROLS RPI FROM LINODE SERVER
+from xkcd_colors import xkcd_names_to_hex 	# look_up_color
 
 class Fiend():
 	
@@ -44,17 +40,6 @@ class Fiend():
 
 	def get_date(self):
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
-
-	def get_ms(self,d,t): # gets in MS; optional D & T entries, if both included adds the 2
-	    dstd = datetime.date(1970,1,1)
-	    if d is None:
-		secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds() 
-	    elif t is None:
-		secs = (d - dstd).total_seconds()
-	    else:
-		secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds()
-		secs += (d - dstd).total_seconds()
-	    return int(secs * 1000)
 	
 	# IMPORT/EXPORT function - to CSVs and JAVASCRIPT
 
@@ -95,24 +80,26 @@ class Fiend():
 		    if not (self.new_entry2(elem)):
 			    print("Error pushing val to log")
 	
+	# LOADER for standardized week-old page info
+	def load(self):
+	    now = self.get_date()
+    	    weekago = now - datetime.timedelta(days=6)
+	    all = self.find(None,{'date':{'start':weekago,'end':now}})
+	    tier1 = self.sort_by("day",all)
+	    for tier2 in tier1:
+		print(tier2)
+		print("is a day")
+		tier2 = self.sort_by("color",tier2)
+	    # THIRD tier ?
+	    return tier1
+	
+	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
+	
 	def prep_dts(self):
 	    for x in self.log:
 		x['jsdt'] = get_ms(x['date'],x['time'])
-
-	# DATETIME converter
 	
-	def convertexcel(self,raw):
-	    raw = raw.strip('"')
-	    raw = raw.split(' ',1) #maxsplit property splits date/time
-	    dat = raw[0]
-	    tim = raw[1]
-	    yr,mo,day = dat.split('-')
-	    hr,min,sec = tim.split(':')
-	    sec = (sec.split(' '))[0]
-	    dtime = datetime.datetime(int(yr),int(mo),int(day),int(hr),int(min),int(sec))
-	    return (dtime - datetime.timedelta(hours=4)) # CONVERT from UTC format to boston
-
-	# GENERATE new log entries: input validation executed        
+	# ENTRY method for /sms POSTs: input validation executed here (1st line of defense)        
 
 	def new_entry(self,elem):
             # Elem should be of type {'name':'x','msg':'y'}
@@ -126,7 +113,7 @@ class Fiend():
             self.log.append(elem) # Elem is in type {'name':'x','msg':'y','date':x,'time':y}
             return True
 
-	# ALTERNATE ENTRY - for testing purposes
+	# ALTERNATE ENTRY - for direct input from .csv files. See readme for proper format
 	
 	def new_entry2(self,elem):
 	    # Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
@@ -141,7 +128,7 @@ class Fiend():
       	    self.log.append(elem)
 	    return True
 
-	# SEARCH HANDLER for dict-defined queries
+	# SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
 	def find(self,arr,query):
 	    found = self.log # Uneccessary assignment - note bottom functional for ALL implementation
@@ -160,7 +147,7 @@ class Fiend():
 		    found = self.range_find(arr,query)
 	    return found # if !query, returns full list
 	
-	# RANGE SEARCH through given arr
+	# RANGE HANDLER (automatically called by search handler)
 
 	def range_find(self,arr,query):
 	    temp = []
@@ -172,7 +159,7 @@ class Fiend():
 		    temp.append(x)
 	    return temp
 
-	# RANGE checker, returns a boolean
+	# RANGE checker, returns a boolean T/F for single value/query in range/equivalent
 
 	def in_range(self,elem,test):
 	    if type(test) is dict:
@@ -184,7 +171,7 @@ class Fiend():
 		else:
 	            return (elem == test)
 	
-	# SORT function, returns a tree tier of lists
+	# SORT method, returns a tree tier of lists
 
 	def sort_by(self, root, raw):
 	    SORTS = ["month","day","hour","users","newuser","color"]
@@ -249,28 +236,7 @@ class Fiend():
 	def clean_sort(self,raw):
 	    return filter(None, raw)
 
-	# LOADER for standardized week-old page info
-	def load(self):
-	    now = self.get_date()
-    	    weekago = now - datetime.timedelta(days=7)
-	    all = self.find(None,{'date':{'start':weekago,'end':now}})
-
-	    print(all)
-	    print("is all")
-
-	    tier1 = self.sort_by("day",all)
-
-	    print(tier1)
-	    print("is day-sorted week")
-
-	    for tier2 in tier1:
-		print(tier2)
-		print("is a day")
-		#tier2 = self.sort_by("color",tier2)
-	    # THIRD tier ?
-	    return tier1
-
-	# MD5-compliant HASHER & indexing functions
+	# HASHING/ALIAS methods (MD5-compliant)
 	
 	def get_hashable(self,nos):
 	    nos = re.sub("[^0-9]",'',nos) #rmvs + from Twilio formatting
@@ -294,10 +260,50 @@ class Fiend():
 	    namekey = namekey % (len(NAMES))	# [16]^(27 chars) mod ~2000  
 	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + tagtrail
 	    return alias
-
-	# MULTIPURPOSE functions - unrelated to self object 
 	
-	# PARSER for PHAROS
+	# MULTIPURPOSE methods - unrelated to self object
+	
+	# CONVERTER:date obj and/or time object=> int representing total milliseconds fr UTC-std start
+	
+	def get_ms(self,d,t): # gets in MS; optional D & T entries, if both included adds the 2
+	    dstd = datetime.date(1970,1,1)
+	    if d is None:
+		secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds() 
+	    elif t is None:
+		secs = (d - dstd).total_seconds()
+	    else:
+		secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds()
+		secs += (d - dstd).total_seconds()
+	    return int(secs * 1000)
+
+	# CONVERTER:string of "HH:MM:SS YR-MO-DA ..."format => py datetime.datetime obj
+	
+	def convertexcel(self,raw):
+	    raw = raw.strip('"')
+	    raw = raw.split(' ',1) #maxsplit property splits date/time
+	    dat = raw[0]
+	    tim = raw[1]
+	    yr,mo,day = dat.split('-')
+	    hr,min,sec = tim.split(':')
+	    sec = (sec.split(' '))[0]
+	    dtime = datetime.datetime(int(yr),int(mo),int(day),int(hr),int(min),int(sec))
+	    return (dtime - datetime.timedelta(hours=4)) # CONVERT from UTC format to boston
+
+	# CONVERTER:tuple of RGB tuples => string with x,y,z|a,b,c|...format
+	
+	def convert_to_str(self, arr):
+	    condensed = ""
+	    last = len(arr)-1
+	    for i, x in enumerate(arr):
+		condensed+=str(x)
+		if ((i%3==2) and (i!=last)):
+		    condensed+="|"
+		elif (i!=last):
+		    condensed += ","
+		# Else, add nothing - last values
+	    return condensed
+
+	# PARSER for PHAROS lights display
 
 	def parse_command(self, message):
 	    FIXTURES = 24
@@ -335,6 +341,8 @@ class Fiend():
             # DO STUFF HERE TO CHANGE INTO A ARRAY.ARRAY?
 	    data = array.array('B', itertools.chain.from_iterable(data))
 	    return data
+	
+	# COLOR methods (access, complement)
 
 	def complement(self, color): # pass color as (r, g, b) tuple
 	    # simpler, slower version of http://stackoverflow.com/a/40234924
@@ -346,15 +354,3 @@ class Fiend():
 	    except: # if we can't find a color, make up a random one
 		color = (randint(0, 255), randint(0, 255), randint(0, 255))
 	    return color
-
-	def convert_to_str(self, arr):
-	    condensed = ""
-	    last = len(arr)-1
-	    for i, x in enumerate(arr):
-		condensed+=str(x)
-		if ((i%3==2) and (i!=last)):
-		    condensed+="|"
-		elif (i!=last):
-		    condensed += ","
-		# Else, add nothing - last values
-	    return condensed
