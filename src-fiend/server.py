@@ -28,9 +28,17 @@ def add_no_cache(response):
     return response
 
 # FILTER which finds & replaces all DT instances for js
-#@public.template_filter('format_dt')
-#def PASS FUNCTION - not the converter but could call it
-# and then essentially make a new field to propagate to js?
+@public.template_filter('dt_convert')
+def dt_convert(val):
+    if type(val) is datetime.date: # Calls get_ms with d field
+	return repo.get_ms(val,None)
+    elif type(val) is datetime.time: # Calls get_ms with t field
+	today = repo.get_date()
+	return repo.get_ms(today,val)
+    elif type(val) is 'list': # Calls jsdt creator & returns resulting augmented hierarchy
+	return prep_dts(val)
+	    	
+
 
 ## HOMEPAGE API ##    
 @public.route('/', methods=['GET'])
@@ -41,10 +49,10 @@ def serve():
     print("called load; why no render")
     print(type(std))
     print(repo.get_time())
-    try:
-        return render_template('/index.html',data=std,time=repo.get_time())
-    except:
-	return render_template('/except.html')
+#    try:
+    return render_template('/index.html',data=std,time=repo.get_time())
+#    except:
+#	return render_template('/except.html')
 
 ## SMS API - PASSES TO PI ##
 @public.route('/sms', methods=['POST'])
