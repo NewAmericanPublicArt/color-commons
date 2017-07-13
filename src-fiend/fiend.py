@@ -93,10 +93,14 @@ class Fiend():
 	
 	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
 	
-	def prep_dts(self):
-	    for x in self.log:
-		x['jsdt'] = get_ms(x['date'],x['time'])
-	
+	def prep_dts(self,hier):
+	    for i,x in enumerate(hier):
+		if type(x) is 'list':
+		    hier[i] = self.prep_dts(x)
+	        elif type(x) is 'dict':
+		    hier[i]['jsdt'] = get_ms(x['date'],x['time'])
+	    	else: #not passed a list of lists or a single list
+		    print("PREP_DTS: terribly wrong")	
 	# ENTRY method for /sms POSTs: input validation executed here (1st line of defense)        
 
 	def new_entry(self,elem):

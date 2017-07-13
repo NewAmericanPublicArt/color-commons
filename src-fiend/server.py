@@ -18,6 +18,7 @@ public.config['PROPAGATE_EXCEPTIONS'] = True
 def initialize():
     global repo
     repo = Fiend()
+    repo.get_fr_csv('current.csv')
     print("*** SERVER RUNNING, WAITING ON POST REQUEST ***")
 
 ## Include "no-cache" header in all POST responses
@@ -34,24 +35,20 @@ def dt_convert(val):
 	return repo.get_ms(val,None)
     elif type(val) is datetime.time: # Calls get_ms with t field
 	today = repo.get_date()
+	x = repo.get_ms(today,val)
+	print(x)
 	return repo.get_ms(today,val)
     elif type(val) is 'list': # Calls jsdt creator & returns resulting augmented hierarchy
 	return prep_dts(val)
-	    	
-
-
+	  
 ## HOMEPAGE API ##    
 @public.route('/', methods=['GET'])
 @public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
-    repo.get_fr_csv('current.csv')
     std = repo.load()
-    print("called load; why no render")
-    print(type(std))
-    print(repo.get_time())
-#    try:
+#   try:
     return render_template('/index.html',data=std,time=repo.get_time())
-#    except:
+#   except:
 #	return render_template('/except.html')
 
 ## SMS API - PASSES TO PI ##

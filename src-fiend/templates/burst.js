@@ -13,6 +13,7 @@ function main(data)
 
     console.log(WID)
     console.log(HEI)
+    console.log(data)
 
     load_burst(data); // Calls with assumption of asynchronous updating
     console.log("Main completed!")
