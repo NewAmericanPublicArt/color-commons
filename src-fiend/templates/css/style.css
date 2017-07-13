@@ -7,7 +7,7 @@ body {
     margin: 0;
     padding: 0;
     border: 0;
-    text-align: center,
+    text-align: center;
     font: 24px "Arial", sans-serif;
     width: 100%;
     height: 100%;
@@ -18,7 +18,7 @@ body {
 /*Should be 0 when mobile*/
 .buffer {
     flex: 1 0 0;
-    background-color: #00ccff;
+    background-color: #FFFFFF;
 }
 
 #page {
@@ -31,7 +31,7 @@ body {
 }
 
 #canvas {
-    flex: 5 5 0;
+    flex: 8 8 0;
     background-color: #000066;
 }
 
@@ -39,8 +39,10 @@ body {
     flex: 1 1 0;
 
     flex-flow: column nowrap;
-    background-color: #CC0066;
+    background-color: #FFCC99;
 }
+
+#info p { visibility: hidden; }
 
 /*
 CLASS 3 RESPONSIVE - DESKTOP/BIG DESKTOP
@@ -55,5 +57,7 @@ CLASS 2 RESPONSIVE - TABLET PORTRAIT & LANDSCAPE
 /*
 CLASS 1 RESPONSIVE - ALL SMARTPHONES & LESS
 */
-@media only screen and (min-width: 80px) {}
+@media only screen and (min-width: 80px) {
+    #buffer { flex: 0 0 0 }
+}
 

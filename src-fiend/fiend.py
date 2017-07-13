@@ -172,20 +172,21 @@ class Fiend():
 	# SORT method, returns a tree tier of lists
 
 	def sort_by(self, root, raw):
-	    SORTS = ["month","day","hour","users","newuser","color"]
+	    SORTS = ["month","day","hour","users","newuser","color","color2"]
 	    if root not in SORTS or raw is None or raw == []:
 		return raw
 	    else:
 		tier = [] # RET item
-            # MONTH/DAY sorts - generate stdz. sized-list
-		if root is SORTS[0] or root is SORTS[1]:
+	        if root is SORTS[0] or root is SORTS[1]:
 	            ouryear = raw[0]['date'].year # And same for year
+	    # MONTH sorts - assumes 12 always
 		    if root is SORTS[0]: # by MONTH	
 			for i in range(0,12):
 			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
 			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
 		            tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
-		    elif root is SORTS[1]:		# BY DAY
+	    # DAY sorts - uses compute_range TODO - ensure all dates (not just ones w texts) included		    
+		    elif root is SORTS[1]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
 			    tier.append(self.find(raw,{'date':x})) # consider - removal fr main to avoid olap
@@ -215,12 +216,18 @@ class Fiend():
 			    if (i['name'] == j['name']):
 				tier.remove(i)
 				if tier is None:
-				    print("empty tier")
+	   			    print("empty tier")
 	    # COLORS sort - parses down to unique subset of MSGs
-		elif root is SORTS[5]:
-		    colorlist = sorted(self.compute_range(raw,'msg')) 
+  		elif root is SORTS[5] or root is SORTS[6]:
+	    	    colorlist = sorted(self.compute_range(raw,'msg'))
 		    for i,x in enumerate(colorlist):
-			tier.append(self.find(raw,{'msg':x}))
+		        tier.append(self.find(raw,{'msg':x}))
+	    # COLORISH sort - parse down to VAGUELY CLOSE unique subsets of msgs	
+		    if root is SORTS[6]:
+			# DO THINGS TO TIER ITSELF - we know that we can go right into
+			print("special colors not made yet")    		    
+		else:
+		    print("SORT_BY: Haven't heard of that one!")
 		return tier
 	
 	# helper which takes set of data & returns list of (nonrepeat) dates for assembly
