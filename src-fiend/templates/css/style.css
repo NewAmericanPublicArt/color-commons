@@ -42,7 +42,7 @@ body {
     background-color: #FFCC99;
 }
 
-#info p { visibility: hidden; }
+.tabs { visibility: hidden; }
 
 /*
 CLASS 3 RESPONSIVE - DESKTOP/BIG DESKTOP
