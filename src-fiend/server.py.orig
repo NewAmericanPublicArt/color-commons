@@ -18,8 +18,13 @@ public.config['PROPAGATE_EXCEPTIONS'] = True
 def initialize():
     global repo
     repo = Fiend()
+<<<<<<< HEAD
     repo.get_fr_csv('current.csv')
     print("*** SERVER RUNNING, WAITING ON POST REQUEST ***")
+=======
+    repo.get_fr_csv('6-7forward.csv')
+    print("*** SERVER RUNNING, WAITING ON POST REQUEST ***\n")
+>>>>>>> 7c7d6df2fc6122ff23d5da065b26b1134590a604
 
 ## Include "no-cache" header in all POST responses
 @public.after_request
@@ -45,11 +50,19 @@ def dt_convert(val):
 @public.route('/', methods=['GET'])
 @public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
+<<<<<<< HEAD
     std = repo.load()
 #   try:
     return render_template('/index.html',data=std,time=repo.get_time())
 #   except:
 #	return render_template('/except.html')
+=======
+    stdz = {'label':'LatestWeek','log':(repo.get_log())}
+    try:
+	return render_template('/dataviz.html',data=stdz,time=(repo.get_time()))
+    except:
+	return render_template('/except.html')
+>>>>>>> 7c7d6df2fc6122ff23d5da065b26b1134590a604
 
 ## SMS API - PASSES TO PI ##
 @public.route('/sms', methods=['POST'])

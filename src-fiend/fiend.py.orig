@@ -8,13 +8,13 @@ import datetime					# get_date, get_time
 import itertools				# p_cmd array/iterable loops
 from math import sin				# parse_command rainbow gen
 import md5
-from random import randint                      # generate rand color
 from rsrcs.names import *				# brings in NAMES, SURS
-from rsrcs.xkcd_colors import xkcd_names_to_hex # look_up_color
+from random import randint			# generate rand color
 import re					# regexing
 import socket					#
 import sys					#
-import webcolors				#
+import webcolors				# look_up_color
+from rsrcs.xkcd_colors import xkcd_names_to_hex # look_up_color
 
 class Fiend():
 	
@@ -121,7 +121,15 @@ class Fiend():
 	    # Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
   	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
                 print("improper entry2 format")              
+<<<<<<< HEAD
                 return False
+=======
+                print(elem['name'])
+                print(elem['msg'])
+		print(elem['date'])
+		print(elem['time'])
+		return False
+>>>>>>> 7c7d6df2fc6122ff23d5da065b26b1134590a604
             elem['name'] = self.get_hashable(elem['name']) # No need for + removal
       	    self.log.append(elem)
 	    return True
@@ -157,7 +165,6 @@ class Fiend():
 		    temp.append(x)
 	    return temp
 
-
 	# RANGE checker, returns a boolean T/F for single value/query in range/equivalent
 
 	def in_range(self,elem,test):
@@ -173,6 +180,7 @@ class Fiend():
 	# SORT method, returns a tree tier of lists
 
 	def sort_by(self, root, raw):
+<<<<<<< HEAD
 	    SORTS = ["month","day","hour","users","newuser","color","color2"]
 	    if root not in SORTS or raw is None or raw == []:
 		return raw
@@ -181,29 +189,49 @@ class Fiend():
 	        if root is SORTS[0] or root is SORTS[1]:
 	            ouryear = raw[0]['date'].year # And same for year
 	    # MONTH sorts - assumes 12 always
+=======
+	    SORTS = ["month","day","hour","users","newuser","color"]
+	    if root not in SORTS:
+		return raw
+	    else:
+		tier = [] # RET item
+
+		# MONTH/DAY sorts - generate stdz. sized-list
+		if root is SORTS[0] or root is SORTS[1]:
+
+		    ourmonth = raw[0]['date'].month # Assume vals within same month - ONLY ACCESSED by day
+                    ouryear = raw[0]['date'].year # And same for year
+>>>>>>> 7c7d6df2fc6122ff23d5da065b26b1134590a604
 		    if root is SORTS[0]: # by MONTH	
 			for i in range(0,12):
 			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
 			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
 		            tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
-	    # DAY sorts - uses compute_range TODO - ensure all dates (not just ones w texts) include
+<<<<<<< HEAD
+	    # DAY sorts - uses compute_range TODO - ensure all dates (not just ones w texts) included		    
 		    elif root is SORTS[1]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
 			    tier.append(self.find(raw,{'date':x})) # consider - removal fr main to avoid olap
 	    # HOUR sorts - separate TIME item from DATE
+=======
+		    elif root is SORTS[1]:		#30-DAY, 1/30 BY MONTH
+		    	for i in range(1, calendar.monthrange(ouryear,ourmonth)[1]):
+			    day = datetime.date(ouryear, ourmonth, i)
+			    tier.append(self.find(raw,{'date':day}))
+
+		# HOUR sorts - separate TIME item from DATE
+>>>>>>> 7c7d6df2fc6122ff23d5da065b26b1134590a604
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
 			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
 			tier.append(self.find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
+<<<<<<< HEAD
 	    # USERS sorts - parses down to unique subset of USERS
-		elif root is SORTS[3]: # UNIQUE users
-CAL.14143.py 188,11-18      49% <d.py.BASE.14143.py 182,11-25      58% ./src-fiend/fiend.py.REMOTE.14143.py                                                                                                          182,11-32      55%<py.LOCAL.14143.py 188,11-18      49% <d.py.BASE.14143.py 182,11-25      58% ./src-fiend/fiend.py.REMOTE.14143.py                                                                                                          182,11-32      55%
-		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
-		    for i in range(0,24):
-			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
-			tier.append(self.find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
-	    # USERS sorts - parses down to unique subset of USERS
+=======
+
+		# USERS sorts - parses down to unique subset of USERS
+>>>>>>> 7c7d6df2fc6122ff23d5da065b26b1134590a604
 		elif root is SORTS[3]: # UNIQUE users
 		    for i in raw[:]:
                         found = False
@@ -212,7 +240,12 @@ CAL.14143.py 188,11-18      49% <d.py.BASE.14143.py 182,11-25      58% ./src-fie
 				found = True
 			if not found:
 			    tier.append(i) # Adds as new j entry, restarts i-iter
+<<<<<<< HEAD
             # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
+=======
+
+		# UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
+>>>>>>> 7c7d6df2fc6122ff23d5da065b26b1134590a604
 		elif root is SORTS[4]: # NEW UNIQUE users
 		    tier = self.sort_by("users",raw) # ranged unique users for our set
 		    bot = datetime.date(2013,1,1)
@@ -223,7 +256,8 @@ CAL.14143.py 188,11-18      49% <d.py.BASE.14143.py 182,11-25      58% ./src-fie
 			for j in B[:]:
 			    if (i['name'] == j['name']):
 				tier.remove(i)
-                  		if tier is None: #rmv? TODO
+				if tier is None:
+<<<<<<< HEAD
 	   			    print("empty tier")
 	    # COLORS sort - parses down to unique subset of MSGs
   		elif root is SORTS[5] or root is SORTS[6]:
@@ -236,6 +270,20 @@ CAL.14143.py 188,11-18      49% <d.py.BASE.14143.py 182,11-25      58% ./src-fie
 			print("special colors not made yet")    		    
 		else:
 		    print("SORT_BY: Haven't heard of that one!")
+=======
+				    print("empty tier")
+		
+		# COLORS sort - parses down to unique subset of MSGs
+		elif root is SORTS[5]:
+		    for i in raw[:]:
+			found = False
+			for j in tier[:]:
+			    if(i['msg'] == j['msg']):
+				found = True
+			if not found:
+			    tier.append(i) # Only adds unique/1st instance of msg
+
+>>>>>>> 7c7d6df2fc6122ff23d5da065b26b1134590a604
 		return tier
 	
 	# helper which takes set of data & returns list of (nonrepeat) dates for assembly

@@ -1,0 +1,30 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8" />
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+    <script src="//d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+<div class="buffer"></div>
+<div id="page">
+        <h1>Interactive Data Vizualizaton: Color Commons</h1>
+	
+	<div id="canvas" data-log="{{data | dt_convert}}"></div>
+	
+	<div id="info">
+	    
+	    <div class="tabs">
+	    	<p onclick="showtab(0)">INFO</p>
+		<p onclick="showtab(1)">VIEWS</p>
+		<p onclick="showtab(2)">ADVANCED</p>
+	    </div>
+	    <div id="about" data-time="{{time | dt_convert}}">
+            	<p>&nbsp;<p>
+            	<p><a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
+            </div>
+	</div>
+</div>
+<div class="buffer"></div>
+<script src="burst.js"></script>
+</body>
+</html>

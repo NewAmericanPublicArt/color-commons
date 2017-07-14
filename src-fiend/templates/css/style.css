@@ -1,0 +1,63 @@
+/* FILE created by Sydney Strzempko(c) for NEW AMERICAN PUBLIC ART association
+ * Modifyer/Styler for Data Viz Suite of Pages
+ * Link: http://www.newamericanpublicart.com/color-commons-2017
+ */
+
+body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    text-align: center;
+    font: 24px "Arial", sans-serif;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+/*Should be 0 when mobile*/
+.buffer {
+    flex: 1 0 0;
+    background-color: #FFFFFF;
+}
+
+#page {
+    flex: 6 6 0;
+
+    display: flex;
+    flex-flow: column wrap;
+    background-color: #FFCC99;
+    min-width: 0;
+}
+
+#canvas {
+    flex: 8 8 0;
+    background-color: #000066;
+}
+
+#info {
+    flex: 1 1 0;
+
+    flex-flow: column nowrap;
+    background-color: #FFCC99;
+}
+
+.tabs { visibility: hidden; }
+
+/*
+CLASS 3 RESPONSIVE - DESKTOP/BIG DESKTOP
+*/
+@media only screen and (min-width: 1200px) {}
+
+/*
+CLASS 2 RESPONSIVE - TABLET PORTRAIT & LANDSCAPE
+*/
+@media only screen and (min-width: 600px) {}
+
+/*
+CLASS 1 RESPONSIVE - ALL SMARTPHONES & LESS
+*/
+@media only screen and (min-width: 80px) {
+    #buffer { flex: 0 0 0 }
+}
+
