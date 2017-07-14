@@ -19,7 +19,9 @@ window.onload = function()
 function main(data,time)
 {
     load_about(time); // Coordinates 2/2 page
-    load_burst(data); // Calls with assumption of asynchronous updating? TODO 1/2
+    console.log(data);
+//    tree = traverse_tree(data, JSON.parse);
+//    load_burst(data); // Calls with assumption of asynchronous updating? TODO 1/2
 }
 
 /*
@@ -46,13 +48,9 @@ function load_burst(data)
     var RAD = (Math.min(WID,HEI)/2)-10;
     console.log(WID+" W, "+HEI+" H");
 
-    svg = d3.select('#canvas').append("svg").attr("width",WID).attr("height",HEI).append("g").attr("transform","translate("+WID/2+","+(HEI/2)+")");	
-    console.log(typeof data);
-    data = JSON.parse(data);
-    data.forEach(function(val, i, data) {
-	data[i] = JSON.parse(val);
-    });
-    console.log(typeof data);
+    svg = d3.select('#canvas').append("svg").attr("width",WID).attr("height",HEI)
+	.append("g").attr("transform","translate("+WID/2+","+(HEI/2)+")");	
+
     var newhier = d3.hierarchy(data);
     console.log(newhier);
 
@@ -86,6 +84,28 @@ function load_burst(data)
 
 //  d3.select(self.frameElement).style("height", HEI + "px");
     console.log("L_BURST end of function")
+}
+
+/*
+ *
+ */
+function traverse_tree(raw, apply)
+{
+    if (typeof raw === 'string'){
+	//parse it regardless, then assess children/recall	
+    	raw = apply(raw);
+	console.log("just got apply to raw");
+	console.log(raw);
+	raw = traverse_tree(raw,apply);
+    } else if (Array.isArray(raw)) {
+	raw.forEach(function(val, i, raw) {
+            raw[i] = apply(val);
+	    raw[i] = traverse_tree(val,apply);
+    	});
+    } else if (typeof raw === 'object') {
+	return raw;
+    }
+    return raw;
 }
 
 /* 
