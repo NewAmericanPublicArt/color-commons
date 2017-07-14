@@ -6,6 +6,7 @@ import calendar					# for month utils
 import csv					# file entry/db format
 import datetime					# get_date, get_time
 import itertools				# p_cmd array/iterable loops
+import json					# for dumps utility
 from math import sin				# parse_command rainbow gen
 import md5					# built-in hash
 from random import randint                      # generate rand color
@@ -99,9 +100,20 @@ class Fiend():
 		    hier[i] = self.prep_dts(x)
 	        elif type(x) is dict:
 		    hier[i]['jsdt'] = self.get_ms(x['date'],x['time'])
-	    	else: #not passed a list of lists or a single list
+	 	else: #not passed a list of lists or a single list
 		    print("PREP_DTS: terribly wrong")
 	    return hier
+
+	# MODIFIER for exporting - strips ['date'] and ['time'] categories
+
+	def export_to_js(self,copy):
+	    for i,x in enumerate(copy):
+		if type(x) is list:
+		    copy[i] = self.export_to_js(x)
+		elif type(x) is dict:
+		    del copy[i]['date']
+		    del copy[i]['time']
+	    return json.dumps(copy)
 	
 	# ENTRY method for /sms POSTs: input validation executed here (1st line of defense)        
 

@@ -37,7 +37,7 @@ def dt_convert(val):
 	today = repo.get_date()
 	return repo.get_ms(today,val)
     elif type(val) is list: # Calls jsdt creator & returns resulting augmented hierarchy
-	return repo.prep_dts(val)
+	return repo.export_to_js(repo.prep_dts(val))
     else:
 	print("DT_FILTER:improper entry format")
 	  

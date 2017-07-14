@@ -10,9 +10,6 @@ window.onload = function()
 {
     var log = d3.select("#canvas").attr("data-log");
     var cur = d3.select("#about").attr("data-time");
-    console.log(log);
-    console.log(cur);
-    console.log("is log/cur");
     main(log,cur);
     console.log("end of onload events");
 };
@@ -23,7 +20,6 @@ function main(data,time)
 {
     load_about(time); // Coordinates 2/2 page
     load_burst(data); // Calls with assumption of asynchronous updating? TODO 1/2
-    console.log("Main completed!");
 }
 
 /*
@@ -33,8 +29,6 @@ function load_about(time)
 {
     time = parseInt(time);
     var val = new Date(time);
-    console.log(time);
-    console.log(val);
     var format = "Last Updated: " + val + ".";
     d3.select("#about").insert("div",":first-child").html(format);
 }
@@ -47,32 +41,35 @@ function load_about(time)
  */
 function load_burst(data)
 {
-    // GLOBALS
     var WID = d3.select("#canvas").attr("width");
     var HEI = d3.select("#canvas").attr("height");
     var RAD = (Math.min(WID,HEI)/2)-10;
-
-    console.log(WID)
-    console.log(HEI)
+    console.log(WID+" W, "+HEI+" H");
 
     svg = d3.select('#canvas').append("svg").attr("width",WID).attr("height",HEI).append("g").attr("transform","translate("+WID/2+","+(HEI/2)+")");	
+    console.log(typeof data);
+    data = JSON.parse(data);
+    data.forEach(function(val, i, data) {
+	data[i] = JSON.parse(val);
+    });
+    console.log(typeof data);
+    var newhier = d3.hierarchy(data);
+    console.log(newhier);
 
-    var formatNumber = d3.format(",d");
-    var x = d3.scale.linear().range([0, 2 * Math.PI]);
-    var y = d3.scale.sqrt().range([0, radius]);
+//    var formatNumber = d3.format(",d");
+//    var x = d3.scale.linear().range([0, 2 * Math.PI]);
+//    var y = d3.scale.sqrt().range([0, radius]);
+//    var color = d3.scale.category20c(); TODO - CREATE COLOR GEN FUNCITON
 
-    //var color = d3.scale.category20c(); TODO - CREATE COLOR GEN FUNCITON
+//    var partition = d3.layout.partition().value(function(d) { return d.size; });
 
-    var partition = d3.layout.partition().value(function(d) { return d.size; });
+//    var arc = d3.svg.arc()
+//	.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); }).endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+//    	.innerRadius(function(d) { return Math.max(0, y(d.y)); })
+//    	.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
-    var arc = d3.svg.arc()
-	.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); }).endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-    	.innerRadius(function(d) { return Math.max(0, y(d.y)); })
-    	.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
-
-    var root = d3.stratify(data).parentId( function(d){ return d.label; }); //MANIPULATE WHAT HAS BEEN GIVEN INTO A FUNCT - POTENTIALLY WRAP
-    console.log(root);
-
+//    var root = d3.stratify(data).parentId( function(d){ return d.label; }); //MANIPULATE WHAT HAS BEEN GIVEN INTO A FUNCT - POTENTIALLY WRAP
+    
 // ACTIVE component
 //    svg.selectAll("path").data(partition.nodes(root)).enter().append("path").attr("d", arc)
 //	.style("fill", function(d) { return color((d.children ? d : d.parent).name); })
@@ -87,15 +84,14 @@ function load_burst(data)
       }).selectAll("path").attrTween("d", function(d) { return function() { return arc(d); }; });
     }
 
-//    d3.select(self.frameElement).style("height", height + "px");
+//  d3.select(self.frameElement).style("height", HEI + "px");
     console.log("L_BURST end of function")
 }
 
-/* Called when given updated data - TODO
+/* 
  * UPDATER - perhaps triggered by websocket
  */
-function update_burst(data)
-{ load_burst(data) }
+function update_burst(data){ load_burst(data) }
 
 /* 
  * SHOWTABS - page manipulation
@@ -104,5 +100,5 @@ function update_burst(data)
 function showtabs(i)
 {
     //d3.select('options').attr('visibility','hidden');
-    d3.select('options').select('s'+i).attr('visibility','visible'); //not sure what s is here
+    d3.select('options').select('tab'+i).attr('visibility','visible'); //TODO rename tabs
 }
