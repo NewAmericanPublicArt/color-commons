@@ -2,14 +2,14 @@
 # Implementation of FIEND class for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
 import array					# p_cmd array of 'B'
-import calendar
-import csv
+import calendar					# for month utils
+import csv					# file entry/db format
 import datetime					# get_date, get_time
 import itertools				# p_cmd array/iterable loops
 from math import sin				# parse_command rainbow gen
-import md5
+import md5					# built-in hash
 from random import randint                      # generate rand color
-from rsrcs.names import *				# brings in NAMES, SURS
+from rsrcs.names import *			# brings in NAMES, SURS
 from rsrcs.xkcd_colors import xkcd_names_to_hex # look_up_color
 import re					# regexing
 import socket					#
@@ -95,12 +95,14 @@ class Fiend():
 	
 	def prep_dts(self,hier):
 	    for i,x in enumerate(hier):
-		if type(x) is 'list':
+		if type(x) is list:
 		    hier[i] = self.prep_dts(x)
-	        elif type(x) is 'dict':
-		    hier[i]['jsdt'] = get_ms(x['date'],x['time'])
+	        elif type(x) is dict:
+		    hier[i]['jsdt'] = self.get_ms(x['date'],x['time'])
 	    	else: #not passed a list of lists or a single list
-		    print("PREP_DTS: terribly wrong")	
+		    print("PREP_DTS: terribly wrong")
+	    return hier
+	
 	# ENTRY method for /sms POSTs: input validation executed here (1st line of defense)        
 
 	def new_entry(self,elem):
@@ -192,13 +194,6 @@ class Fiend():
 		    	for x in daylist:
 			    tier.append(self.find(raw,{'date':x})) # consider - removal fr main to avoid olap
 	    # HOUR sorts - separate TIME item from DATE
-		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
-		    for i in range(0,24):
-			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
-			tier.append(self.find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
-	    # USERS sorts - parses down to unique subset of USERS
-		elif root is SORTS[3]: # UNIQUE users
-CAL.14143.py 188,11-18      49% <d.py.BASE.14143.py 182,11-25      58% ./src-fiend/fiend.py.REMOTE.14143.py                                                                                                          182,11-32      55%<py.LOCAL.14143.py 188,11-18      49% <d.py.BASE.14143.py 182,11-25      58% ./src-fiend/fiend.py.REMOTE.14143.py                                                                                                          182,11-32      55%
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
 			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]

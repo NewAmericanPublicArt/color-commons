@@ -43,7 +43,7 @@ body {
 }
 
 .tabs { visibility: hidden; }
-
+#about { font-size: .5em }
 /*
 CLASS 3 RESPONSIVE - DESKTOP/BIG DESKTOP
 */

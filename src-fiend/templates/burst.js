@@ -8,8 +8,11 @@ var COLORS = {'acid green':'#8ffe09','adobe':'#bd6c48','algae':'#54ac68','algae 
  */
 window.onload = function()
 {
-    var log = d3.select("#canvas").attr("log");
-    var cur = d3.select("#about").attr("time");
+    var log = d3.select("#canvas").attr("data-log");
+    var cur = d3.select("#about").attr("data-time");
+    console.log(log);
+    console.log(cur);
+    console.log("is log/cur");
     main(log,cur);
     console.log("end of onload events");
 };
@@ -28,11 +31,11 @@ function main(data,time)
  */
 function load_about(time)
 {
-    console.log(time);
-    console.log("is time val");
+    time = parseInt(time);
     var val = new Date(time);
+    console.log(time);
     console.log(val);
-    var format = "Last Updated: " + val.toString() + ".";
+    var format = "Last Updated: " + val + ".";
     d3.select("#about").insert("div",":first-child").html(format);
 }
 
@@ -85,7 +88,6 @@ function load_burst(data)
     }
 
 //    d3.select(self.frameElement).style("height", height + "px");
-<<<<<<< HEAD
     console.log("L_BURST end of function")
 }
 
@@ -93,7 +95,7 @@ function load_burst(data)
  * UPDATER - perhaps triggered by websocket
  */
 function update_burst(data)
-{   load_burst(data) }
+{ load_burst(data) }
 
 /* 
  * SHOWTABS - page manipulation

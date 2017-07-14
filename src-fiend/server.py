@@ -35,11 +35,11 @@ def dt_convert(val):
 	return repo.get_ms(val,None)
     elif type(val) is datetime.time: # Calls get_ms with t field
 	today = repo.get_date()
-	x = repo.get_ms(today,val)
-	print(x)
 	return repo.get_ms(today,val)
-    elif type(val) is 'list': # Calls jsdt creator & returns resulting augmented hierarchy
-	return prep_dts(val)
+    elif type(val) is list: # Calls jsdt creator & returns resulting augmented hierarchy
+	return repo.prep_dts(val)
+    else:
+	print("DT_FILTER:improper entry format")
 	  
 ## HOMEPAGE API ##    
 @public.route('/', methods=['GET'])
