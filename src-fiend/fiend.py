@@ -83,7 +83,9 @@ class Fiend():
 	
 	# LOADER for standardized week-old page info
 	
-	def load(self):
+	def load(self,optional):
+	    if optional is not None:
+		self.get_fr_csv(optional);
 	    now = self.get_date()
     	    weekago = now - datetime.timedelta(days=6)
 	    all = self.find(None,{'date':{'start':weekago,'end':now}})

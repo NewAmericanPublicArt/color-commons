@@ -45,8 +45,7 @@ def dt_convert(val):
 @public.route('/', methods=['GET'])
 @public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
-    repo.get_fr_csv('current.csv')
-    std = repo.load()
+    std = repo.load('current.csv')
     try:
         return render_template('/index.html',data=std,time=repo.get_time())
     except:
