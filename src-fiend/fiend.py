@@ -97,6 +97,7 @@ class Fiend():
 	def prep_dts(self,hier):
 	    for i,x in enumerate(hier):
 		if type(x) is list:
+		    print("p_d found list, converts")
 		    hier[i] = self.prep_dts(x)
 	        elif type(x) is dict:
 		    hier[i]['jsdt'] = self.get_ms(x['date'],x['time'])
@@ -107,14 +108,16 @@ class Fiend():
 	# MODIFIER for exporting - strips ['date'] and ['time'] categories
 
 	def export_to_js(self,copy):
+	    print("export_to_js")
 	    for i,x in enumerate(copy):
+		print("examine x is "+str(type(x)))
 		if type(x) is list:
 		    copy[i] = self.export_to_js(x)
 		elif type(x) is dict:
 		    del copy[i]['date']
 		    del copy[i]['time']
-	    return json.dumps(copy)
-	
+	    return json.dumps(copy) 
+
 	# ENTRY method for /sms POSTs: input validation executed here (1st line of defense)        
 
 	def new_entry(self,elem):

@@ -20,6 +20,7 @@ function main(data,time)
 {
     load_about(time); // Coordinates 2/2 page
     console.log(data);
+//    console.log(JSON.parse(data));
 //    tree = traverse_tree(data, JSON.parse);
 //    load_burst(data); // Calls with assumption of asynchronous updating? TODO 1/2
 }
@@ -96,7 +97,7 @@ function traverse_tree(raw, apply)
     	raw = apply(raw);
 	console.log("just got apply to raw");
 	console.log(raw);
-	raw = traverse_tree(raw,apply);
+//	raw = traverse_tree(raw,apply);
     } else if (Array.isArray(raw)) {
 	raw.forEach(function(val, i, raw) {
             raw[i] = apply(val);
