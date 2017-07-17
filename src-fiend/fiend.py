@@ -110,7 +110,7 @@ class Fiend():
 	def export_to_js(self,copy):
 	    print("export_to_js")
 	    for i,x in enumerate(copy):
-		print("examine x is "+str(type(x)))
+#		print("examine x is "+str(type(x)))
 		if type(x) is list:
 		    copy[i] = self.export_to_js(x)
 		elif type(x) is dict:
@@ -148,14 +148,16 @@ class Fiend():
 	def find(self,arr,query):
 	    found = self.log # Uneccessary assignment - note bottom functional for ALL implementation
 	    if query: #Essentially generates placeholders for cond_find
-                if 'name' not in query:
+                print(str(query)+" is our query!")
+		if 'name' not in query:
              	   query['name'] = False
                 if 'msg' not in query:
                    query['msg'] = False
                 if 'date' not in query:
-                   query['date'] = False
+		    query['date'] = False
 		if 'time' not in query:
 		   query['time'] = False 
+                print(str(query)+" is our queryx2fill!")
                 if arr is None:
 		    found = self.range_find(found,query) #More precise range find
 	        else:
