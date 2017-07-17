@@ -90,6 +90,7 @@ class Fiend():
 	    tier1 = self.sort_by("day",all)
 	    for i, tier2 in enumerate(tier1):
 		tier1[i] = self.sort_by("color",tier2) #assigns arr[] to ea var
+	    print("LOAD is done.")
 	    return tier1
 	
 	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
@@ -110,7 +111,6 @@ class Fiend():
 	def export_to_js(self,copy):
 	    print("export_to_js")
 	    for i,x in enumerate(copy):
-#		print("examine x is "+str(type(x)))
 		if type(x) is list:
 		    copy[i] = self.export_to_js(x)
 		elif type(x) is dict:
@@ -148,7 +148,6 @@ class Fiend():
 	def find(self,arr,query):
 	    found = self.log # Uneccessary assignment - note bottom functional for ALL implementation
 	    if query: #Essentially generates placeholders for cond_find
-                print(str(query)+" is our query!")
 		if 'name' not in query:
              	   query['name'] = False
                 if 'msg' not in query:
@@ -157,7 +156,7 @@ class Fiend():
 		    query['date'] = False
 		if 'time' not in query:
 		   query['time'] = False 
-                print(str(query)+" is our queryx2fill!")
+                
                 if arr is None:
 		    found = self.range_find(found,query) #More precise range find
 	        else:
@@ -166,9 +165,11 @@ class Fiend():
 	
 	# RANGE HANDLER (automatically called by search handler)
 
-	def range_find(self,arr,query):
+	def range_find(self,arr,query):    
 	    temp = []
 	    for x in arr:
+          	print("RF:"+str(query)+" is our query")
+            	print("& "+str(x)+" is our x")
 		if ((query['name']==False or self.in_range(x['name'],query['name'])) and
 		    (query['msg']==False or self.in_range(x['msg'],query['msg'])) and
                     (query['date']==False or self.in_range(x['date'],query['date'])) and

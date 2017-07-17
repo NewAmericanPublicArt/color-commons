@@ -18,7 +18,6 @@ public.config['PROPAGATE_EXCEPTIONS'] = True
 def initialize():
     global repo
     repo = Fiend()
-    repo.get_fr_csv('current.csv')
     print("*** SERVER RUNNING, WAITING ON POST REQUEST ***")
 
 ## Include "no-cache" header in all POST responses
@@ -31,6 +30,7 @@ def add_no_cache(response):
 # FILTER which finds & replaces all DT instances for js
 @public.template_filter('dt_convert')
 def dt_convert(val):
+    print("DT-C")
     if type(val) is datetime.date: # Calls get_ms with d field
 	return repo.get_ms(val,None)
     elif type(val) is datetime.time: # Calls get_ms with t field
@@ -45,11 +45,12 @@ def dt_convert(val):
 @public.route('/', methods=['GET'])
 @public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
 def serve():
+    repo.get_fr_csv('current.csv')
     std = repo.load()
-#   try:
-    return render_template('/index.html',data=std,time=repo.get_time())
-#   except:
-#	return render_template('/except.html')
+    try:
+        return render_template('/index.html',data=std,time=repo.get_time())
+    except:
+	return render_template('/except.html')
 
 ## SMS API - PASSES TO PI ##
 @public.route('/sms', methods=['POST'])
