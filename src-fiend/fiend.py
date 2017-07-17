@@ -6,7 +6,6 @@ import calendar					# for month utils
 import csv					# file entry/db format
 import datetime					# get_date, get_time
 import itertools				# p_cmd array/iterable loops
-import json					# for dumps utility
 from math import sin				# parse_command rainbow gen
 import md5					# built-in hash
 from random import randint                      # generate rand color
@@ -52,6 +51,8 @@ class Fiend():
             log.close()
 
 	def get_fr_csv(self,FILE):
+	    if( self.get_log() != []): # No more than 1 file import allowed - can disable
+		return
 	    with open(str(FILE), 'rb') as csvfile:
 		parse = csv.reader(csvfile, strict=True)
 		next(parse,None) #Skips intro line
@@ -84,41 +85,37 @@ class Fiend():
 	# LOADER for standardized week-old page info
 	
 	def load(self,optional):
-	    if optional is not None:
-		self.get_fr_csv(optional);
-	    now = self.get_date()
-    	    weekago = now - datetime.timedelta(days=6)
-	    all = self.find(None,{'date':{'start':weekago,'end':now}})
-	    tier1 = self.sort_by("day",all)
-	    for i, tier2 in enumerate(tier1):
-		tier1[i] = self.sort_by("color",tier2) #assigns arr[] to ea var
-	    print("LOAD is done.")
-	    return tier1
+	    print("*********IN LOAD****: "+str(self.get_log())[:100])
+
+	    if optional is not None:	#file import optional
+		self.get_fr_csv(optional);  
+	    hier = self.get_jsdt() # CONVERTER
+	    hier = self.find(hier,{'date':{'start':(self.get_date() - datetime.timedelta(days=6)),'end':(self.get_date())}})
+	    hier = self.sort_by("day",hier)
+	    for i, tier in enumerate(hier):
+		hier[i] = self.sort_by("color",tier) #assigns arr[] to ea var
+	    return hier
 	
 	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
 	
-	def get_jsdt(self,hier):
-	    for i,x in enumerate(hier):
-		if type(x) is list:
-		    print("p_d found list, converts")
-		    hier[i] = self.get_jsdt(x)
-	        elif type(x) is dict:
-		    hier[i]['jsdt'] = self.get_ms(x['date'],x['time'])
-	 	else: #not passed a list of lists or a single list
-		    print("GET_JSDT: err")
-	    return hier
+	def get_jsdt(self):
+	    print("************IN GET_JSDT*****: "+str(self.get_log())[:100])
+
+	    copy = self.get_log()
+	    for x in copy:
+		x['jsdt'] = self.get_ms(x['date'],x['time'])
+	    return copy
 
 	# MODIFIER for exporting - strips ['date'] and ['time'] categories
 
-	def export_to_js(self,copy):
-	    print("export_to_js")
-	    for i,x in enumerate(copy):
-		if type(x) is list:
-		    copy[i] = self.export_to_js(x)
-		elif type(x) is dict:
-		    del copy[i]['date']
-		    del copy[i]['time']
-	    return json.dumps(copy) 
+	def rm_dt(self,hier):
+	    for i,x in enumerate(hier):
+		if type(x) is list: # needs nested call
+		    hier[i] = self.rm_dt(x)
+		elif type(x) is dict: # we are @ base level
+		    del hier[i]['date']
+		    del hier[i]['time']
+	    return hier 
 
 	# ENTRY method for /sms POSTs: input validation executed here (1st line of defense)        
 
@@ -170,9 +167,7 @@ class Fiend():
 	def range_find(self,arr,query):    
 	    temp = []
 	    for x in arr:
-          	print("RF:"+str(query)+" is our query")
-            	print("& "+str(x)+" is our x")
-		if ((query['name']==False or self.in_range(x['name'],query['name'])) and
+        	if ((query['name']==False or self.in_range(x['name'],query['name'])) and
 		    (query['msg']==False or self.in_range(x['msg'],query['msg'])) and
                     (query['date']==False or self.in_range(x['date'],query['date'])) and
                     (query['time']==False or self.in_range(x['time'],query['time']))):

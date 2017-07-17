@@ -9,7 +9,7 @@
 <div id="page">
         <h1>Interactive Data Visualizaton: Color Commons</h1>
 	
-	<div id="canvas" data-log="{{data|dt_convert}}"></div>
+	<div id="canvas" data-log="{{data|strip_dt}}"></div>
 	
 	<div id="info">
 	    
@@ -18,7 +18,7 @@
 		<p onclick="showtab(1)">VIEWS</p>
 		<p onclick="showtab(2)">ADVANCED</p>
 	    </div>
-	    <div id="about" data-time="{{time|dt_convert}}">
+	    <div id="about" data-time="{{time}}">
             	<p><a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
             </div>
 	</div>
