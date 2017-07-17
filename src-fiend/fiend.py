@@ -97,15 +97,15 @@ class Fiend():
 	
 	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
 	
-	def prep_dts(self,hier):
+	def get_jsdt(self,hier):
 	    for i,x in enumerate(hier):
 		if type(x) is list:
 		    print("p_d found list, converts")
-		    hier[i] = self.prep_dts(x)
+		    hier[i] = self.get_jsdt(x)
 	        elif type(x) is dict:
 		    hier[i]['jsdt'] = self.get_ms(x['date'],x['time'])
 	 	else: #not passed a list of lists or a single list
-		    print("PREP_DTS: terribly wrong")
+		    print("GET_JSDT: err")
 	    return hier
 
 	# MODIFIER for exporting - strips ['date'] and ['time'] categories
