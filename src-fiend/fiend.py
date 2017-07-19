@@ -21,13 +21,11 @@ import webcolors				#
 class Fiend():
 	
 	# INITIALIZE
-
 	def __init__(self,log,hash):
             self.log = log # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
 
 	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
-
 	def __deepcopy__(self,memo={}):
 	    # http://code.activestate.com/recipes/259179/
 	    print("id of self.log is "+str(id(self.log)))
@@ -36,7 +34,6 @@ class Fiend():
             return dcopy
 
 	# GETTERS
-
         def get_log(self):
             return self.log
 	def get_time(self):
@@ -44,7 +41,7 @@ class Fiend():
 	def get_date(self):
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
 	
-	# IMPORT/EXPORT of CSV format
+#-------IMPORT/EXPORT of CSV format
 
 	def send_to_csv(self):
             log = open("log.csv",'w')
@@ -85,49 +82,8 @@ class Fiend():
 		    elem['time'] = dtime.time()
 		    if not (self.new_entry2(elem)):
 			    print("Error pushing val to log")
-		
-
-	# LOADER for standardized week-old page info
-	# We know; that self is untouched throughout all page refreshed (ID-based)
-	# Also know; that hier object refreshes throughout (ID-changes)
-	# So WHY at line 110 (following deepcopy) do we see access fr a DIFFERENT log? 	
-
-	def load(self,optional):
-	    hier = None
-	    if optional is not None:	#file import optional
-		self.get_fr_csv(optional);
-	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
-	    hier.get_jsdt() # CONVERTER - check now
-	    hier.log = hier.find(hier.log,{'date':{'start':(hier.get_date() - datetime.timedelta(days=6)),'end':(hier.get_date())}})
-	    hier.log = hier.sort_by("day",hier.log)
-	    for i, tier in enumerate(hier.log):
-		hier.log[i] = hier.sort_by("color",tier) #assigns arr[] to ea var
-	    return json.dumps(format)
 	
-	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms - should exist in self
-	
-	def get_jsdt(self):
-	    for x in self.get_log():
-		x['jsdt'] = self.get_ms(x['date'],x['time'])
-
-	# MODIFIER for exporting - strips ['date'] and ['time'] categories
-
-	def rm_dt(self,hier):
-	    for i,x in enumerate(hier):
-		if type(x) is list: # needs nested call
-		    hier[i] = self.rm_dt(x)
-		elif type(x) is dict: # we are @ base level
-		    del hier[i]['date']
-		    del hier[i]['time']
-	    return hier 
-
-	# MODIFY/COPIER for exporting - changes to JSON format
-
-	def to_hier(self):
-	    depth = 0	
-	    
-
-	# ENTRY method for /sms POSTs: input validation executed here (1st line of defense)        
+#-------DIRECT API ENTRY method for /sms POST       
 
 	def new_entry(self,elem):
             # Elem should be of type {'name':'x','msg':'y'}
@@ -142,7 +98,6 @@ class Fiend():
             return True
 
 	# ALTERNATE ENTRY - for direct input from .csv files. See readme for proper format
-	
 	def new_entry2(self,elem):
 	    # Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
   	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
@@ -151,8 +106,33 @@ class Fiend():
             elem['name'] = self.get_hashable(elem['name']) # No need for + removal
       	    self.log.append(elem)
 	    return True
+	
+#-------LOADER for page information by category
+	def load(self,optional,args):
+	    if optional is not None:	#file import optional
+		self.get_fr_csv(optional);
+	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+	    hier.get_jsdt() # CONVERTER - check now
+	    hier.log = hier.find(hier.log,{'date':{'start':(hier.get_date() - datetime.timedelta(days=6)),'end':(hier.get_date())}})
+	    # HERE we should dbl check
+	    hier.log = hier.sort_by("day",hier.log)
+	    for i, tier in enumerate(hier.log):
+		hier.log[i] = hier.sort_by("color",tier) #assigns arr[] to ea var
+	    return json.dumps(format)
 
-	# SEARCH HANDLER for dict-defined queries (automatically calls range suite)
+	def defaultload(self,optional):
+	    if optional is not None:	#file import optional
+		self.get_fr_csv(optional);
+	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+	    hier.get_jsdt() # CONVERTER - check now
+	    hier.log = hier.find(hier.log,{'date':{'start':(hier.get_date() - datetime.timedelta(days=6)),'end':(hier.get_date())}})
+	    hier.log = hier.sort_by("day",hier.log)
+	    for i, tier in enumerate(hier.log):
+		hier.log[i] = hier.sort_by("color",tier) #assigns arr[] to ea var
+	    format = { 'name':"1 week",'children':hier.log }
+	    return json.dumps(format)		
+	
+#-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
 	def find(self,arr,query):
 	    found = self.log # Uneccessary assignment - note bottom functional for ALL implementation
@@ -164,8 +144,7 @@ class Fiend():
                 if 'date' not in query:
 		    query['date'] = False
 		if 'time' not in query:
-		   query['time'] = False 
-                
+		   query['time'] = False
                 if arr is None:
 		    found = self.range_find(found,query) #More precise range find
 	        else:
@@ -173,7 +152,6 @@ class Fiend():
 	    return found # if !query, returns full list
 	
 	# RANGE HANDLER (automatically called by search handler)
-
 	def range_find(self,arr,query):    
 	    temp = []
 	    for x in arr:
@@ -184,9 +162,7 @@ class Fiend():
 		    temp.append(x)
 	    return temp
 
-
 	# RANGE checker, returns a boolean T/F for single value/query in range/equivalent
-
 	def in_range(self,elem,test):
 	    if type(test) is dict:
 		return ((elem>=test['start']) and (elem<=test['end']))
@@ -197,7 +173,7 @@ class Fiend():
 		else:
 	            return (elem == test)
 	
-	# SORT method, returns a tree tier of lists
+#-------SORT method, returns a tree tier of lists **w modified JSON hierarchy
 
 	def sort_by(self, root, raw):
 	    SORTS = ["month","day","hour","users","newuser","color","color2"]
@@ -257,24 +233,8 @@ class Fiend():
 		else:
 		    print("SORT_BY: Haven't heard of that one!")
 		return tier
-	
-	# helper which takes set of data & returns list of (nonrepeat) dates for assembly
-	def compute_range(self,raw,key):
-	    range = []
-	    for i in raw[:]:
-		found = False
-		for j in range: 
-		    if (i[key] == j):
-			found = True
-		if not found:
-		    range.append(i[key])
-	    return range
 
-	# OPTIONAL function call - cleans empty list creations (ie, range MO:2-10 will gen arr[12] with empty)
-	def clean_sort(self,raw):
-	    return filter(None, raw)
-
-	# HASHING/ALIAS methods (MD5-compliant)
+#-------HASHING/ALIAS methods (MD5-compliant)
 	
 	def get_hashable(self,nos):
 	    nos = re.sub("[^0-9]",'',nos) #rmvs + from Twilio formatting
@@ -299,10 +259,36 @@ class Fiend():
 	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + tagtrail
 	    return alias
 	
-	# MULTIPURPOSE methods - unrelated to self object
+#-------MULTIPURPOSE methods - largely unrelated to self object
+	
+	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
+	def get_jsdt(self):
+	    for x in self.get_log():
+		x['jsdt'] = self.get_ms(x['date'],x['time'])
+
+	# MODIFIER for exporting - strips ['date'] and ['time'] categories
+	def rm_dt(self,hier):
+	    for i,x in enumerate(hier):
+		if type(x) is list: # needs nested call
+		    hier[i] = self.rm_dt(x)
+		elif type(x) is dict: # we are @ base level
+		    del hier[i]['date']
+		    del hier[i]['time']
+	    return hier 
+	
+	# SORT HELPER which takes set of data & returns list of (nonrepeat) dates for assembly
+	def compute_range(self,raw,key):
+	    range = []
+	    for i in raw[:]:
+		found = False
+		for j in range: 
+		    if (i[key] == j):
+			found = True
+		if not found:
+		    range.append(i[key])
+	    return range
 	
 	# CONVERTER:date obj and/or time object=> int representing total milliseconds fr UTC-std start
-	
 	def get_ms(self,d,t): # gets in MS; optional D & T entries, if both included adds the 2
 	    dstd = datetime.date(1970,1,1)
 	    if d is None:
@@ -315,7 +301,6 @@ class Fiend():
 	    return int(secs * 1000)
 
 	# CONVERTER:string of "HH:MM:SS YR-MO-DA ..."format => py datetime.datetime obj
-	
 	def convertexcel(self,raw):
 	    raw = raw.strip('"')
 	    raw = raw.split(' ',1) #maxsplit property splits date/time
@@ -328,7 +313,6 @@ class Fiend():
 	    return (dtime - datetime.timedelta(hours=4)) # CONVERT from UTC format to boston
 
 	# CONVERTER:tuple of RGB tuples => string with x,y,z|a,b,c|...format
-	
 	def convert_to_str(self, arr):
 	    condensed = ""
 	    last = len(arr)-1
@@ -342,7 +326,6 @@ class Fiend():
 	    return condensed
 
 	# PARSER for PHAROS lights display
-
 	def parse_command(self, message):
 	    FIXTURES = 24
 	    populate = True
@@ -376,16 +359,13 @@ class Fiend():
 	    # FORMAT data from 2 RGB tuples to chain of (24*3) numbers  
    	    if (populate):	
 		data = data * (FIXTURES/2)
-            # DO STUFF HERE TO CHANGE INTO A ARRAY.ARRAY?
 	    data = array.array('B', itertools.chain.from_iterable(data))
 	    return data
 	
 	# COLOR methods (access, complement)
-
 	def complement(self, color): # pass color as (r, g, b) tuple
 	    # simpler, slower version of http://stackoverflow.com/a/40234924
 	    return tuple(max(color) + min(color) - channel for channel in color)
-
 	def look_up_color(self, name):
 	    try:
 		color = tuple(webcolors.hex_to_rgb(xkcd_names_to_hex[name]))
