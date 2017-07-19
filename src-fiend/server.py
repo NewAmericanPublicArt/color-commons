@@ -5,7 +5,6 @@
 import datetime
 from fiend import Fiend # Personal module
 from flask import Flask, render_template, request
-import json
 from os import path
 import requests # WILL ALLOW US TO POST TO THE PI
 import time # separate module for calendar
@@ -18,7 +17,7 @@ public.config['PROPAGATE_EXCEPTIONS'] = True
 @public.before_first_request
 def initialize():
     global repo
-    repo = Fiend()
+    repo = Fiend([],None)
     print("*** SERVER RUNNING, WAITING ON POST REQUEST ***")
 
 ## POST RESPONSE INITIALIZER; adds "no-cache" header ##
@@ -32,9 +31,9 @@ def add_no_cache(response):
 @public.route('/', methods=['GET']) # Bleeding == nested functionality
 @public.route('/index', methods=['GET'])	
 def serve():
-    print("@@@@@@@@@@@@@@@@@@@@@@@@serving repo "+str(repo.get_log())[:100])
-    std = repo.load('current.csv') # CALLS JSDT AND HIERARCHY 1 AFTER THE OTHER
-#    try:
+    print("server refresh?")
+    std = repo.load('current.csv') # rets a copy to ONLY log item of fiend/repo
+#   try:
     return render_template('/index.html',data=std,time=(repo.get_ms(repo.get_date(),repo.get_time())))
 #    except:
 #	return render_template('/except.html')
@@ -49,12 +48,6 @@ def parse_sms():
     package = repo.convert_to_str(data)
     response = requests.post('http://127.0.0.1:54321/colors',data={'raw': package}) # Passes dict as FORM-ENCODED object to pi
     return "POSTED"
-
-# FILTER which finds & replaces all DT instances for js
-@public.template_filter('strip_dt')
-def strip_dt(hier):
-   hier = repo.rm_dt(hier)
-   return json.dumps(hier)
 
 if __name__ == "__main__":
    public.run(host='0.0.0.0', port=12345, debug=True)

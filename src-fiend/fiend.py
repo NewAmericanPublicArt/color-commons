@@ -3,9 +3,11 @@
 # Link: http://www.newamericanpublicart.com/color-commons-2017
 import array					# p_cmd array of 'B'
 import calendar					# for month utils
+from copy import deepcopy
 import csv					# file entry/db format
 import datetime					# get_date, get_time
 import itertools				# p_cmd array/iterable loops
+import json
 from math import sin				# parse_command rainbow gen
 import md5					# built-in hash
 from random import randint                      # generate rand color
@@ -20,9 +22,18 @@ class Fiend():
 	
 	# INITIALIZE
 
-	def __init__(self):
-            self.log = [] # Empty list of log entry
+	def __init__(self,log,hash):
+            self.log = log # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
+
+	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
+
+	def __deepcopy__(self,memo={}):
+	    # http://code.activestate.com/recipes/259179/
+	    print("id of self.log is "+str(id(self.log)))
+	    dcopy = Fiend(deepcopy(self.get_log()),None)
+            print("id of dcopy.log is "+str(id(dcopy.log)))
+            return dcopy
 
 	# PRINTER
 
@@ -52,6 +63,7 @@ class Fiend():
 
 	def get_fr_csv(self,FILE):
 	    if( self.get_log() != []): # No more than 1 file import allowed - can disable
+		print("G_frCSV wont import")
 		return
 	    with open(str(FILE), 'rb') as csvfile:
 		parse = csv.reader(csvfile, strict=True)
@@ -83,28 +95,47 @@ class Fiend():
 			    print("Error pushing val to log")
 	
 	# LOADER for standardized week-old page info
-	
-	def load(self,optional):
-	    print("*********IN LOAD****: "+str(self.get_log())[:100])
+	# We know; that self is untouched throughout all page refreshed (ID-based)
+	# Also know; that hier object refreshes throughout (ID-changes)
+	# So WHY at line 110 (following deepcopy) do we see access fr a DIFFERENT log? 	
 
+
+	def load(self,optional):
+	    hier = None
 	    if optional is not None:	#file import optional
-		self.get_fr_csv(optional);  
-	    hier = self.get_jsdt() # CONVERTER
-	    hier = self.find(hier,{'date':{'start':(self.get_date() - datetime.timedelta(days=6)),'end':(self.get_date())}})
-	    hier = self.sort_by("day",hier)
-	    for i, tier in enumerate(hier):
-		hier[i] = self.sort_by("color",tier) #assigns arr[] to ea var
-	    return hier
+		self.get_fr_csv(optional);
+
+            print(str(id(self))+" ... "+str(self.get_log())[:100])
+
+	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+
+	    print("After deepcopy")
+	    print(str(id(self))+" ... "+str(self.get_log())[:100])
+	    print(str(id(hier))+" ... "+str(hier.get_log())[:100])
+
+	    hier.get_jsdt() # CONVERTER - check now
+
+	    print("After get_jsdt")
+            print(str(id(self))+" ... "+str(self.get_log())[:100])
+            print(str(id(hier))+" ... "+str(hier.get_log())[:100])
+
+	    hier.log = hier.find(hier.log,{'date':{'start':(hier.get_date() - datetime.timedelta(days=6)),'end':(hier.get_date())}})
+	    hier.log = hier.sort_by("day",hier.log)
+	    for i, tier in enumerate(hier.log):
+		hier.log[i] = hier.sort_by("color",tier) #assigns arr[] to ea var
+	    hier.rm_dt(hier.log) # TODO peep assgn
+
+	    print("After reorgz")
+	    print(str(id(self))+" ... "+str(self.get_log())[:100])
+            print(str(id(hier))+" ... "+str(hier.get_log())[:100])
+
+	    return json.dumps(hier.log)
 	
-	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
+	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms - should exist in self
 	
 	def get_jsdt(self):
-	    print("************IN GET_JSDT*****: "+str(self.get_log())[:100])
-
-	    copy = self.get_log()
-	    for x in copy:
+	    for x in self.get_log():
 		x['jsdt'] = self.get_ms(x['date'],x['time'])
-	    return copy
 
 	# MODIFIER for exporting - strips ['date'] and ['time'] categories
 

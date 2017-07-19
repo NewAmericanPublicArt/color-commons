@@ -19,11 +19,8 @@ window.onload = function()
 function main(data,time)
 {
     load_about(time); // Coordinates 2/2 page
-    console.log(data+" is of type "+(typeof data));
-//    data = JSON.parse(data);
-    console.log(JSON.parse(data));
-//    tree = traverse_tree(data, JSON.parse);
-//    load_burst(tree); // Calls with assumption of asynchronous updating? TODO 1/2
+    tree = traverse_tree(data, JSON.parse);
+    load_burst(tree); // Calls with assumption of asynchronous updating? TODO 1/2
 }
 
 /*
@@ -93,15 +90,11 @@ function load_burst(data)
  */
 function traverse_tree(raw, apply)
 {
-    if (typeof raw === 'string'){
-	//parse it regardless, then assess children/recall	
+    if (typeof raw === 'string'){ //parse it regardless, then assess children/recall	
     	raw = apply(raw);
-	console.log("just got apply to raw");
-	console.log(raw);
-//	raw = traverse_tree(raw,apply);
+	raw = traverse_tree(raw,apply);
     } else if (Array.isArray(raw)) {
-	raw.forEach(function(val, i, raw) {
-            raw[i] = apply(val);
+	raw.forEach(function(val, i, raw) {          
 	    raw[i] = traverse_tree(val,apply);
     	});
     } else if (typeof raw === 'object') {
