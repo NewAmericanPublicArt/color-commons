@@ -108,16 +108,15 @@ class Fiend():
 	    return True
 	
 #-------LOADER for page information by category
-	def load(self,optional,args):
+	
+#######TODO - ALL OF THIS
+        def load(self,optional,args):
 	    if optional is not None:	#file import optional
 		self.get_fr_csv(optional);
 	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
 	    hier.get_jsdt() # CONVERTER - check now
-	    hier.log = hier.find(hier.log,{'date':{'start':(hier.get_date() - datetime.timedelta(days=6)),'end':(hier.get_date())}})
-	    # HERE we should dbl check
-	    hier.log = hier.sort_by("day",hier.log)
-	    for i, tier in enumerate(hier.log):
-		hier.log[i] = hier.sort_by("color",tier) #assigns arr[] to ea var
+	    ### TODO - FOR LOOP OF ARGS
+	    format = {}	    
 	    return json.dumps(format)
 
 	def defaultload(self,optional):
@@ -129,7 +128,9 @@ class Fiend():
 	    hier.log = hier.sort_by("day",hier.log)
 	    for i, tier in enumerate(hier.log):
 		hier.log[i] = hier.sort_by("color",tier) #assigns arr[] to ea var
+	    hier.rm_dt(hier.log)
 	    format = { 'name':"1 week",'children':hier.log }
+
 	    return json.dumps(format)		
 	
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
@@ -188,27 +189,30 @@ class Fiend():
 			for i in range(0,12):
 			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
 			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
-		            tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
+		            tier.append({ 'name': calendar.month_abbr[i+1], 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
 	    # DAY sorts - uses compute_range TODO - ensure all dates (not just ones w texts) include
 		    elif root is SORTS[1]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
-			    tier.append(self.find(raw,{'date':x})) # consider - removal fr main to avoid olap
+			    tier.append({ 'name': calendar.day_abbr[x.weekday()], 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
 	    # HOUR sorts - separate TIME item from DATE
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
 			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
-			tier.append(self.find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
+			tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
 	    # USERS sorts - parses down to unique subset of USERS
 		elif root is SORTS[3]: # UNIQUE users
-		    for i in raw[:]:
+		    for i in raw['children'][:]:
                         found = False
-			for j in tier[:]:
+			for j in tier['children'][:]:
 			    if (i['name'] == j['name']): # EQ compare, not ID
 				found = True
+				tier['children'].append(i)
 			if not found:
-			    tier.append(i) # Adds as new j entry, restarts i-iter
+			    tier.append({'name':i['name'], 'children':[i]}) # Adds as new j entry, restarts i-iter
             # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
+
+######TODO HERE
 		elif root is SORTS[4]: # NEW UNIQUE users
 		    tier = self.sort_by("users",raw) # ranged unique users for our set
 		    bot = datetime.date(2013,1,1)
@@ -222,10 +226,12 @@ class Fiend():
                   		if tier is None: #rmv? TODO
 	   			    print("empty tier")
 	    # COLORS sort - parses down to unique subset of MSGs
-  		elif root is SORTS[5] or root is SORTS[6]:
+######TODO HERE  	
+	elif root is SORTS[5] or root is SORTS[6]:
 	    	    colorlist = sorted(self.compute_range(raw,'msg'))
 		    for i,x in enumerate(colorlist):
 		        tier.append(self.find(raw,{'msg':x}))
+######TODO HERE
 	    # COLORISH sort - parse down to VAGUELY CLOSE unique subsets of msgs	
 		    if root is SORTS[6]:
 			# DO THINGS TO TIER ITSELF - we know that we can go right into
