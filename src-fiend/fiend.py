@@ -35,24 +35,16 @@ class Fiend():
             print("id of dcopy.log is "+str(id(dcopy.log)))
             return dcopy
 
-	# PRINTER
-
-	def fprint(self):
-            for i in self.log:
-                print(i)
-
 	# GETTERS
 
         def get_log(self):
             return self.log
-
 	def get_time(self):
 	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorp tzinfo, convert
-
 	def get_date(self):
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
 	
-	# IMPORT/EXPORT function - to CSVs and JAVASCRIPT
+	# IMPORT/EXPORT of CSV format
 
 	def send_to_csv(self):
             log = open("log.csv",'w')
@@ -93,43 +85,24 @@ class Fiend():
 		    elem['time'] = dtime.time()
 		    if not (self.new_entry2(elem)):
 			    print("Error pushing val to log")
-	
+		
+
 	# LOADER for standardized week-old page info
 	# We know; that self is untouched throughout all page refreshed (ID-based)
 	# Also know; that hier object refreshes throughout (ID-changes)
 	# So WHY at line 110 (following deepcopy) do we see access fr a DIFFERENT log? 	
 
-
 	def load(self,optional):
 	    hier = None
 	    if optional is not None:	#file import optional
 		self.get_fr_csv(optional);
-
-            print(str(id(self))+" ... "+str(self.get_log())[:100])
-
 	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
-
-	    print("After deepcopy")
-	    print(str(id(self))+" ... "+str(self.get_log())[:100])
-	    print(str(id(hier))+" ... "+str(hier.get_log())[:100])
-
 	    hier.get_jsdt() # CONVERTER - check now
-
-	    print("After get_jsdt")
-            print(str(id(self))+" ... "+str(self.get_log())[:100])
-            print(str(id(hier))+" ... "+str(hier.get_log())[:100])
-
 	    hier.log = hier.find(hier.log,{'date':{'start':(hier.get_date() - datetime.timedelta(days=6)),'end':(hier.get_date())}})
 	    hier.log = hier.sort_by("day",hier.log)
 	    for i, tier in enumerate(hier.log):
 		hier.log[i] = hier.sort_by("color",tier) #assigns arr[] to ea var
-	    hier.rm_dt(hier.log) # TODO peep assgn
-
-	    print("After reorgz")
-	    print(str(id(self))+" ... "+str(self.get_log())[:100])
-            print(str(id(hier))+" ... "+str(hier.get_log())[:100])
-
-	    return json.dumps(hier.log)
+	    return json.dumps(format)
 	
 	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms - should exist in self
 	
@@ -147,6 +120,12 @@ class Fiend():
 		    del hier[i]['date']
 		    del hier[i]['time']
 	    return hier 
+
+	# MODIFY/COPIER for exporting - changes to JSON format
+
+	def to_hier(self):
+	    depth = 0	
+	    
 
 	# ENTRY method for /sms POSTs: input validation executed here (1st line of defense)        
 
