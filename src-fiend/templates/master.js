@@ -42,24 +42,30 @@ function load_about(time)
  */
 function load_burst(data)
 {
-    var WID = d3.select("#canvas").attr("width");
-    var HEI = d3.select("#canvas").attr("height");
+    var WID = 500;
+    var HEI = 400;
+    var formatNumber = d3.format(",d");
+    var x = d3.scaleLinear().range([0, 2 * Math.PI]);
+    var y = d3.scaleSqrt().range([0,RAD]);
+    d3.select("#canvas")
+      .append("canvas")
+	.attr("width",WID)
+	.attr("height",HEI);
     var RAD = (Math.min(WID,HEI)/2)-10;
-    console.log(WID+" W, "+HEI+" H");
+    svg = d3.select("canvas")
+      .append("svg")
+	.attr("width",WID)
+	.attr("height",HEI)
+      .append("g")
+	.attr("transform","translate("+WID/2+","+(HEI/2)+")");	
 
-    svg = d3.select('#canvas').append("svg").attr("width",WID).attr("height",HEI)
-	.append("g").attr("transform","translate("+WID/2+","+(HEI/2)+")");	
-
-    var newhier = d3.hierarchy(data);
-    console.log(newhier);
-
-//    var formatNumber = d3.format(",d");
-//    var x = d3.scale.linear().range([0, 2 * Math.PI]);
-//    var y = d3.scale.sqrt().range([0, radius]);
-//    var color = d3.scale.category20c(); TODO - CREATE COLOR GEN FUNCITON
+    console.log(data);
+    data = convert_tree(data, 0);
+    console.log(data.children[0].children); //2nd level nest
+    var hier = d3.hierarchy(data);
+    console.log(data.children[0].children); //2nd level nest
 
 //    var partition = d3.layout.partition().value(function(d) { return d.size; });
-
 //    var arc = d3.svg.arc()
 //	.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); }).endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
 //    	.innerRadius(function(d) { return Math.max(0, y(d.y)); })
@@ -94,7 +100,7 @@ function traverse_tree(raw, apply)
     	raw = apply(raw);
 	raw = traverse_tree(raw,apply);
     } else if (Array.isArray(raw)) {
-	raw.forEach(function(val, i, raw) {          
+	raw.forEach(function(val, i) { //needs (val, i, raw)?         
 	    raw[i] = traverse_tree(val,apply);
     	});
     } else if (typeof raw === 'object') {
@@ -102,6 +108,20 @@ function traverse_tree(raw, apply)
     }
     return raw;
 }
+function convert_tree(branch, depth)
+{
+     if (Array.isArray(branch)) {
+	branch = { 'parent': depth, 'name': null, 'children': branch };
+        depth += 1;
+	branch.children.forEach(function(val,i) {
+	    branch[i] = convert_tree(val, depth);
+	});
+    } else if (typeof branch === 'object') {
+	branch = { 'parent': depth, 'name': branch };
+    } else { console.log("convert fail!"); }
+	return branch;
+}
+
 
 /* 
  * UPDATER - perhaps triggered by websocket

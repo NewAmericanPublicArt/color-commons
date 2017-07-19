@@ -15,7 +15,6 @@ body {
     flex-flow: row nowrap;
 }
 
-/*Should be 0 when mobile*/
 .buffer {
     flex: 1 0 0;
     background-color: #FFFFFF;
@@ -44,20 +43,32 @@ body {
 
 .tabs { visibility: hidden; }
 #about { font-size: .5em }
+
 /*
 CLASS 3 RESPONSIVE - DESKTOP/BIG DESKTOP
 */
-@media only screen and (min-width: 1200px) {}
-
+@media only screen and (min-width: 1200px) {
+    #canvas {
+	min-width: 800px;
+	min-height: 500px;
+    }
+}
 /*
 CLASS 2 RESPONSIVE - TABLET PORTRAIT & LANDSCAPE
 */
-@media only screen and (min-width: 600px) {}
-
+@media only screen and (min-width: 600px) {
+    #canvas {
+        min-width: 400px;
+        min-height: 250px;
+    }
+}
 /*
 CLASS 1 RESPONSIVE - ALL SMARTPHONES & LESS
 */
 @media only screen and (min-width: 80px) {
     #buffer { flex: 0 0 0 }
+    #canvas {
+        min-width: 200px;
+        min-height: 150px;
+    }
 }
-
