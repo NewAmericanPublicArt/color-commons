@@ -3,17 +3,32 @@
 
 ## Overview
 
-TODO; include images
+The impetus behind the creation of this sprawling Fiend was to modularize the work of the Color Commons project, essentially a skeletal API forwarding Twilio requests to a Pi, and flesh it out in order to track, sort and analyze the user input coming in from customers using our interactive exhibit. The hope is that this data can be used to draw conclusions about the engagement of the people with public art, and what spans of time or specific choices as the creator we should be making in order to encourage even more interaction.
+
+Accordingly, the resultant Fiend takes in information from a variety of inputs; as intended, through the `/sms` API in `server.py` which clients interact with through SMS, and, largely for testing purposes or large-scale imports, through a .csv file format. Fiend can also take in information manually from POST requests performed from 3rd-party access, eg curl.
+
+Fiend can display any of its log information at any time, as the attribute is not protected; in later usage of Fiend this may bear addressing, but for the time being input validation is strong enough and the Fiend module resides on the server-side. This design decision allows for easy access of specific components of the log, as indicated by the sorting suite present in the module; more than a few methods implemented have an optional parameter for which large set to draw from when organizing data, and when set to None these sets default to the Fiend's log.
+
+In considering search and sort criteria, every design decision was made to encourage ease of access for future users; accordingly, the `find` method (for ex) takes a query parameter similar to MongoDB query patterns, namely a dictionary of variable-length with inclusive selectors. Thus, a search query for the color red would look like this;
+> {'msg':'red'}
+whereas a more specific query for the color red *during the month of October* would look like this;
+> {'msg':'red','date':{'start':date(2017,10,1),'end':date(2017,10,31)}} 
+Note that the flexible search/sorts allow for nested 'start' and 'end' parameters for all attributes of log entries.
+
+TODO - more on sorting return shape specifically, passing over as hier
 
 ## Structure
 
-
+A Fiend consists of a LIST-type of entries and a UNIQUE md5 hashstream generated upon instantiation with an implicit init call.
+The list of entries, referred to as LOG, initially contains entries of the type
+> {'name':x,'date':y,'msg':z,'time':w}
+Though when certain methods are called, the log or its copies may be mutated into entries of the type
+> {'name':x,'msg':y,'jsdt':z}
+where `jsdt` refers to a combined integer value indicating number of milliseconds past UTC-stdz time (see `get_ms`), necessary in converting the data stored in Pythonic date/time objects into JS Date objects when rendered to the client. 
 
 ## Methods
 
 `__init__` : Constructor; creates empty log, hash stream
-
-`fprint` : Clean prints each line(dict-entry) of log
 
 `get_log` : Getter for log (library of all entries)
 
@@ -39,9 +54,9 @@ TODO; include images
 
 `range_find( obj arr, dict query )` : TODO
 
-`in_range( dict elem, dict test )` : TODO
+`in_range( dict elem, dict test )` : Takes 2 elements of expected similar type, compares elem to test & returns true if it matches or falls within the 'start','end'-convention range, false otherwise
 
-`compute_range( obj raw, str key)` : TODO
+`compute_range( obj raw, str key)` : Given an object (essentially a chunk of log) and a key indicating a particular attribute to highlight, generates a nonrepeating list of all values of that attribute from the original raw set. Ie, the computed range of all possible entries with the key 'msg' would generate a list of all possible colors, *as strings* rather than as more complex entries.
 
 `sort_by( str root, obj raw )` : TODO
 
