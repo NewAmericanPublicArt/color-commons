@@ -84,7 +84,7 @@ function load_burst(data) {
 							   return arc(d); };
 		};
 	}
-// -- ACTIVE code on call								  
+	// -- ACTIVE code on call								  
 	update(); // GO!
 }
 //					 
