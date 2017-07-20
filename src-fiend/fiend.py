@@ -28,9 +28,7 @@ class Fiend():
 	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
 	def __deepcopy__(self,memo={}):
 	    # http://code.activestate.com/recipes/259179/
-	    print("id of self.log is "+str(id(self.log)))
 	    dcopy = Fiend(deepcopy(self.get_log()),None)
-            print("id of dcopy.log is "+str(id(dcopy.log)))
             return dcopy
 
 	# GETTERS
@@ -126,9 +124,9 @@ class Fiend():
 	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
 	    hier.get_jsdt() # CONVERTER - check now
 	    hier.log = hier.find(hier.log,{'date':{'start':(hier.get_date() - datetime.timedelta(days=6)),'end':(hier.get_date())}})
-	    hier.log = hier.sort_by("day",hier.log)
-	    for i, tier in enumerate(hier.log):
-		hier.log[i] = hier.sort_by("color",tier) #assigns arr[] to ea var
+	    hier.log = hier.sort_by("day",hier.log) # Converts fr [] to [{x,[]},{y,[]}...
+	    for day in hier.log:
+		day['children'] = hier.sort_by("color",day['children']) #assigns arr[] to ea var
 	    hier.rm_dt(hier.log)
 	    format = { 'name':"1 week",'children': hier.get_log() }
 
@@ -182,6 +180,8 @@ class Fiend():
 	    if root not in SORTS or raw is None or raw == []:
 		return raw
 	    else:
+		if type(raw) is dict:
+		    raw = raw['children'] # Focuses on important component for reference
 		tier = [] # RET item
 	        if root is SORTS[0] or root is SORTS[1]:
 	            ouryear = raw[0]['date'].year # And same for year
@@ -274,12 +274,14 @@ class Fiend():
 
 	# MODIFIER for exporting - strips ['date'] and ['time'] categories
 	def rm_dt(self,hier):
-	    for i,x in enumerate(hier):
-		if type(x) is list: # needs nested call
-		    hier[i] = self.rm_dt(x)
-		elif type(x) is dict: # we are @ base level
-		    del hier[i]['date']
-		    del hier[i]['time']
+	    for x in hier:
+		if type(x) is list: # A series of nodes; needs nested call
+		    x = self.rm_dt(x)
+		elif type(x) is dict and 'children' in x: # A node; needs nested call on kids
+		    x['children'] = self.rm_dt(x['children'])
+		elif type(x) is dict: #we are @ base level
+		    del x['date']
+		    del x['time']
 	    return hier 
 	
 	# SORT HELPER which takes set of data & returns list of (nonrepeat) dates for assembly
