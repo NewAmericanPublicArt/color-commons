@@ -64,6 +64,7 @@ function load_burst(data) {
 	}		
 // -- HELPER FUNCTIONS; within loadburst()
     function click(d) { // Respond to slice click.
+	console.log("clicked");
     	node = d;
     	svg.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
   	}
@@ -88,7 +89,8 @@ function load_burst(data) {
     function arcTweenZoom(d) { // When zooming: interpolate the scales.
 	var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
 	yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
-	yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, radius]);
+	yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
+
 	return function (d, i) {
 		return i
 		  ? function (t) { return arc(d); }
