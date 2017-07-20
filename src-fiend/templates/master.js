@@ -42,8 +42,8 @@ function load_about(time)
  */
 function load_burst(data)
 {
-    var WID = 500;
-        HEI = 400;
+    var WID = 600;
+        HEI = 600;
         RAD = (Math.min(WID,HEI)/2)-10;
     
     var formatNumber = d3.format(",d");
@@ -53,17 +53,14 @@ function load_burst(data)
     
     var partition = d3.partition();
 
+    //Need d.x0, d.x1, d.y0, d.y1 ??
+
     var arc = d3.arc()
     	.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
     	.endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
     	.innerRadius(function(d) { return Math.max(0, y(d.y0)); })
     	.outerRadius(function(d) { return Math.max(0, y(d.y1)); });
-
-//   d3.select("#canvas")	//MAYBE remove - see, TODO
-//      .append("canvas")
-//	.attr("width",WID)
-//	.attr("height",HEI);
-    
+  
     var svg = d3.select("#canvas")
       .append("svg")
 	.attr("width",WID)
@@ -71,27 +68,30 @@ function load_burst(data)
       .append("g")
 	.attr("transform","translate("+WID/2+","+(HEI/2)+")");	
 
-    root = d3.hierarchy(data);
-
+    root = d3.hierarchy(data);    
     root.sum(function(d) { return d.size; });
-    
+    console.log(partition(root).descendants());    
+
+
     svg.selectAll("path")
       .data(partition(root).descendants())
     .enter().append("path")
       .attr("d", arc)
       .style("fill", function(d) { 
 			console.log(d);
-			var slicecolor = (d3.color(d['msg']) == null) ? d3.color(d['msg']):d3.color("white") ; 
+			var slicecolor = (d3.color(d['msg']) == null) ? d3.color(d['msg']):d3.color("white");
+			return slicecolor; 
 	})
       .on("click", click)
     .append("title")
       .text(function(d) { return d.data.name + "\n" + formatNumber(d.value); });
 
     function click(d) {
+        console.log("clicked on "+d)
 	svg.transition().duration(750).tween("scale", function() {
-	    var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-                yd = d3.interpolate(y.domain(), [d.y, 1]),
-                yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+	    var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+                yd = d3.interpolate(y.domain(), [d.y0, 1]),
+                yr = d3.interpolate(y.range(), [d.y ? 20 : 0, RAD]);
         return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
       }).selectAll("path")
 	  .attrTween("d", function(d) { return function() { return arc(d); }; });
