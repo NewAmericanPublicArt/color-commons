@@ -37,7 +37,7 @@ function load_burst(data) {
 	var first_build = true;
 	function update() {
 		// Determine how to size the slices, through # OF LEAVES (actual entries)
-		root.sum(function (d) { return d.value ? 1 : 0; }
+		root.sum(function (d) { return d.value ? 1 : 0; });
 	
 		if (first_build) {
 			// Add a <path d="[shape]" style="fill: [color];"><title>[popup text]</title></path>
