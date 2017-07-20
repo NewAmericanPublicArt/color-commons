@@ -24,7 +24,7 @@ body {
     flex: 6 6 0;
 
     display: flex;
-    flex-flow: column wrap;
+    flex-flow: column nowrap;
     background-color: #FFCC99;
     min-width: 0;
 }
@@ -45,12 +45,13 @@ body {
 #about { font-size: .5em }
 
 /*
-CLASS 3 RESPONSIVE - DESKTOP/BIG DESKTOP
+CLASS 1 RESPONSIVE - ALL SMARTPHONES & LESS
 */
-@media only screen and (min-width: 1200px) {
+@media only screen and (min-width: 80px) {
+    #buffer { flex: 0 0 0 }
     #canvas {
-	min-width: 800px;
-	min-height: 500px;
+        min-width: 200px;
+        min-height: 150px;
     }
 }
 /*
@@ -63,12 +64,12 @@ CLASS 2 RESPONSIVE - TABLET PORTRAIT & LANDSCAPE
     }
 }
 /*
-CLASS 1 RESPONSIVE - ALL SMARTPHONES & LESS
+CLASS 3 RESPONSIVE - DESKTOP/BIG DESKTOP
 */
-@media only screen and (min-width: 80px) {
-    #buffer { flex: 0 0 0 }
+@media only screen and (min-width: 1200px) {
     #canvas {
-        min-width: 200px;
-        min-height: 150px;
+        min-width: 800px;
+        min-height: 500px;
     }
 }
+
