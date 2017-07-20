@@ -27,6 +27,7 @@ function load_burst(data) {
         partition = d3.partition(),
 	root = d3.hierarchy(data),	//,data['children']);
 	node = root;
+ 
 // -- ARC; d path for ea slice
     var arc = d3.arc()
     	.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
@@ -36,12 +37,13 @@ function load_burst(data) {
 // -- UPDATE; Build the sunburst.
 	function update() {
 		// Determine how to size the slices, through # OF LEAVES (actual entries)
-		root.sum(function (d) { return d.value ? 1 : 0; });
+		root.sum(function (d) { return d.value ? 1 : 0; }); // req. for PARTITION
 		if (first_build) { // Add a <path d="[shape]" style="fill: [color];"><title>[popup text]</title></path> to ea <g> element; add click handler; save slice widths for tweening
 			first_build = false;
+			// NEED TESTING HERE
+			//
 			svg.selectAll("path").data(partition(root).descendants()).enter().append("path")
 				.style("fill", function (d) { 
-					console.log(d);
 					// ensure: root/evens are 0; eg
 					if (d.parent) {
 					    if ('msg' in d) { // for leaf node, use color/if DNE white
@@ -54,9 +56,8 @@ function load_burst(data) {
 				})  // Return white for root.
 				.on("click", click); //TODO
 			svg.selectAll("path").append("title")
-				.text(function (d) { 
-					console.log(d);
-					return d.data.name; 
+				.text(function (d) {
+					return (d.data.name) ? d.data.name : d.data.msg; 
 				}) //TODO
 		} else { svg.selectAll("path").data(partition(root).descendants()); }
 		svg.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
@@ -84,20 +85,20 @@ function load_burst(data) {
 			};
 		} else { return tween; }
     }		
-	function arcTweenZoom(d) { // When zooming: interpolate the scales.
-		var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
-		yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
-		yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, radius]);
-		return function (d, i) {
-			return i
-			  ? function (t) { return arc(d); }
-			  : function (t) { x.domain(xd(t));
-							   y.domain(yd(t)).range(yr(t));
-							   return arc(d); };
-		};
-	}
-	// -- ACTIVE code on call								  
-	update(); // GO!
+    function arcTweenZoom(d) { // When zooming: interpolate the scales.
+	var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+	yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
+	yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, radius]);
+	return function (d, i) {
+		return i
+		  ? function (t) { return arc(d); }
+		  : function (t) { x.domain(xd(t));
+			   y.domain(yd(t)).range(yr(t));
+			   return arc(d); };
+	};
+    }
+// -- ACTIVE code on call								  
+    update(); // GO!
 }
 //					 
 // CONVERTS raw string=>nested JSON dict format
