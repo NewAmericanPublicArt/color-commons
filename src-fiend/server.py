@@ -33,6 +33,7 @@ def add_no_cache(response):
 def serve():
     print("server refresh?")
     std = repo.defaultload('current.csv') # rets a copy to ONLY log item of fiend/repo
+    print(std)
 #   try:
     return render_template('/index.html',data=std,time=(repo.get_ms(repo.get_date(),repo.get_time())))
 #    except:
