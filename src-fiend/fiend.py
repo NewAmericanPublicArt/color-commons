@@ -82,6 +82,7 @@ class Fiend():
 		    elem['time'] = dtime.time()
 		    if not (self.new_entry2(elem)):
 			    print("Error pushing val to log")
+			    print("Elem2 is "+str(elem))
 	
 #-------DIRECT API ENTRY method for /sms POST       
 
@@ -129,7 +130,7 @@ class Fiend():
 	    for i, tier in enumerate(hier.log):
 		hier.log[i] = hier.sort_by("color",tier) #assigns arr[] to ea var
 	    hier.rm_dt(hier.log)
-	    format = { 'name':"1 week",'children':hier.log }
+	    format = { 'name':"1 week",'children': hier.get_log() }
 
 	    return json.dumps(format)		
 	
@@ -194,7 +195,7 @@ class Fiend():
 		    elif root is SORTS[1]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
-			    tier.append({ 'name': calendar.day_abbr[x.weekday()], 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
+			    tier.append({ 'name': (str(x.day)+"-"+calendar.day_abbr[x.weekday()]), 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
 	    # HOUR sorts - separate TIME item from DATE
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
@@ -202,17 +203,15 @@ class Fiend():
 			tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
 	    # USERS sorts - parses down to unique subset of USERS
 		elif root is SORTS[3]: # UNIQUE users
-		    for i in raw['children'][:]:
+		    for i in raw[:]: #TODO
                         found = False
-			for j in tier['children'][:]:
+			for iter,j in enumerate(tier[:]):
 			    if (i['name'] == j['name']): # EQ compare, not ID
 				found = True
-				tier['children'].append(i)
+				tier[iter]['children'].append(i) # Add to specific user iter
 			if not found:
 			    tier.append({'name':i['name'], 'children':[i]}) # Adds as new j entry, restarts i-iter
             # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
-
-######TODO HERE
 		elif root is SORTS[4]: # NEW UNIQUE users
 		    tier = self.sort_by("users",raw) # ranged unique users for our set
 		    bot = datetime.date(2013,1,1)
@@ -225,16 +224,17 @@ class Fiend():
 				tier.remove(i)
                   		if tier is None: #rmv? TODO
 	   			    print("empty tier")
-	    # COLORS sort - parses down to unique subset of MSGs
-######TODO HERE  	
-	elif root is SORTS[5] or root is SORTS[6]:
+	    # COLORS sort - parses down to unique subset of MSGs 	
+		elif root is SORTS[5] or root is SORTS[6]:
 	    	    colorlist = sorted(self.compute_range(raw,'msg'))
-		    for i,x in enumerate(colorlist):
-		        tier.append(self.find(raw,{'msg':x}))
+		    for x in colorlist:
+		        tier.append({'name':x, 'children': self.find(raw,{'msg':x})})
 ######TODO HERE
 	    # COLORISH sort - parse down to VAGUELY CLOSE unique subsets of msgs	
 		    if root is SORTS[6]:
 			# DO THINGS TO TIER ITSELF - we know that we can go right into
+			# Given color, "Pink" --> create [" Pink ","Pink   ","pink", etc.?]
+			# Then combine prompts with matching
 			print("special colors not made yet")    		    
 		else:
 		    print("SORT_BY: Haven't heard of that one!")
