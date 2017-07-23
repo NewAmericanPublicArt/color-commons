@@ -271,6 +271,7 @@ class Fiend():
 	def get_jsdt(self):
 	    for x in self.get_log():
 		x['jsdt'] = self.get_ms(x['date'],x['time'])
+		x['size'] = 1
 
 	# MODIFIER for exporting - strips ['date'] and ['time'] categories
 	def rm_dt(self,hier):
