@@ -68,36 +68,8 @@ function load_burst(data) {
     	        .text(function(d) { return d.data.name; });
 	}	
 	run();
- 					  
-// -- UPDATE; Build the sunburst.
-	function update() {
-		// Determine how to size the slices, through # OF LEAVES (actual entries)
-		root.sum(function (d) { return d.value ? 1 : 0; }); // req. for PARTITION
-		if (first_build) { // Add a <path d="[shape]" style="fill: [color];"><title>[popup text]</title></path> to ea <g> element; add click handler; save slice widths for tweening
-			first_build = false;
-			// NEED TESTING HERE
-			//
-			svg.selectAll("path").data(partition(root).descendants()).enter().append("path")
-				.style("fill", function (d) { 
-					// ensure: root/evens are 0; eg
-					if (d.parent) {
-					    if ('msg' in d) { // for leaf node, use color/if DNE white
-						ourcolor = d3.color(d['msg']);
-					    	return (ourcolor != null) ? ourcolor : d3.color("white"); 
-					    } else { //for internal nodes, alternating w/b from root
-						return (d.depth%2==1) ? d3.color("black") : d3.color("white")
-					    }
-					} else { return d3.color("white"); } //for root node
-				})  // Return white for root.
-				.on("click", click); //TODO
-			svg.selectAll("path").append("title")
-				.text(function (d) {
-					return (d.data.name) ? d.data.name : d.data.msg; 
-				}) //TODO
-		} else { svg.selectAll("path").data(partition(root).descendants()); }
-		svg.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
-	}		
-// -- HELPER FUNCTIONS; within loadburst()
+				  
+within loadburst()
     function click(d) { // Respond to slice click.
 	console.log("clicked");
     	node = d;
