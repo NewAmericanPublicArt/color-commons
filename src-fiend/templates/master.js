@@ -22,6 +22,7 @@ function main(data,time) {
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_burst(data) {
     var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10,
+	tscale = d3.scaleSequential(d3.interpolateGreys),
         partition = d3.partition()
 	  .size([2*Math.PI, RAD]),
 	root = d3.hierarchy(data)
@@ -37,8 +38,7 @@ function load_burst(data) {
 	  .outerRadius(function(d) { return d.y1 });
 
 	partition(root); //calls partition on root (links structure & data)
-	run();
-	
+		
 	var run = function() { 
 		g.selectAll('g')
 		  .data(root.descendants())
@@ -59,7 +59,11 @@ function load_burst(data) {
 			.text(function(d) { return d.data.name; })
 			.on("mouseover", function(){ showtext(d,true); })
 			.on("mouseout", function(){ showtext(d,false); });
-	}
+	    
+	    //  
+        }
+
+	run();
 }
 
 // HELPER FUNCTIONS //
@@ -69,13 +73,14 @@ function colorize(node) {
     var lookup;
     if (node.children) {
 	lookup = COLORS[node.data['name'].toLowerCase()];
+	// TODO - scaled chroma
     } else {
     	lookup = COLORS[node.data['msg'].toLowerCase()];   
     }
     if (lookup == null) {
  	lookup = (node.depth%2==0) ? "white" : "black";
     }
-    return d3.color(color);
+    return d3.color(lookup);
 }
 
 // showtext: TOGGLES TEXT over slices of data viz
