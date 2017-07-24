@@ -14,6 +14,7 @@ function main(data,time) {
     load_about(time); // Coordinates 2/2 page
     tree = traverse_tree(data, JSON.parse);
     load_burst(tree); // Calls with assumption of asynchronous updating? TODO 1/2
+    showtabs(0);
 }
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_burst(data) {
@@ -24,8 +25,6 @@ function load_burst(data) {
 	g = d3.select("svg")
 	  .append("g")
 	    .attr("transform","translate("+WID/2+","+(HEI/2)+")"),	
-    //    x = d3.scaleLinear().range([0, 2 * Math.PI]),
-    //    y = d3.scaleSqrt().range([0,RAD]),	
         partition = d3.partition()
 	  .size([2*Math.PI, RAD]),
 	root = d3.hierarchy(data)
@@ -47,16 +46,21 @@ function load_burst(data) {
 
 	partition(root); //calls partition on root (links structure & data)
 	
-	var run = function() {
-	    console.log(data['children'][0]);
+	var run = function() { 
 	    g.selectAll('path')
     	      .data(root.descendants())
 	      .enter()
     	      .append('path')
     	      .attr("display", function (d) { return d.depth ? null : "none"; })
     	      .attr("d", arc)
-    		.style('stroke', '#fff')
-    		.style("fill", function (d) { return colorize(d.children ? (d.depth%2==0 ? "white" : "black") : d.data['msg']); });
+    		.style('stroke', '#000066')
+    		.style("fill", function (d) { return colorize(d.children ? (d.depth%2==0 ? "white" : "black") : d.data['msg']); }) 
+		.append("text")
+		.attr("transform", function(d) {
+		    return "translate(" + arc.centroid(d) + ")rotate(" + computeTextRotation(d) + ")"; })
+    	        .attr("dx", "-20")
+    	        .attr("dy", ".5em")
+    	        .text(function(d) { return d.data.name; });
 	}	
 	run();
  					  
@@ -126,7 +130,19 @@ function load_burst(data) {
 	};
     }							  
 }
-//					 
+//
+
+// COURTESY OF denjn5 Sunburst Viz tutorial
+function computeTextRotation(d) {
+     console.log("ctr");
+    var angle = (d.x0 + d.x1) / Math.PI * 90;  // <-- 1
+
+    // Avoid upside-down labels
+    return (angle < 90 || angle > 270) ? angle : angle + 180;  // <--2 "labels aligned with slices"
+
+    // Alternate label formatting
+    //return (angle < 180) ? angle - 90 : angle + 90;  // <-- 3 "labels as spokes"
+}					 
 // CONVERTS raw string=>nested JSON dict format
 function traverse_tree(raw, apply) {
     if (typeof raw === 'string'){ //parse it regardless, then assess children/recall	
@@ -143,7 +159,8 @@ function load_about(time) {
     var format = "Last Updated: " + val + ".";
     d3.select("#about").insert("div",":first-child").html(format);
 }
-function showtabs(i) {
-    //d3.select('options').attr('visibility','hidden')
-    //d3.select('options').select('tab'+i).attr('visibility','visible'); //TODO rename tabs
+function showtabs(x) {
+    var tabs = d3.selectAll(".tabs>p").attr("visibility","visible");
+//    	if (x == i) { val.attr("visibility","visible");
+//	} else { val.attr("visibility","hidden");
 }

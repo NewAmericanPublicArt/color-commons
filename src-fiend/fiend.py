@@ -108,13 +108,12 @@ class Fiend():
 	
 #-------LOADER for page information by category
 	
-#######TODO - ALL OF THIS
         def load(self,optional,args):
 	    if optional is not None:	#file import optional
 		self.get_fr_csv(optional);
 	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
 	    hier.get_jsdt() # CONVERTER - check now
-	    ### TODO - FOR LOOP OF ARGS
+### TODO - FOR LOOP OF ARGS
 	    format = {}	    
 	    return json.dumps(format)
 
@@ -128,8 +127,7 @@ class Fiend():
 	    for day in hier.log:
 		day['children'] = hier.sort_by("color",day['children']) #assigns arr[] to ea var
 	    hier.rm_dt(hier.log)
-	    format = { 'name':"1 week",'children': hier.get_log() }
-
+	    format = { 'name':("Week of the "+self.daylabel(hier.get_date().day)),'children': hier.get_log() }
 	    return json.dumps(format)		
 	
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
@@ -195,7 +193,7 @@ class Fiend():
 		    elif root is SORTS[1]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
-			    tier.append({ 'name': (str(x.day)+"-"+calendar.day_abbr[x.weekday()]), 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
+			    tier.append({ 'name': (calendar.day_abbr[x.weekday()]+" "+self.daylabel(x.day)), 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
 	    # HOUR sorts - separate TIME item from DATE
 		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
@@ -296,6 +294,17 @@ class Fiend():
 		if not found:
 		    range.append(i[key])
 	    return range
+
+	# DAY-ENDING CREATOR - for proper labeling, helper to sort function
+	def daylabel(self,val):
+	    if (val % 10 == 1 and val != 11):
+		return str(val)+"st"
+	    elif (val % 10 == 2):
+		return str(val)+"nd"
+	    elif (val % 10 == 3):
+		return str(val)+"rd"
+	    else:
+		return str(val)+"th"
 	
 	# CONVERTER:date obj and/or time object=> int representing total milliseconds fr UTC-std start
 	def get_ms(self,d,t): # gets in MS; optional D & T entries, if both included adds the 2
