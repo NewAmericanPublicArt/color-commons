@@ -37,29 +37,29 @@ function load_burst(data) {
 	  .outerRadius(function(d) { return d.y1 });
 
 	partition(root); //calls partition on root (links structure & data)
+	run();
 	
 	var run = function() { 
 		g.selectAll('g')
 		  .data(root.descendants())
 		  .enter()
 		  .append('g')
-		  .attr("class", "node")
+		    .attr("class", "node")
 		  .append('path')
-		  .attr("display", function (d) { return d.depth ? null : "none"; })
-		  .attr("d", arc)
+		    .attr("display", function (d) { return d.depth ? null : "none"; })
+		    .attr("d", arc)
 			.style('stroke', '#000066')
 			.style("fill", function (d) { return colorize(d) }), 
 		g.selectAll('.node')	
 		  .append("title")
-		    .attr("transform", function(d) {
-			  return "translate(" + arc.centroid(d) + ")rotate(" + computeTextRotation(d) + ")"; })
-		    .attr("dx", function(d){ return (d.depth ? "-20" : "0");}) //syd comment - changes position for root node (cutoff)
-		    .attr("dy", ".5em")
-		    .text(function(d) { return d.data.name; })
-		    .on("mouseover", function(){ showtext(d,true); })
-		    .on("mouseout", function(){ showtext(d,false); });
+			.attr("transform", function(d) {
+			    return "translate(" + arc.centroid(d) + ")rotate(" + computeTextRotation(d) + ")"; })
+			.attr("dx", function(d){ return (d.depth ? "-20" : "0");}) //syd comment - changes position for root node (cutoff)
+			.attr("dy", ".5em")
+			.text(function(d) { return d.data.name; })
+			.on("mouseover", function(){ showtext(d,true); })
+			.on("mouseout", function(){ showtext(d,false); });
 	}
-	run();
 }
 
 // HELPER FUNCTIONS //
@@ -92,6 +92,11 @@ function showtext(obj,show) {
 		text.attr("visibility","hidden");	
 	}
 }
+	
+// showtabs: DISPLAYS relevant tab component when selected
+function showtabs(x) {
+    var tabs = d3.selectAll(".tabs>p").attr("visibility","visible");
+}
 
 // load_about: LOADER for ABOUT - provides last-updated information
 function load_about(time) {
@@ -120,11 +125,6 @@ function traverse_tree(raw, apply) {
 	raw.forEach(function(val, i){ raw[i] = traverse_tree(val,apply); });
     }
     return raw;
-}
-	
-// showtabs: DISPLAYS relevant tab component when selected
-function showtabs(x) {
-    var tabs = d3.selectAll(".tabs>p").attr("visibility","visible");
 }
 
 // GLOBAL VARS
