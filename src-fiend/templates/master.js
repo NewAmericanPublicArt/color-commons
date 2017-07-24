@@ -47,18 +47,23 @@ function load_burst(data) {
 	partition(root); //calls partition on root (links structure & data)
 	
 	var run = function() { 
-	    g.selectAll('path')
+	    g.selectAll('g')
     	      .data(root.descendants())
 	      .enter()
+	      .append('g')
+	      .attr("class", "node")
     	      .append('path')
     	      .attr("display", function (d) { return d.depth ? null : "none"; })
     	      .attr("d", arc)
     		.style('stroke', '#000066')
     		.style("fill", function (d) { return colorize(d.children ? (d.depth%2==0 ? "white" : "black") : d.data['msg']); }) 
+	    g.selectAll('.node')	
 		.append("text")
+		.attr("class","label")
+		
 		.attr("transform", function(d) {
 		    return "translate(" + arc.centroid(d) + ")rotate(" + computeTextRotation(d) + ")"; })
-    	        .attr("dx", "-20")
+    	        .attr("dx", function(d){ return (d.depth ? "-20" : "0");}) //syd comment - changes position for root node (cutoff)
     	        .attr("dy", ".5em")
     	        .text(function(d) { return d.data.name; });
 	}	

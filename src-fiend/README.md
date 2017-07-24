@@ -11,8 +11,10 @@ Fiend can display any of its log information at any time, as the attribute is no
 
 In considering search and sort criteria, every design decision was made to encourage ease of access for future users; accordingly, the `find` method (for ex) takes a query parameter similar to MongoDB query patterns, namely a dictionary of variable-length with inclusive selectors. Thus, a search query for the color red would look like this;
 > {'msg':'red'}
+
 whereas a more specific query for the color red *during the month of October* would look like this;
 > {'msg':'red','date':{'start':date(2017,10,1),'end':date(2017,10,31)}} 
+
 Note that the flexible search/sorts allow for nested 'start' and 'end' parameters for all attributes of log entries.
 
 TODO - more on sorting return shape specifically, passing over as hier
@@ -22,8 +24,10 @@ TODO - more on sorting return shape specifically, passing over as hier
 A Fiend consists of a LIST-type of entries and a UNIQUE md5 hashstream generated upon instantiation with an implicit init call.
 The list of entries, referred to as LOG, initially contains entries of the type
 > {'name':x,'date':y,'msg':z,'time':w}
+
 Though when certain methods are called, the log or its copies may be mutated into entries of the type
 > {'name':x,'msg':y,'jsdt':z}
+
 where `jsdt` refers to a combined integer value indicating number of milliseconds past UTC-stdz time (see `get_ms`), necessary in converting the data stored in Pythonic date/time objects into JS Date objects when rendered to the client. 
 
 ## Methods
@@ -92,7 +96,7 @@ TODO
 
 #### Formatting Display
 
-TODO
+The third and newest component of our Fiend interaction was the development of a new API (given the default "/" route in a GET request scenario) to allow users of the Color Commons project to see an interactive data vizualization of all user input to the Fiend organized by time span, unique user ID, colors, etc - the goal is to make this information accessible and live-updating to the clients interacting with it on the webpage. Accordingly, the handler for this API loads `index.html` which contains extensive js work in `master.js`, as well as the inclusion of the js graphics/data package D3 in order to generate an infographic out of a SVG. 
 
 
 ___

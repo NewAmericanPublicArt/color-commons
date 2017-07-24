@@ -39,6 +39,14 @@ svg {
     max-height: 100%;
 }
 
+.label {
+    font-size: .6em; 
+}
+
+.label:hover {
+    visibility: visible;
+}
+*/
 #info {
     flex: 1 1 0;
 
