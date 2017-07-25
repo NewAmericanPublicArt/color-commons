@@ -22,7 +22,7 @@ function main(data,time) {
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_burst(data) {
     var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10,
-	tscale = d3.scaleSequential(d3.interpolateGreys),
+	//gscale = d3.scaleSequential(d3.interpolateGreys),
         partition = d3.partition()
 	  .size([2*Math.PI, RAD]),
 	root = d3.hierarchy(data)
@@ -40,48 +40,46 @@ function load_burst(data) {
 
 	partition(root); //calls partition on root (links structure & data)
 		
-	var run = function() { 
+	var run = function() { 		
+	
 		var slice = g.selectAll('g')
 		  .data(root.descendants())
 		  .enter()
 		  .append('g')
-		    .attr("class", "node")
-		  
+		    .attr("class", "node");
 		slice.append('path')
 		    .attr("display", function (d) { return d.depth ? null : "none"; })
 		    .attr("d", arc)
 			.style('stroke', '#000066')
-			.style("fill", function (d) { return colorize(d) }), 
-		
-		g.selectAll('.node')	
+			.style("fill", function (d) { return colorize(d); });
+ 
+  		var gscale = d3.scaleSequential()
+                    .domain([0,function(d){ return d.parent.children.length; }])
+                    .interpolator(d3.interpolateGreys);
+	    	g.selectAll('.node')
 		  .append("title")
-			.attr("transform", function(d) {
-			    return "translate(" + arc.centroid(d) + ")rotate(" + computeTextRotation(d) + ")"; })
-			.attr("dx", function(d){ return (d.depth ? "-20" : "0");}) //syd comment - changes position for root node (cutoff)
-			.attr("dy", ".5em")
-			.text(function(d) { return d.data.name; })
-			.on("mouseover", function(){ showtext(d,true); })
-			.on("mouseout", function(){ showtext(d,false); });
-	    
-	    //  
-        }
+		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
+
+		//      .on("mouseover", function(){ showtext(d,true); })
+                //      .on("mouseout", function(){ showtext(d,false); });
+		
+	}
 
 	run();
 }
 
 // HELPER FUNCTIONS //
 
-//
+// colorize: FINDS COLOR for each slice based on node
 function colorize(node) {
-    var lookup;
-    if (node.children) {
+    var lookup = "black";
+    if (!node.data.size) {
 	lookup = COLORS[node.data['name'].toLowerCase()];
-	// TODO - scaled chroma
     } else {
-    	lookup = COLORS[node.data['msg'].toLowerCase()];   
+	lookup = COLORS[node.data['msg'].toLowerCase()];   
     }
-    if (lookup == null) {
- 	lookup = (node.depth%2==0) ? "white" : "black";
+    if (lookup == null && node.depth!=0) {
+	lookup = "white";//color scale - our space/dom
     }
     return d3.color(lookup);
 }
