@@ -51,7 +51,7 @@ class Fiend():
 
 	def get_fr_csv(self,FILE):
 	    if( self.get_log() != []): # No more than 1 file import allowed - can disable
-		print("G_frCSV wont import")
+		print("G_frCSV:File wont import\n")
 		return
 	    with open(str(FILE), 'rb') as csvfile:
 		parse = csv.reader(csvfile, strict=True)
@@ -80,15 +80,14 @@ class Fiend():
 		    elem['date'] = dtime.date() 
 		    elem['time'] = dtime.time()
 		    if not (self.new_entry2(elem)):
-			    print("Error pushing val to log")
-			    print("Elem2 is "+str(elem))
+			    print("Error pushing "+str(elem)+" to log\n")
 	
 #-------DIRECT API ENTRY method for /sms POST       
 
 	def new_entry(self,elem):
             # Elem should be of type {'name':'x','msg':'y'}
             if not(elem and ('name' in elem) and ('msg' in elem)):
-                print("improper entry format")
+                print("N_E:Improper entry format\n")
                 return False
 	    elem['name'] = elem['name'].translate(None,'+')
 	    elem['name'] = self.get_hashable(elem['name'])
@@ -101,7 +100,7 @@ class Fiend():
 	def new_entry2(self,elem):
 	    # Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
   	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
-                print("improper entry2 format")              
+                print("N_E2:Improper entry2 format\n")              
                 return False
             elem['name'] = self.get_hashable(elem['name']) # No need for + removal
       	    self.log.append(elem)
@@ -113,8 +112,6 @@ class Fiend():
 	    if optional is not None:	#file import optional
 		self.get_fr_csv(optional);
 	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
-	    print("for testing (RMV:116), accessing copy SORTS")
-	    print(hier.SORTS)
 	    hier.get_jsdt() # CONVERTER
 	    dataset = hier.get_log()
 	    for i, arg in enumerate(args):
@@ -140,8 +137,7 @@ class Fiend():
 		    elif arg in self.SORTS[3:]: # Unique ...'user','newuser','color','color2']
 		        dataset = hier.sort_by(arg,dataset)
 		else:
-		    print("Unable to sort by "+str(arg))
-	
+		    print("LOAD:Unable to sort by "+str(arg))	
 	    format = {}	    
 	    return json.dumps(format)
 
@@ -150,17 +146,14 @@ class Fiend():
 		self.get_fr_csv(optional);
 	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
 	    hier.get_jsdt() # CONVERTER - check now
-	    print(hier.log)
 	    dataset = hier.find(hier.log,{'date':hier.get_date()})
-            print(dataset)
-	    dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
+            dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
 	    for i,hr in enumerate(dataset):
 		dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
 	    hier.rm_dt(dataset)
 	    format = { 'name':(calendar.day_abbr[hier.get_date().weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
-	    print(format)
-	    return json.dumps(format)
-	    #return self.load(optional,["week","users","colors"]);		
+	    return json.dumps(format) 
+	   #return self.load(optional,["week","users","colors"]);		
 	
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
@@ -266,7 +259,7 @@ class Fiend():
 			# Then combine prompts with matching
 			print("special colors not made yet")    		    
 		else:
-		    print("SORT_BY: Haven't heard of that one!")
+		    print("SORT_BY:Improper sort parameter "+str(root)+"\n")
 		return tier
 
 #-------HASHING/ALIAS methods (MD5-compliant)
