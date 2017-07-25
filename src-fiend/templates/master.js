@@ -26,30 +26,33 @@ function load_burst(data) {
         partition = d3.partition()
 	  .size([2*Math.PI, RAD]),
 	root = d3.hierarchy(data)
-	  .sum(function(d) { return d.size; }),
+	  .sum(function(d) { return d.size; })
+	  .sort(function(a,b) { return b.value - a.value; }),
 	g = d3.select("svg")
 	  .append("g")
 	  .attr("transform","translate("+WID/2+","+(HEI/2)+")"),
 	node = root,
 	arc = d3.arc()
-	  .startAngle(function(d) { return d.x0 })
-	  .endAngle(function(d) { return d.x1 })
-	  .innerRadius(function(d) { return d.y0 })
-	  .outerRadius(function(d) { return d.y1 });
+	  .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
+	  .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
+	  .innerRadius(function(d) { return d.y0; })
+	  .outerRadius(function(d) { return d.y1; });
 
 	partition(root); //calls partition on root (links structure & data)
 		
 	var run = function() { 
-		g.selectAll('g')
+		var slice = g.selectAll('g')
 		  .data(root.descendants())
 		  .enter()
 		  .append('g')
 		    .attr("class", "node")
-		  .append('path')
+		  
+		slice.append('path')
 		    .attr("display", function (d) { return d.depth ? null : "none"; })
 		    .attr("d", arc)
 			.style('stroke', '#000066')
 			.style("fill", function (d) { return colorize(d) }), 
+		
 		g.selectAll('.node')	
 		  .append("title")
 			.attr("transform", function(d) {

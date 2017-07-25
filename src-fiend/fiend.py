@@ -24,6 +24,7 @@ class Fiend():
 	def __init__(self,log,hash):
             self.log = log # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
+	    self.SORTS = ["month","day","hour","user","newuser","color","color2"]
 
 	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
 	def __deepcopy__(self,memo={}):
@@ -112,8 +113,35 @@ class Fiend():
 	    if optional is not None:	#file import optional
 		self.get_fr_csv(optional);
 	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
-	    hier.get_jsdt() # CONVERTER - check now
-### TODO - FOR LOOP OF ARGS
+	    print("for testing (RMV:116), accessing copy SORTS")
+	    print(hier.SORTS)
+	    hier.get_jsdt() # CONVERTER
+	    dataset = hier.get_log()
+	    for i, arg in enumerate(args):
+		if arg in self.SORTS:
+		    if arg in self.SORTS[:3]: # Timespan ['month','day','hr'...
+		    	now = hier.get_date()
+			if arg is self.SORTS[0]: # Range: 1yr
+			    delta = datetime.timedelta(days=364) # TODO - precise date/month?
+			    dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
+			    dataset = hier.sort_by(arg,dataset)
+			    # LABEL FORMAT - eg Year of 2017
+			elif arg is self.SORTS[1]:
+			    delta = datetime.timedelta(days=6)
+			    dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
+                            dataset = hier.sort_by(arg,dataset)
+			    # format - Week of [MON]
+			elif arg is SELF.SORTS[2]:
+		    	    delta = datetime.timedelta(hours=24)
+			    # format - Monday the 25th
+			dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
+                        dataset = hier.sort_by(arg,dataset)
+			# TODO - consolidate, worry about passing either [] or {name []} - LOOPING REQUIRED essentially
+		    elif arg in self.SORTS[3:]: # Unique ...'user','newuser','color','color2']
+		        dataset = hier.sort_by(arg,dataset)
+		else:
+		    print("Unable to sort by "+str(arg))
+	
 	    format = {}	    
 	    return json.dumps(format)
 
@@ -122,13 +150,17 @@ class Fiend():
 		self.get_fr_csv(optional);
 	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
 	    hier.get_jsdt() # CONVERTER - check now
-	    hier.log = hier.find(hier.log,{'date':{'start':(hier.get_date() - datetime.timedelta(days=6)),'end':(hier.get_date())}})
-	    hier.log = hier.sort_by("day",hier.log) # Converts fr [] to [{x,[]},{y,[]}...
-	    for day in hier.log:
-		day['children'] = hier.sort_by("color",day['children']) #assigns arr[] to ea var
-	    hier.rm_dt(hier.log)
-	    format = { 'name':("Week of the "+self.daylabel(hier.get_date().day)),'children': hier.get_log() }
-	    return json.dumps(format)		
+	    print(hier.log)
+	    dataset = hier.find(hier.log,{'date':hier.get_date()})
+            print(dataset)
+	    dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
+	    for i,hr in enumerate(dataset):
+		dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
+	    hier.rm_dt(dataset)
+	    format = { 'name':(calendar.day_abbr[hier.get_date().weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
+	    print(format)
+	    return json.dumps(format)
+	    #return self.load(optional,["week","users","colors"]);		
 	
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
@@ -169,38 +201,39 @@ class Fiend():
 		    devi = datetime.timedelta(second=30) # Grabbing all within minute range
 		    return (elem>=(test-devi) and elem<=(test+devi))
 		else:
+		    if (elem == datetime.date(2017,7,25)):
+			print("foundmatch")
 	            return (elem == test)
 	
 #-------SORT method, returns a tree tier of lists **w modified JSON hierarchy
 
 	def sort_by(self, root, raw):
-	    SORTS = ["month","day","hour","users","newuser","color","color2"]
-	    if root not in SORTS or raw is None or raw == []:
+	    if root not in self.SORTS or raw is None or raw == []:
 		return raw
 	    else:
 		if type(raw) is dict:
 		    raw = raw['children'] # Focuses on important component for reference
 		tier = [] # RET item
-	        if root is SORTS[0] or root is SORTS[1]:
+	        if root is self.SORTS[0] or root is self.SORTS[1]:
 	            ouryear = raw[0]['date'].year # And same for year
 	    # MONTH sorts - assumes 12 always
-		    if root is SORTS[0]: # by MONTH	
+		    if root is self.SORTS[0]: # by MONTH	
 			for i in range(0,12):
 			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
 			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
 		            tier.append({ 'name': calendar.month_abbr[i+1], 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
 	    # DAY sorts - uses compute_range TODO - ensure all dates (not just ones w texts) include
-		    elif root is SORTS[1]:
+		    elif root is self.SORTS[1]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
 			    tier.append({ 'name': (calendar.day_abbr[x.weekday()]+" "+self.daylabel(x.day)), 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
 	    # HOUR sorts - separate TIME item from DATE
-		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
+		elif root is self.SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
 			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
 			tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
 	    # USERS sorts - parses down to unique subset of USERS
-		elif root is SORTS[3]: # UNIQUE users
+		elif root is self.SORTS[3]: # UNIQUE users
 		    for i in raw[:]: #TODO
                         found = False
 			for iter,j in enumerate(tier[:]):
@@ -210,7 +243,7 @@ class Fiend():
 			if not found:
 			    tier.append({'name':i['name'], 'children':[i]}) # Adds as new j entry, restarts i-iter
             # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
-		elif root is SORTS[4]: # NEW UNIQUE users
+		elif root is self.SORTS[4]: # NEW UNIQUE users
 		    tier = self.sort_by("users",raw) # ranged unique users for our set
 		    bot = datetime.date(2013,1,1)
 		    top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
@@ -220,16 +253,14 @@ class Fiend():
 			for j in B[:]:
 			    if (i['name'] == j['name']):
 				tier.remove(i)
-                  		if tier is None: #rmv? TODO
-	   			    print("empty tier")
-	    # COLORS sort - parses down to unique subset of MSGs 	
-		elif root is SORTS[5] or root is SORTS[6]:
+            # COLORS sort - parses down to unique subset of MSGs 	
+		elif root is self.SORTS[5] or root is self.SORTS[6]:
 	    	    colorlist = sorted(self.compute_range(raw,'msg'))
 		    for x in colorlist:
 		        tier.append({'name':x, 'children': self.find(raw,{'msg':x})})
 ######TODO HERE
 	    # COLORISH sort - parse down to VAGUELY CLOSE unique subsets of msgs	
-		    if root is SORTS[6]:
+		    if root is self.SORTS[6]:
 			# DO THINGS TO TIER ITSELF - we know that we can go right into
 			# Given color, "Pink" --> create [" Pink ","Pink   ","pink", etc.?]
 			# Then combine prompts with matching
@@ -328,7 +359,8 @@ class Fiend():
 	    hr,min,sec = tim.split(':')
 	    sec = (sec.split(' '))[0]
 	    dtime = datetime.datetime(int(yr),int(mo),int(day),int(hr),int(min),int(sec))
-	    return (dtime - datetime.timedelta(hours=4)) # CONVERT from UTC format to boston
+#	    return (dtime - datetime.timedelta(hours=4)) # CONVERT from UTC format to boston
+	    return dtime		
 
 	# CONVERTER:tuple of RGB tuples => string with x,y,z|a,b,c|...format
 	def convert_to_str(self, arr):
