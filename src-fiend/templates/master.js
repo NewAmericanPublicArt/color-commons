@@ -8,19 +8,19 @@
 window.onload = function() {
     var log = d3.select("#canvas").attr("data-log");
     var cur = d3.select("#about").attr("data-time");
-    main(log,cur);
+    var all = d3.select(".aspan").attr("data-all");
+    main(log,cur,all);
 };
 
 // MAIN - coordinates CANVAS data viz (using data/log) and TIME update
-function main(data,time) {
+function main(data,time,all) {
     load_about(time); // Coordinates 2/2 page
     tree = traverse_tree(data, JSON.parse);
-    load_burst(tree); // Calls with assumption of asynchronous updating? TODO 1/2
-    showtabs(0);
+    load_data(tree,all); // Calls with assumption of asynchronous updating? TODO 1/2
 }
 
 // DATA VIZ MAIN - coordinates canvas drawing
-function load_burst(data) {
+function load_data(data,all) {
     var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10,
 	//gscale = d3.scaleSequential(d3.interpolateGreys),
         partition = d3.partition()
@@ -38,10 +38,10 @@ function load_burst(data) {
 	  .innerRadius(function(d) { return d.y0; })
 	  .outerRadius(function(d) { return d.y1; });
 
-	partition(root); //calls partition on root (links structure & data)
-		
-	var run = function() { 		
+    partition(root); //calls partition on root (links structure & data)
+    load_tabs(root,all);
 	
+    var run = function() { 		
 		var slice = g.selectAll('g')
 		  .data(root.descendants())
 		  .enter()
@@ -56,16 +56,15 @@ function load_burst(data) {
   		var gscale = d3.scaleSequential()
                     .domain([0,function(d){ return d.parent.children.length; }])
                     .interpolator(d3.interpolateGreys);
-	    	g.selectAll('.node')
+	    	
+		g.selectAll('.node')
 		  .append("title")
 		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
 
 		//      .on("mouseover", function(){ showtext(d,true); })
                 //      .on("mouseout", function(){ showtext(d,false); });
-		
-	}
-
-	run();
+    }
+    run();
 }
 
 // HELPER FUNCTIONS //
@@ -99,9 +98,15 @@ function showtext(obj,show) {
 	}
 }
 	
-// showtabs: DISPLAYS relevant tab component when selected
-function showtabs(x) {
-    var tabs = d3.selectAll(".tabs>p").attr("visibility","visible");
+// load_tabs: DISPLAYS relevant tab component when selected
+function load_tabs(tree,num) {
+    console.log("hey"); 
+    var format = "<b>Total Texts for All Time:</b> "+num;
+    var all = d3.selectAll('.aspan')
+	.attr("html",format);
+    format = "<b>Total Texts for "+tree.data.name+":</b> "+tree.value;
+    all = d3.selectAll('.tspan')
+	.attr("html",format);
 }
 
 // load_about: LOADER for ABOUT - provides last-updated information
