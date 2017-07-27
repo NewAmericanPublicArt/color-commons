@@ -41,7 +41,8 @@ function load_data(data,all) {
     partition(root); //calls partition on root (links structure & data)
     load_tabs(root,all);
 	
-    var run = function() { 		
+    var run = function(root) { 		
+        partition(root); //calls partition on root (links structure & data)
 
         console.log("populating dataset from:");
         console.log(root);
@@ -82,18 +83,16 @@ function load_data(data,all) {
 
 
     }
-    run();
+    run(root);
 }
 
 // HELPER FUNCTIONS //
 
 //TODO - smooth sorting tweening
 
-//zoom: Resets root
+//zoom: zooms to new node as partition center
 function zoom(node) {
-    root = node;
-    partition(root);
-    run();
+    run(node);
 }
 
 //rwoise: SORTS LEVELS w unique class marker
