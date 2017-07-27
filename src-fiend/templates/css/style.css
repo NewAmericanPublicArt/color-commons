@@ -61,6 +61,7 @@ svg {
     margin: 3px;
     padding: 5px;
     font-size: .3em;
+    align-self: center;
 }
 
 .tabs { 
@@ -79,7 +80,10 @@ svg {
     border-radius: 25px;
 }
 
-h1 { background-color: #FFCC99; }
+h1 {
+    font-size: .8em; 
+    background-color: #FFCC99; 
+}
 
 /*
 CLASS 1 RESPONSIVE - ALL SMARTPHONES & LESS
