@@ -80,7 +80,7 @@ function rowize(node) {
     var row = "";
     if (!node.data.msg){
         var str = node.data.name;
-        if (parseInt(str.charAt(2)) != NaN) {
+        if (str.slice(0,2) == "hr") {
             console.log(node.data.name+" is verified as hr");
             row = " hr";
         } else {
