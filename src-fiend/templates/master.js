@@ -46,8 +46,9 @@ function load_data(data,all) {
 		  .data(root.descendants())
 		  .enter()
 		  .append('g')
-		    .attr("class", "node");
-		slice.append('path')
+		    .attr("class", "node"),
+            .attr("class", function(d) { return rowize(d); });
+    	slice.append('path')
 		    .attr("display", function (d) { return d.depth ? null : "none"; })
 		    .attr("d", arc)
 			.style('stroke', '#000066')
@@ -56,6 +57,7 @@ function load_data(data,all) {
   		var gscale = d3.scaleSequential()
                     .domain([0,function(d){ return d.parent.children.length; }])
                     .interpolator(d3.interpolateGreys);
+
 	    	
 		g.selectAll('.node')
 		  .append("title")
@@ -68,6 +70,11 @@ function load_data(data,all) {
 }
 
 // HELPER FUNCTIONS //
+
+//rwoise: SORTS LEVELS w unique class marker
+function rowize(node) {
+    console.log(node);
+}
 
 // colorize: FINDS COLOR for each slice based on node
 function colorize(node) {
