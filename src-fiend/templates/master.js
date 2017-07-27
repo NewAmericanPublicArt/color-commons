@@ -42,12 +42,16 @@ function load_data(data,all) {
     load_tabs(root,all);
 	
     var run = function() { 		
+
+        console.log("populating dataset from:");
+        console.log(root);
+
 		var slice = g.selectAll('g')
 		  .data(root.descendants())
 		  .enter()
 		  .append('g')
-		    .attr("class", "node"),
-            .attr("class", function(d) { return rowize(d); });
+            .attr("class", function (d) { return rowize(d); });
+
     	slice.append('path')
 		    .attr("display", function (d) { return d.depth ? null : "none"; })
 		    .attr("d", arc)
@@ -73,7 +77,11 @@ function load_data(data,all) {
 
 //rwoise: SORTS LEVELS w unique class marker
 function rowize(node) {
-    console.log(node);
+    var row = "";
+    if (!node.data.msg){
+        console.log(node);
+    } //else; leafs need no other class
+    return "node"+row;
 }
 
 // colorize: FINDS COLOR for each slice based on node
@@ -107,13 +115,18 @@ function showtext(obj,show) {
 	
 // load_tabs: DISPLAYS relevant tab component when selected
 function load_tabs(tree,num) {
-    console.log("hey"); 
+    
     var format = "<b>Total Texts for All Time:</b> "+num;
+    
     var all = d3.selectAll('.aspan')
-	.attr("html",format);
+	   .attr("html",format);
+    
     format = "<b>Total Texts for "+tree.data.name+":</b> "+tree.value;
+    
     all = d3.selectAll('.tspan')
-	.attr("html",format);
+	   .attr("html",format);
+
+    console.log("done w loadtabs");
 }
 
 // load_about: LOADER for ABOUT - provides last-updated information
