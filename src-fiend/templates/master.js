@@ -45,7 +45,7 @@ function load_data(data,all) {
             .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
             .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
             .innerRadius(function(d) { return d.parent ? Math.max(0, y(d.y0)) : 0; })
-            .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
+            .outerRadius(function(d) { return d.parent ? Math.max(0, y(d.y1)) : 10; }); // TODO - needs more accurate call
     var first = true;
 
     // When switching data: interpolate the arcs in data space.
@@ -101,7 +101,7 @@ function load_data(data,all) {
     		  .append('g')
                 .attr("class", function (d) { return rowize(d); })
         	    .append('path')
-    		//    .attr("display", function (d) { return d.depth ? null : "none"; })
+    		    .attr("display", function (d) { return d.depth ? null : "none"; })
         		    .attr("d", arc)
         			.style('stroke', '#000066')
         			.style("fill", function (d) { return colorize(d); });
