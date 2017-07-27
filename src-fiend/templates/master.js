@@ -121,13 +121,13 @@ function showtext(d) {
 	var title = d.data.size? d.data.msg : d.data.name; 
     d3.selectAll('.tabs')
       .select('#view')
-        .html("NODE: "+title);
+        .html("<b>NODE:</b> "+title+" ");
 }
 
 function killtext(d) {
     d3.selectAll('.tabs')
       .select('#view')
-        .html("---");
+        .html("<br>NODE:</br> --- ");
 }
 // NEED - SET VIEW HOVER TODOs
 	
@@ -138,7 +138,7 @@ function load_tabs(tree,num) {
     d3.select('.tabs')
         .insert('div')
             .attr('id','view')
-            .html('___');
+            .html('<br>NODE:</br> ___ ');
     d3.select('.tabs')           
         .insert('div')
             .attr('id','aspan')

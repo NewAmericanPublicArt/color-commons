@@ -54,6 +54,12 @@ svg {
     background-color: #000066;
 }
 
+#about { 
+    background-color: #FFCC99; 
+    border: 3px #FFFFFF;
+    border-radius: 25px;
+}
+
 .tabs { 
     background-color: #000066;
     display: flex;
@@ -64,7 +70,7 @@ svg {
 .tabs>* {
     background-color: #FFCC99;
     font-size: .7em;
-    padding: 3px;
+    padding: 5px;
     border: 3px #FFCC99;
     margin: 3px;
     border-radius: 25px;
