@@ -58,6 +58,7 @@ svg {
     background-color: #000066;
     display: flex;
     flex-flow: column nowrap;
+    align-items: center;
 }
 /* Select all children of tabs - ie, #view, #tspan, #aspan as created*/
 .tabs>* {
