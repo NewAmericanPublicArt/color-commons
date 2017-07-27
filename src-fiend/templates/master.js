@@ -85,7 +85,7 @@ function rowize(node) {
             row = " hr";
         } else {
             var len = str.length;//8, we want index *4|5|6|7, so 8-(4) = 4
-            if (str.charAt(len-4) == '-') { // a NAME eg, "Ms. Marissa-123"
+            if ((str.charAt(len-4) == '-') || (str.charAt(len-3) == '-')) { // a NAME eg, Ms. MARY-123 OR trailing 0 Ms. HAM-78
                 row = " person";
             } else if (str.charAt(3) == ' '){// So now check for TUE[]23rd
                 row = " day";
