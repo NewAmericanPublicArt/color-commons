@@ -80,10 +80,9 @@ function rowize(node) {
     var row = "";
     if (!node.data.msg){
         var str = node.data.name;
-        try {
-            parseInt(str.charAt(2));
+        if (parseInt(str.charAt(2)) != NaN) {
             row = " hr";
-        } catch(err) {
+        } else {
             var len = str.length;//8, we want index *4|5|6|7, so 8-(4) = 4
             if (str.charAt(len-4) == '-') { // a NAME eg, "Ms. Marissa-123"
                 row = " person";
