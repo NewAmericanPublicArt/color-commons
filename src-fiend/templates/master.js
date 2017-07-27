@@ -75,8 +75,8 @@ function load_data(data,all) {
 		g.selectAll('.node')
 		  .append("title")
 		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; })
-            .on("mouseover", function (d) { showtext(d) })
-            .on("mouseout", function (d) { killtext(d) });
+            .on("mouseover", function (d,i) { showtext(d); })
+            .on("mouseout", function (d,i) { killtext(d); });
     }
     run();
 }
