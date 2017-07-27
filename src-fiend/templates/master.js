@@ -81,6 +81,7 @@ function rowize(node) {
     if (!node.data.msg){
         var str = node.data.name;
         if (parseInt(str.charAt(2)) != NaN) {
+            console.log(node.data.name+" is verified as hr");
             row = " hr";
         } else {
             var len = str.length;//8, we want index *4|5|6|7, so 8-(4) = 4
