@@ -59,7 +59,10 @@ function load_data(data,all) {
 			.style("fill", function (d) { return colorize(d); });
  
   		var gscale = d3.scaleSequential()
-                    .domain([0,function(d){ return d.parent.children.length; }])
+                    .domain([0,function(d){ 
+                        console.log(d.parent.children.length);
+                        return 24; 
+                    }])
                     .interpolator(d3.interpolateGreys);
 
         g.selectAll('.hr')
