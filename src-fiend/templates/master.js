@@ -79,7 +79,20 @@ function load_data(data,all) {
 function rowize(node) {
     var row = "";
     if (!node.data.msg){
-        console.log(node);
+        var str = node.data.name;
+        try {
+            parseInt(str.charAt(2));
+            row = " hr";
+        } catch(err) {
+            var len = str.length;//8, we want index *4|5|6|7, so 8-(4) = 4
+            if (str.charAt(len-4) == '-') { // a NAME eg, "Ms. Marissa-123"
+                row = " person";
+            } else if (str.charAt(3) == ' '){// So now check for TUE[]23rd
+                row = " day";
+            } else {            // Would be... months, yr, etc
+                row = " other";
+            }
+        }
     } //else; leafs need no other class
     return "node"+row;
 }
@@ -119,7 +132,6 @@ function showtext(obj,show) {
 function load_tabs(tree,num) {
     var format = [("<b>Total Texts for All Time:</b> "+num),
                 ("<b>Total Texts for "+tree.data.name+":</b> "+tree.value)];
-
     d3.select('.tabs')
         .append('div')
             .attr('id','.aspan')
