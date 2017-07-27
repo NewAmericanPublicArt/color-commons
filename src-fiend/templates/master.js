@@ -58,16 +58,17 @@ function load_data(data,all) {
 			.style('stroke', '#000066')
 			.style("fill", function (d) { return colorize(d); });
  
-  		var gscale = d3.scaleSequential()
-                    .domain([0,function(d){ 
-                        console.log(d.parent.children.length);
-                        return 24; 
-                    }])
-                    .interpolator(d3.interpolateGreys);
+  		var gscale = d3.scaleSequential(d3.interpolateGreys)
+                    .domain([0,24]);
+        //            .interpolator(d3.interpolateGreys);
+        var pscale = d3.scaleSequential(d3.interpolateYlGnBu)
+                    .domain([0,500]);
 
         g.selectAll('.hr')
             .style("fill", function (d) { return gscale(d) });
-	    	
+	    g.selectAll('.person')
+            .style("fill", function (d) { return pscale(d) });
+
 		g.selectAll('.node')
 		  .append("title")
 		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
