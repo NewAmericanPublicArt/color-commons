@@ -89,7 +89,6 @@ function rowize(node) {
     if (!node.data.msg){
         var str = node.data.name;
         if (str.slice(0,2) == "hr") {
-            console.log(node.data.name+" is verified as hr");
             row = " hr";
         } else {
             var len = str.length;//8, we want index *4|5|6|7, so 8-(4) = 4
@@ -120,12 +119,12 @@ function colorize(node) {
 // showtext: TOGGLES TEXT over slices of data viz, pulls fr title
 function showtext(d) {
 	var title = d.data.size? d.data.msg : d.data.name; 
-    d3.select('.view')
+    d3.select('#view')
       .html("NODE: "+title);
 }
 
 function killtext(d) {
-    d3.select('.view')
+    d3.select('#view')
      .html("---");
 }
 // NEED - SET VIEW HOVER TODOs
