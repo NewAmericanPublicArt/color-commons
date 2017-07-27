@@ -2,8 +2,8 @@
  * Loader functions for sunburst graphic, linked to DATAVIZ.HTML
  * Instantiates with main() call from window ONLOAD method, fed python list of dicts
  * Strongly modified from https://bl.ocks.org/denjn5/1a3f8e44cdcb3054121dfd991f59fbc2
- * With additional mods from https://bl.ocks.org/maybelinot/5552606564ef37b5de7e47ed2b7dc099 */
-
+ * With additional mods from https://bl.ocks.org/maybelinot/5552606564ef37b5de7e47ed2b7dc099 
+ */
 // INSTANTIATOR - collects and validates data-attribute info fr embedded index.html
 window.onload = function() {
     var log = d3.select("#canvas").attr("data-log");
@@ -11,7 +11,6 @@ window.onload = function() {
     var all = parseInt(d3.select(".tabs").attr("data-all"));
     main(log,cur,all);
 };
-
 // MAIN - coordinates CANVAS data viz (using data/log) and TIME update
 function main(data,time,all) {
     load_about(time); // Coordinates 2/2 page
@@ -22,75 +21,153 @@ function main(data,time,all) {
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_data(data,all) {
     var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10,
-	//gscale = d3.scaleSequential(d3.interpolateGreys),
-    partition = d3.partition()
-	  .size([2*Math.PI, RAD]),
-	root = d3.hierarchy(data)
-	  .sum(function(d) { return d.size; })
-	  .sort(function(a,b) { return b.value - a.value; }),
-	g = d3.select("svg")
-	  .append("g")
-	  .attr("transform","translate("+WID/2+","+(HEI/2)+")"),
-	node = root,
-	arc = d3.arc()
-	  .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
-	  .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
-	  .innerRadius(function(d) { return d.y0; })
-	  .outerRadius(function(d) { return d.y1; });
+    	x = d3.scaleLinear().range([0, 2 * Math.PI]),
+        y = d3.scaleSqrt().range([0, RAD]),
+        partition = d3.partition()
+    	  .size([2*Math.PI, RAD]),
+    	root = d3.hierarchy(data)
+    	  .sum(function(d) { return d.size; })
+    	  .sort(function(a,b) { return b.value - a.value; }),
+    	g = d3.select("svg")
+    	  .append("g")
+    	  .attr("transform","translate("+WID/2+","+(HEI/2)+")"),
+    	node = root, //saves for tweening
+    	/*arc = d3.arc()
+    	  .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
+    	  .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
+    	  .innerRadius(function(d) { return d.y0; })
+    	  .outerRadius(function(d) { return d.y1; }),*/
+        arc = d3.arc()
+            .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
+            .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
+            .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
+            .outerRadius(function(d) { return Math.max(0, y(d.y1)); }),
+        first = true;
 
-    partition(root); //calls partition on root (links structure & data)
-    load_tabs(root,all);
-	
-    var run = function(root) { 		
-        partition(root); //calls partition on root (links structure & data)
+    var run = function(root) { 	
+        console.log("populating dataset from" + root);
+        if (first) {
+            first = false; //doesnt run again
+            partition(root); //calls partition on root (links structure & data) 
+            load_tabs(root,all);
 
-        console.log("populating dataset from:");
-        console.log(root);
+    		var slice = g.selectAll('g') //does this grab all? TODO
+    		  .data(root.descendants())
+    		  .enter()
+    		  .append('g')
+                .attr("class", function (d) { return rowize(d); });
+        	slice.append('path')
+    		    .attr("display", function (d) { return d.depth ? null : "none"; })
+    		    .attr("d", arc)
+    			.style('stroke', '#000066')
+    			.style("fill", function (d) { return colorize(d); });
+     
+            // TODO - gscale pscale syntax
+      		var gscale = d3.scaleSequential(d3.interpolateGreys).domain([0,24]);
+            //            .interpolator(d3.interpolateGreys);
+            var pscale = d3.scaleSequential(d3.interpolateYlGnBu).domain([0,500]);
+            // TODO - needs to be fixed/modified
+            g.selectAll('.hr').style("fill", function (d) { return gscale(d) });
+    	    g.selectAll('.person').style("fill", function (d) { return pscale(d) });
 
-		var slice = g.selectAll('g') //does this grab all? TODO
-		  .data(root.descendants())
-		  .enter()
-		  .append('g')
-            .attr("class", function (d) { return rowize(d); });
+            // Set hover elements for tooltip; can be accessed with viewport funct
+    		g.selectAll('.node')
+              .on("mouseover", function (d,i) { showtext(d); })
+              .on("mouseout", function (d,i) { killtext(d); })
+              .on("click", function(d,i) { click(d);})
+              .append("title")
+    		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
 
-    	slice.append('path')
-		    .attr("display", function (d) { return d.depth ? null : "none"; })
-		    .attr("d", arc)
-			.style('stroke', '#000066')
-			.style("fill", function (d) { return colorize(d); });
- 
-        // TODO - gscale pscale syntax
-  		var gscale = d3.scaleSequential(d3.interpolateGreys)
-                    .domain([0,24]);
-        //            .interpolator(d3.interpolateGreys);
-        var pscale = d3.scaleSequential(d3.interpolateYlGnBu)
-                    .domain([0,500]);
-
-        // TODO - needs to be fixed/modified
-        g.selectAll('.hr')
-            .style("fill", function (d) { return gscale(d) });
-	    g.selectAll('.person')
-            .style("fill", function (d) { return pscale(d) });
-
-        // Set hover elements for tooltip; can be accessed with viewport funct
-		g.selectAll('.node')
-          .on("mouseover", function (d,i) { showtext(d); })
-          .on("mouseout", function (d,i) { killtext(d); })
-          .on("click", function(d,i) { run(d);})
-          .append("title")
-		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
-
-
-
+        } else {
+            svg.selectAll("path").data(partition(root).descendants());
+        }
+        svg.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
     }
     run(root);
 }
-
-// HELPER FUNCTIONS //
-
+// ************************   HELPER FUNCTIONS   ***************************  //
 //TODO - smooth sorting tweening
-
-//rwoise: SORTS LEVELS w unique class marker
+// When switching data: interpolate the arcs in data space.
+function arcTweenData(a, i) {
+    // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
+    // avoids the stash() and allows the sunburst to grow into being
+    var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
+    function tween(t) {
+      var b = oi(t);
+      a.x0s = b.x0;  
+      a.x1s = b.x1;  
+      return arc(b);
+    }
+    if (i == 0) { 
+      // If we are on the first arc, adjust the x domain to match the root node
+      // at the current zoom level. (We only need to do this once.)
+      var xd = d3.interpolate(x.domain(), [node.x0, node.x1]);
+      return function (t) {
+        x.domain(xd(t));
+        return tween(t);
+      };
+    } else {
+      return tween;
+    }
+}
+// When zooming: interpolate the scales.
+function arcTweenZoom(d) {
+    var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+        yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
+        yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, radius]);
+    return function (d, i) {
+      return i
+          ? function (t) { return arc(d); }
+          : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+    };
+}
+//******************************************************************************
+// click: Respond to slice click.
+function click(d) {
+    node = d;
+    svg.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
+}
+// colorize: FINDS COLOR for each slice based on node
+function colorize(node) {
+    var lookup = "black";
+    if (node.data.msg) {
+        lookup = COLORS[node.data['msg'].toLowerCase()];   
+        if (lookup == null) {
+	       lookup = "white";//color scale - our space/dom
+        }
+    }
+    return d3.color(lookup);
+}
+//killtext: TOGGLES nontext over nonslice
+function killtext(d) {
+    d3.selectAll('.tabs')
+      .select('#view')
+        .html("<b>NODE:</b> --- ");
+}
+// load_about: LOADER for ABOUT - provides last-updated information
+function load_about(time) {
+    var val = new Date(parseInt(time));
+    var format = "Last Updated: " + val + ".";
+    d3.select("#about").insert("div",":first-child").html(format);
+}
+// load_tabs: DISPLAYS relevant tab component when selected
+function load_tabs(tree,num) {
+    var format = [("<b>Total Texts for All Time:</b> "+num),
+                ("<b>Total Texts for "+tree.data.name+":</b> "+tree.value)];
+    d3.select('.tabs')
+        .insert('div')
+            .attr('id','view')
+            .html('<b>NODE:</b> ___ ');
+    d3.select('.tabs')           
+        .insert('div')
+            .attr('id','aspan')
+            .html(format[0]);
+    d3.select('.tabs')
+        .insert('div')
+            .attr('id','tspan')
+            .html(format[1]);
+}
+//rowise: SORTS LEVELS w unique class marker
 function rowize(node) {
     var row = "";
     if (!node.data.msg){
@@ -110,59 +187,13 @@ function rowize(node) {
     } //else; leafs need no other class
     return "node"+row;
 }
-
-// colorize: FINDS COLOR for each slice based on node
-function colorize(node) {
-    var lookup = "black";
-    if (node.data.msg) {
-        lookup = COLORS[node.data['msg'].toLowerCase()];   
-        if (lookup == null) {
-	       lookup = "white";//color scale - our space/dom
-        }
-    }
-    return d3.color(lookup);
-}
-
 // showtext: TOGGLES TEXT over slices of data viz, pulls fr title
 function showtext(d) {
-	var title = d.data.size? d.data.msg : d.data.name; 
+    var title = d.data.size? d.data.msg : d.data.name; 
     d3.selectAll('.tabs')
       .select('#view')
         .html("<b>NODE:</b> "+title+" ");
 }
-
-//killtext: TOGGLES nontext over nonslice
-function killtext(d) {
-    d3.selectAll('.tabs')
-      .select('#view')
-        .html("<b>NODE:</b> --- ");
-}
-	
-// load_tabs: DISPLAYS relevant tab component when selected
-function load_tabs(tree,num) {
-    var format = [("<b>Total Texts for All Time:</b> "+num),
-                ("<b>Total Texts for "+tree.data.name+":</b> "+tree.value)];
-    d3.select('.tabs')
-        .insert('div')
-            .attr('id','view')
-            .html('<b>NODE:</b> ___ ');
-    d3.select('.tabs')           
-        .insert('div')
-            .attr('id','aspan')
-            .html(format[0]);
-    d3.select('.tabs')
-        .insert('div')
-            .attr('id','tspan')
-            .html(format[1]);
-}
-
-// load_about: LOADER for ABOUT - provides last-updated information
-function load_about(time) {
-    var val = new Date(parseInt(time));
-    var format = "Last Updated: " + val + ".";
-    d3.select("#about").insert("div",":first-child").html(format);
-}
-	
 // traverse_tree: CONVERTS raw string=>nested JSON dict format
 function traverse_tree(raw, apply) {
     if (typeof raw === 'string'){ //parse it regardless, then assess children/recall	
