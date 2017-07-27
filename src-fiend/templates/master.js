@@ -74,7 +74,7 @@ function load_data(data,all) {
         // Set hover elements for tooltip; can be accessed with viewport funct
 		g.selectAll('.node')
 		  .append("title")
-		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
+		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; })
             .on("mouseover", function (d) { showtext(d) })
             .on("mouseout", function (d) { killtext(d) });
     }
