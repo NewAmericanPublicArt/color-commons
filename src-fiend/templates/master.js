@@ -61,6 +61,9 @@ function load_data(data,all) {
   		var gscale = d3.scaleSequential()
                     .domain([0,function(d){ return d.parent.children.length; }])
                     .interpolator(d3.interpolateGreys);
+
+        g.selectAll('.hr')
+            .style("fill", function (d) { return gscale(d) });
 	    	
 		g.selectAll('.node')
 		  .append("title")
