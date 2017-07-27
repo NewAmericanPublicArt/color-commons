@@ -141,11 +141,9 @@ function load_tabs(tree,num) {
         .append('div')
             .attr('id','aspan')
             .html(format[0])
-            .style('padding', '5px')
         .append('div')
             .attr('id','tspan')
-            .html(format[1])
-            .style('padding', '5px');
+            .html(format[1]);
 }
 
 // load_about: LOADER for ABOUT - provides last-updated information

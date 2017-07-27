@@ -25,13 +25,12 @@ body {
 
     display: flex;
     flex-flow: column nowrap;
-    background-color: #FFCC99;
+    background-color: #000066;
     min-width: 0;
 }
 
 #canvas {
     flex: 8 8 0;
-    background-color: #000066;
 }
 
 svg {
@@ -59,8 +58,16 @@ svg {
     flex-flow: column nowrap;
     font-size: .6em;
 }
+/* Select all children of tabs - ie, #view, #tspan, #aspan as created*/
+.tabs>* {
+    background-color: #FFCC99;
+    padding: 3px;
+}
 
-#about { font-size: .5em }
+#about { 
+    font-size: .5em;
+    background-color: #FFCC99;
+}
 
 /*
 CLASS 1 RESPONSIVE - ALL SMARTPHONES & LESS
