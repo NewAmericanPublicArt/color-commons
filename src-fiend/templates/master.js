@@ -8,8 +8,7 @@
 window.onload = function() {
     var log = d3.select("#canvas").attr("data-log");
     var cur = d3.select("#about").attr("data-time");
-    var all = d3.select(".tabs").attr("data-all");
-    console.log("onload all"+all);
+    var all = parseInt(d3.select(".tabs").attr("data-all"));
     main(log,cur,all);
 };
 
@@ -124,10 +123,10 @@ function load_tabs(tree,num) {
     d3.select('.tabs')
         .append('div')
             .attr('id','.aspan')
-            .attr('html',format[0])
+            .html(format[0])
         .append('div')
             .attr('id','.tspan')
-            .attr('html',format[1]);
+            .html(format[1]);
 }
 
 // load_about: LOADER for ABOUT - provides last-updated information
