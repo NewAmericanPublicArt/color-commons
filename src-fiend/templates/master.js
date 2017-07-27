@@ -73,10 +73,10 @@ function load_data(data,all) {
 
         // Set hover elements for tooltip; can be accessed with viewport funct
 		g.selectAll('.node')
+          .on("mouseover", function (d,i) { showtext(d); })
+          .on("mouseout", function (d,i) { killtext(d); })
 		  .append("title")
-		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; })
-            .on("mouseover", function (d,i) { showtext(d); })
-            .on("mouseout", function (d,i) { killtext(d); });
+		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
     }
     run();
 }
