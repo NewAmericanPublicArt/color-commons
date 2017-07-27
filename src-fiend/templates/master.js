@@ -43,9 +43,10 @@ function load_data(data,all) {
         arc = d3.arc()
             .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
             .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
-            .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
-            .outerRadius(function(d) { return Math.max(0, y(d.y1)); }),
+            .innerRadius(function(d) { return d.parent ? Math.max(0, y(d.y0)) : 0; })
+            .outerRadius(function(d) { return d.parent ? Math.max(0, y(d.y1)) : .5; }), // TODO - needs more accurate call
         first = true;
+
     // When switching data: interpolate the arcs in data space.
     function arcTweenData(a, i) {
         // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
@@ -73,7 +74,7 @@ function load_data(data,all) {
     function arcTweenZoom(d) {
         var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
             yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
-            yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, radius]);
+            yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
         return function (d, i) {
           return i
               ? function (t) { return arc(d); }
@@ -97,12 +98,12 @@ function load_data(data,all) {
     		  .data(root.descendants())
     		  .enter()
     		  .append('g')
-                .attr("class", function (d) { return rowize(d); });
-        	slice.append('path')
+                .attr("class", function (d) { return rowize(d); })
+        	    .append('path')
     		//    .attr("display", function (d) { return d.depth ? null : "none"; })
-    		    .attr("d", arc)
-    			.style('stroke', '#000066')
-    			.style("fill", function (d) { return colorize(d); });
+        		    .attr("d", arc)
+        			.style('stroke', '#000066')
+        			.style("fill", function (d) { return colorize(d); });
      
             // TODO - gscale pscale syntax
       		var gscale = d3.scaleSequential(d3.interpolateGreys).domain([0,24]);
