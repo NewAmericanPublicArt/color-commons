@@ -33,22 +33,19 @@ function load_data(data,all) {
     	  .sort(function(a,b) { return b.value - a.value; });
     var g = d3.select("svg")
     	  .append("g")
-    	  .attr("transform","translate("+WID/2+","+(HEI/2)+")");
+    	  .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
     var node = root; //saves for tweening
     	/* var arc = d3.arc()
     	  .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
     	  .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
     	  .innerRadius(function(d) { return d.y0; })
     	  .outerRadius(function(d) { return d.y1; }),*/
-    console.log(x(.5));
-    console.log("test x/y funct");
-    console.log(y(.5));
 
     var arc = d3.arc()
             .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
             .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
             .innerRadius(function(d) { return d.parent ? Math.max(0, y(d.y0)) : 0; })
-            .outerRadius(function(d) { return d.parent ? Math.max(0, y(d.y1)) : .5; }); // TODO - needs more accurate call
+            .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
     var first = true;
 
     // When switching data: interpolate the arcs in data space.
