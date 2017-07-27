@@ -138,10 +138,12 @@ function load_tabs(tree,num) {
     d3.select('.tabs')
         .insert('div')
             .attr('id','view')
-            .html('___')
+            .html('___');
+    d3.select('.tabs')           
         .insert('div')
             .attr('id','aspan')
-            .html(format[0])
+            .html(format[0]);
+    d3.select('.tabs')
         .insert('div')
             .attr('id','tspan')
             .html(format[1]);
