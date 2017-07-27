@@ -79,9 +79,9 @@ function load_data(data,all) {
     		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
 
         } else {
-            svg.selectAll("path").data(partition(root).descendants());
+            g.selectAll("path").data(partition(root).descendants());
         }
-        svg.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
+        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
     }
     run(root);
 }
@@ -125,7 +125,7 @@ function arcTweenZoom(d) {
 // click: Respond to slice click.
 function click(d) {
     node = d;
-    svg.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
+    g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
 }
 // colorize: FINDS COLOR for each slice based on node
 function colorize(node) {
