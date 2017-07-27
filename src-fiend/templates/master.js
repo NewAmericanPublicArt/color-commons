@@ -20,7 +20,32 @@ function main(data,time,all) {
 
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_data(data,all) {
+
     //TODO - smooth sorting tweening
+
+    var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10,
+    	x = d3.scaleLinear().range([0, 2 * Math.PI]),
+        y = d3.scaleSqrt().range([0, RAD]),
+        partition = d3.partition()
+    	  .size([2*Math.PI, RAD]),
+    	root = d3.hierarchy(data)
+    	  .sum(function(d) { return d.size; })
+    	  .sort(function(a,b) { return b.value - a.value; }),
+    	g = d3.select("svg")
+    	  .append("g")
+    	  .attr("transform","translate("+WID/2+","+(HEI/2)+")"),
+    	node = root, //saves for tweening
+    	/*arc = d3.arc()
+    	  .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
+    	  .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
+    	  .innerRadius(function(d) { return d.y0; })
+    	  .outerRadius(function(d) { return d.y1; }),*/
+        arc = d3.arc()
+            .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
+            .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
+            .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
+            .outerRadius(function(d) { return Math.max(0, y(d.y1)); }),
+        first = true;
     // When switching data: interpolate the arcs in data space.
     function arcTweenData(a, i) {
         // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
@@ -55,38 +80,13 @@ function load_data(data,all) {
               : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
         };
     }
-    //******************************************************************************
     // click: Respond to slice click.
     function click(d) {
         node = d;
         g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
     }
-
-    var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10,
-    	x = d3.scaleLinear().range([0, 2 * Math.PI]),
-        y = d3.scaleSqrt().range([0, RAD]),
-        partition = d3.partition()
-    	  .size([2*Math.PI, RAD]),
-    	root = d3.hierarchy(data)
-    	  .sum(function(d) { return d.size; })
-    	  .sort(function(a,b) { return b.value - a.value; }),
-    	g = d3.select("svg")
-    	  .append("g")
-    	  .attr("transform","translate("+WID/2+","+(HEI/2)+")"),
-    	node = root, //saves for tweening
-    	/*arc = d3.arc()
-    	  .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
-    	  .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
-    	  .innerRadius(function(d) { return d.y0; })
-    	  .outerRadius(function(d) { return d.y1; }),*/
-        arc = d3.arc()
-            .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
-            .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
-            .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
-            .outerRadius(function(d) { return Math.max(0, y(d.y1)); }),
-        first = true;
-
-    var run = function(root) { 	
+    //**************************************************************************
+    var run = function() { 	
         console.log("populating dataset from" + root);
         if (first) {
             first = false; //doesnt run again
@@ -125,7 +125,7 @@ function load_data(data,all) {
         }
         g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
     }
-    run(root);
+    run();
 }
 // ************************   HELPER FUNCTIONS   ***************************  //
 // colorize: FINDS COLOR for each slice based on node
