@@ -58,6 +58,9 @@ svg {
     background-color: #FFCC99; 
     border: 3px #FFFFFF;
     border-radius: 25px;
+    margin: 3px;
+    padding: 5px;
+    font-size: .3em;
 }
 
 .tabs { 
