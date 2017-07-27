@@ -23,7 +23,7 @@ function main(data,time,all) {
 function load_data(data,all) {
     var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10,
 	//gscale = d3.scaleSequential(d3.interpolateGreys),
-        partition = d3.partition()
+    partition = d3.partition()
 	  .size([2*Math.PI, RAD]),
 	root = d3.hierarchy(data)
 	  .sum(function(d) { return d.size; })
@@ -46,7 +46,7 @@ function load_data(data,all) {
         console.log("populating dataset from:");
         console.log(root);
 
-		var slice = g.selectAll('g')
+		var slice = g.selectAll('g') //does this grab all? TODO
 		  .data(root.descendants())
 		  .enter()
 		  .append('g')
@@ -75,13 +75,26 @@ function load_data(data,all) {
 		g.selectAll('.node')
           .on("mouseover", function (d,i) { showtext(d); })
           .on("mouseout", function (d,i) { killtext(d); })
-		  .append("title")
+          .on("click", function(d,i) { zoom(d);})
+          .append("title")
 		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
+
+
+
     }
     run();
 }
 
 // HELPER FUNCTIONS //
+
+//TODO - smooth sorting tweening
+
+//zoom: Resets root
+function zoom(node) {
+    root = node;
+    partition(root);
+    run();
+}
 
 //rwoise: SORTS LEVELS w unique class marker
 function rowize(node) {
@@ -124,12 +137,12 @@ function showtext(d) {
         .html("<b>NODE:</b> "+title+" ");
 }
 
+//killtext: TOGGLES nontext over nonslice
 function killtext(d) {
     d3.selectAll('.tabs')
       .select('#view')
         .html("<b>NODE:</b> --- ");
 }
-// NEED - SET VIEW HOVER TODOs
 	
 // load_tabs: DISPLAYS relevant tab component when selected
 function load_tabs(tree,num) {
@@ -154,17 +167,6 @@ function load_about(time) {
     var val = new Date(parseInt(time));
     var format = "Last Updated: " + val + ".";
     d3.select("#about").insert("div",":first-child").html(format);
-}
-
-// computeTextRotation: COURTESY OF denjn5 Sunburst Viz tutorial
-function computeTextRotation(d) {
-     var angle = (d.x0 + d.x1) / Math.PI * 90;  // <-- 1
-
-    // Avoid upside-down labels
-    return (angle < 90 || angle > 270) ? angle : angle + 180;  // <--2 "labels aligned with slices"
-
-    // Alternate label formatting
-    //return (angle < 180) ? angle - 90 : angle + 90;  // <-- 3 "labels as spokes"
 }
 	
 // traverse_tree: CONVERTS raw string=>nested JSON dict format
