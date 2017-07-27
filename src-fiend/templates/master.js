@@ -138,7 +138,7 @@ function load_tabs(tree,num) {
     d3.select('.tabs')
         .insert('div')
             .attr('id','view')
-            .html('<br>NODE:</br> ___ ');
+            .html('<b>NODE:</b> ___ ');
     d3.select('.tabs')           
         .insert('div')
             .attr('id','aspan')
