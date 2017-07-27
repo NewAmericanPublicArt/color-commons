@@ -76,7 +76,7 @@ function load_data(data,all) {
 		g.selectAll('.node')
           .on("mouseover", function (d,i) { showtext(d); })
           .on("mouseout", function (d,i) { killtext(d); })
-          .on("click", function(d,i) { zoom(d);})
+          .on("click", function(d,i) { run(d);})
           .append("title")
 		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
 
@@ -89,11 +89,6 @@ function load_data(data,all) {
 // HELPER FUNCTIONS //
 
 //TODO - smooth sorting tweening
-
-//zoom: zooms to new node as partition center
-function zoom(node) {
-    run(node);
-}
 
 //rwoise: SORTS LEVELS w unique class marker
 function rowize(node) {
