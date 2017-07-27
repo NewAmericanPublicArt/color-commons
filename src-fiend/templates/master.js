@@ -119,14 +119,15 @@ function colorize(node) {
 // showtext: TOGGLES TEXT over slices of data viz, pulls fr title
 function showtext(d) {
 	var title = d.data.size? d.data.msg : d.data.name; 
-    d3.select('#view')
-      .html("NODE: "+title);
-    console.log("ex showtext");
+    d3.selectAll('.tabs')
+      .select('#view')
+        .html("NODE: "+title);
 }
 
 function killtext(d) {
-    d3.select('#view')
-     .html("---");
+    d3.selectAll('.tabs')
+      .select('#view')
+        .html("---");
 }
 // NEED - SET VIEW HOVER TODOs
 	
