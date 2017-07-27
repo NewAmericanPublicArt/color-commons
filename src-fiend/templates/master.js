@@ -99,7 +99,7 @@ function load_data(data,all) {
     		  .append('g')
                 .attr("class", function (d) { return rowize(d); });
         	slice.append('path')
-    		    .attr("display", function (d) { return d.depth ? null : "none"; })
+    		//    .attr("display", function (d) { return d.depth ? null : "none"; })
     		    .attr("d", arc)
     			.style('stroke', '#000066')
     			.style("fill", function (d) { return colorize(d); });
