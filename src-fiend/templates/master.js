@@ -23,29 +23,33 @@ function load_data(data,all) {
 
     //TODO - smooth sorting tweening
 
-    var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10,
-    	x = d3.scaleLinear().range([0, 2 * Math.PI]),
-        y = d3.scaleSqrt().range([0, RAD]),
-        partition = d3.partition()
-    	  .size([2*Math.PI, RAD]),
-    	root = d3.hierarchy(data)
+    var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10;
+    var x = d3.scaleLinear().range([0, 2 * Math.PI]);
+    var y = d3.scaleSqrt().range([0, RAD]);
+    var partition = d3.partition()
+    	  .size([2*Math.PI, RAD]);
+    var root = d3.hierarchy(data)
     	  .sum(function(d) { return d.size; })
-    	  .sort(function(a,b) { return b.value - a.value; }),
-    	g = d3.select("svg")
+    	  .sort(function(a,b) { return b.value - a.value; });
+    var g = d3.select("svg")
     	  .append("g")
-    	  .attr("transform","translate("+WID/2+","+(HEI/2)+")"),
-    	node = root, //saves for tweening
-    	/*arc = d3.arc()
+    	  .attr("transform","translate("+WID/2+","+(HEI/2)+")");
+    var node = root; //saves for tweening
+    	/* var arc = d3.arc()
     	  .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
     	  .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
     	  .innerRadius(function(d) { return d.y0; })
     	  .outerRadius(function(d) { return d.y1; }),*/
-        arc = d3.arc()
+    console.log(x(.5));
+    console.log("test x/y funct");
+    console.log(y(.5));
+
+    var arc = d3.arc()
             .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
             .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
             .innerRadius(function(d) { return d.parent ? Math.max(0, y(d.y0)) : 0; })
-            .outerRadius(function(d) { return d.parent ? Math.max(0, y(d.y1)) : .5; }), // TODO - needs more accurate call
-        first = true;
+            .outerRadius(function(d) { return d.parent ? Math.max(0, y(d.y1)) : .5; }); // TODO - needs more accurate call
+    var first = true;
 
     // When switching data: interpolate the arcs in data space.
     function arcTweenData(a, i) {
