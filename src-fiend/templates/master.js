@@ -121,6 +121,7 @@ function showtext(d) {
 	var title = d.data.size? d.data.msg : d.data.name; 
     d3.select('#view')
       .html("NODE: "+title);
+    console.log("ex showtext");
 }
 
 function killtext(d) {
