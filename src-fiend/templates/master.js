@@ -20,6 +20,48 @@ function main(data,time,all) {
 
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_data(data,all) {
+    //TODO - smooth sorting tweening
+    // When switching data: interpolate the arcs in data space.
+    function arcTweenData(a, i) {
+        // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
+        // avoids the stash() and allows the sunburst to grow into being
+        var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
+        function tween(t) {
+          var b = oi(t);
+          a.x0s = b.x0;  
+          a.x1s = b.x1;  
+          return arc(b);
+        }
+        if (i == 0) { 
+          // If we are on the first arc, adjust the x domain to match the root node
+          // at the current zoom level. (We only need to do this once.)
+          var xd = d3.interpolate(x.domain(), [node.x0, node.x1]);
+          return function (t) {
+            x.domain(xd(t));
+            return tween(t);
+          };
+        } else {
+          return tween;
+        }
+    }
+    // When zooming: interpolate the scales.
+    function arcTweenZoom(d) {
+        var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+            yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
+            yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, radius]);
+        return function (d, i) {
+          return i
+              ? function (t) { return arc(d); }
+              : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+        };
+    }
+    //******************************************************************************
+    // click: Respond to slice click.
+    function click(d) {
+        node = d;
+        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
+    }
+
     var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10,
     	x = d3.scaleLinear().range([0, 2 * Math.PI]),
         y = d3.scaleSqrt().range([0, RAD]),
@@ -86,47 +128,6 @@ function load_data(data,all) {
     run(root);
 }
 // ************************   HELPER FUNCTIONS   ***************************  //
-//TODO - smooth sorting tweening
-// When switching data: interpolate the arcs in data space.
-function arcTweenData(a, i) {
-    // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
-    // avoids the stash() and allows the sunburst to grow into being
-    var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
-    function tween(t) {
-      var b = oi(t);
-      a.x0s = b.x0;  
-      a.x1s = b.x1;  
-      return arc(b);
-    }
-    if (i == 0) { 
-      // If we are on the first arc, adjust the x domain to match the root node
-      // at the current zoom level. (We only need to do this once.)
-      var xd = d3.interpolate(x.domain(), [node.x0, node.x1]);
-      return function (t) {
-        x.domain(xd(t));
-        return tween(t);
-      };
-    } else {
-      return tween;
-    }
-}
-// When zooming: interpolate the scales.
-function arcTweenZoom(d) {
-    var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
-        yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
-        yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, radius]);
-    return function (d, i) {
-      return i
-          ? function (t) { return arc(d); }
-          : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
-    };
-}
-//******************************************************************************
-// click: Respond to slice click.
-function click(d) {
-    node = d;
-    g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
-}
 // colorize: FINDS COLOR for each slice based on node
 function colorize(node) {
     var lookup = "black";
