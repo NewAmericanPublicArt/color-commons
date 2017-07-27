@@ -61,7 +61,6 @@ function load_data(data,all) {
   		var gscale = d3.scaleSequential()
                     .domain([0,function(d){ return d.parent.children.length; }])
                     .interpolator(d3.interpolateGreys);
-
 	    	
 		g.selectAll('.node')
 		  .append("title")
@@ -100,13 +99,11 @@ function rowize(node) {
 // colorize: FINDS COLOR for each slice based on node
 function colorize(node) {
     var lookup = "black";
-    if (!node.data.size) {
-	lookup = COLORS[node.data['name'].toLowerCase()];
-    } else {
-	lookup = COLORS[node.data['msg'].toLowerCase()];   
-    }
-    if (lookup == null && node.depth!=0) {
-	lookup = "white";//color scale - our space/dom
+    if (node.data.msg) {
+        lookup = COLORS[node.data['msg'].toLowerCase()];   
+        if (lookup == null) {
+	       lookup = "white";//color scale - our space/dom
+        }
     }
     return d3.color(lookup);
 }
