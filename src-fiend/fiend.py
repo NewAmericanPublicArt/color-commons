@@ -3,10 +3,11 @@
 # Link: http://www.newamericanpublicart.com/color-commons-2017
 import array					# p_cmd array of 'B'
 import calendar					# for month utils
+from copy import deepcopy
 import csv					# file entry/db format
 import datetime					# get_date, get_time
 import itertools				# p_cmd array/iterable loops
-import json					# for dumps utility
+import json
 from math import sin				# parse_command rainbow gen
 import md5					# built-in hash
 from random import randint                      # generate rand color
@@ -20,29 +21,26 @@ import webcolors				#
 class Fiend():
 	
 	# INITIALIZE
-
-	def __init__(self):
-            self.log = [] # Empty list of log entry
+	def __init__(self,log,hash):
+            self.log = log # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
+	    self.SORTS = ["month","day","hour","user","newuser","color","color2"]
 
-	# PRINTER
-
-	def fprint(self):
-            for i in self.log:
-                print(i)
+	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
+	def __deepcopy__(self,memo={}):
+	    # http://code.activestate.com/recipes/259179/
+	    dcopy = Fiend(deepcopy(self.get_log()),None)
+            return dcopy
 
 	# GETTERS
-
         def get_log(self):
             return self.log
-
 	def get_time(self):
 	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorp tzinfo, convert
-
 	def get_date(self):
 	   return datetime.date.today() # DATE hardwired naive; TODO convert format
 	
-	# IMPORT/EXPORT function - to CSVs and JAVASCRIPT
+#-------IMPORT/EXPORT of CSV format
 
 	def send_to_csv(self):
             log = open("log.csv",'w')
@@ -52,6 +50,9 @@ class Fiend():
             log.close()
 
 	def get_fr_csv(self,FILE):
+	    if( self.get_log() != []): # No more than 1 file import allowed - can disable
+		print("G_frCSV:File wont import\n")
+		return
 	    with open(str(FILE), 'rb') as csvfile:
 		parse = csv.reader(csvfile, strict=True)
 		next(parse,None) #Skips intro line
@@ -79,48 +80,14 @@ class Fiend():
 		    elem['date'] = dtime.date() 
 		    elem['time'] = dtime.time()
 		    if not (self.new_entry2(elem)):
-			    print("Error pushing val to log")
+			    print("Error pushing "+str(elem)+" to log\n")
 	
-	# LOADER for standardized week-old page info
-	
-	def load(self):
-	    now = self.get_date()
-    	    weekago = now - datetime.timedelta(days=6)
-	    all = self.find(None,{'date':{'start':weekago,'end':now}})
-	    tier1 = self.sort_by("day",all)
-	    for i, tier2 in enumerate(tier1):
-		tier1[i] = self.sort_by("color",tier2) #assigns arr[] to ea var
-	    return tier1
-	
-	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
-	
-	def prep_dts(self,hier):
-	    for i,x in enumerate(hier):
-		if type(x) is list:
-		    hier[i] = self.prep_dts(x)
-	        elif type(x) is dict:
-		    hier[i]['jsdt'] = self.get_ms(x['date'],x['time'])
-	 	else: #not passed a list of lists or a single list
-		    print("PREP_DTS: terribly wrong")
-	    return hier
-
-	# MODIFIER for exporting - strips ['date'] and ['time'] categories
-
-	def export_to_js(self,copy):
-	    for i,x in enumerate(copy):
-		if type(x) is list:
-		    copy[i] = self.export_to_js(x)
-		elif type(x) is dict:
-		    del copy[i]['date']
-		    del copy[i]['time']
-	    return json.dumps(copy)
-	
-	# ENTRY method for /sms POSTs: input validation executed here (1st line of defense)        
+#-------DIRECT API ENTRY method for /sms POST       
 
 	def new_entry(self,elem):
             # Elem should be of type {'name':'x','msg':'y'}
             if not(elem and ('name' in elem) and ('msg' in elem)):
-                print("improper entry format")
+                print("N_E:Improper entry format\n")
                 return False
 	    elem['name'] = elem['name'].translate(None,'+')
 	    elem['name'] = self.get_hashable(elem['name'])
@@ -130,29 +97,77 @@ class Fiend():
             return True
 
 	# ALTERNATE ENTRY - for direct input from .csv files. See readme for proper format
-	
 	def new_entry2(self,elem):
 	    # Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
   	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
-                print("improper entry2 format")              
+                print("N_E2:Improper entry2 format\n")              
                 return False
             elem['name'] = self.get_hashable(elem['name']) # No need for + removal
       	    self.log.append(elem)
 	    return True
+	
+#-------LOADER for page information by category
+	
+        def load(self,optional,args):
+	    if optional is not None:	#file import optional
+		self.get_fr_csv(optional);
+	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+	    hier.get_jsdt() # CONVERTER
+	    dataset = hier.get_log()
+	    for i, arg in enumerate(args):
+		if arg in self.SORTS:
+		    if arg in self.SORTS[:3]: # Timespan ['month','day','hr'...
+		    	now = hier.get_date()
+			if arg is self.SORTS[0]: # Range: 1yr
+			    delta = datetime.timedelta(days=364) # TODO - precise date/month?
+			    dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
+			    dataset = hier.sort_by(arg,dataset)
+			    # LABEL FORMAT - eg Year of 2017
+			elif arg is self.SORTS[1]:
+			    delta = datetime.timedelta(days=6)
+			    dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
+                            dataset = hier.sort_by(arg,dataset)
+			    # format - Week of [MON]
+			elif arg is SELF.SORTS[2]:
+		    	    delta = datetime.timedelta(hours=24)
+			    # format - Monday the 25th
+			dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
+                        dataset = hier.sort_by(arg,dataset)
+			# TODO - consolidate, worry about passing either [] or {name []} - LOOPING REQUIRED essentially
+		    elif arg in self.SORTS[3:]: # Unique ...'user','newuser','color','color2']
+		        dataset = hier.sort_by(arg,dataset)
+		else:
+		    print("LOAD:Unable to sort by "+str(arg))	
+	    format = {}	    
+	    return json.dumps(format)
 
-	# SEARCH HANDLER for dict-defined queries (automatically calls range suite)
+	def defaultload(self,optional):
+	    if optional is not None:	#file import optional
+		self.get_fr_csv(optional);
+	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+	    hier.get_jsdt() # CONVERTER - check now
+	    dataset = hier.find(hier.log,{'date':hier.get_date()})
+            dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
+	    for i,hr in enumerate(dataset):
+		dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
+	    hier.rm_dt(dataset)
+	    format = { 'name':(calendar.day_abbr[hier.get_date().weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
+	    return json.dumps(format) 
+	   #return self.load(optional,["week","users","colors"]);		
+	
+#-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
 	def find(self,arr,query):
 	    found = self.log # Uneccessary assignment - note bottom functional for ALL implementation
 	    if query: #Essentially generates placeholders for cond_find
-                if 'name' not in query:
+		if 'name' not in query:
              	   query['name'] = False
                 if 'msg' not in query:
                    query['msg'] = False
                 if 'date' not in query:
-                   query['date'] = False
+		    query['date'] = False
 		if 'time' not in query:
-		   query['time'] = False 
+		   query['time'] = False
                 if arr is None:
 		    found = self.range_find(found,query) #More precise range find
 	        else:
@@ -160,20 +175,17 @@ class Fiend():
 	    return found # if !query, returns full list
 	
 	# RANGE HANDLER (automatically called by search handler)
-
-	def range_find(self,arr,query):
+	def range_find(self,arr,query):    
 	    temp = []
 	    for x in arr:
-		if ((query['name']==False or self.in_range(x['name'],query['name'])) and
+        	if ((query['name']==False or self.in_range(x['name'],query['name'])) and
 		    (query['msg']==False or self.in_range(x['msg'],query['msg'])) and
                     (query['date']==False or self.in_range(x['date'],query['date'])) and
                     (query['time']==False or self.in_range(x['time'],query['time']))):
 		    temp.append(x)
 	    return temp
 
-
 	# RANGE checker, returns a boolean T/F for single value/query in range/equivalent
-
 	def in_range(self,elem,test):
 	    if type(test) is dict:
 		return ((elem>=test['start']) and (elem<=test['end']))
@@ -182,45 +194,49 @@ class Fiend():
 		    devi = datetime.timedelta(second=30) # Grabbing all within minute range
 		    return (elem>=(test-devi) and elem<=(test+devi))
 		else:
+		    if (elem == datetime.date(2017,7,25)):
+			print("foundmatch")
 	            return (elem == test)
 	
-	# SORT method, returns a tree tier of lists
+#-------SORT method, returns a tree tier of lists **w modified JSON hierarchy
 
 	def sort_by(self, root, raw):
-	    SORTS = ["month","day","hour","users","newuser","color","color2"]
-	    if root not in SORTS or raw is None or raw == []:
+	    if root not in self.SORTS or raw is None or raw == []:
 		return raw
 	    else:
+		if type(raw) is dict:
+		    raw = raw['children'] # Focuses on important component for reference
 		tier = [] # RET item
-	        if root is SORTS[0] or root is SORTS[1]:
+	        if root is self.SORTS[0] or root is self.SORTS[1]:
 	            ouryear = raw[0]['date'].year # And same for year
 	    # MONTH sorts - assumes 12 always
-		    if root is SORTS[0]: # by MONTH	
+		    if root is self.SORTS[0]: # by MONTH	
 			for i in range(0,12):
 			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
 			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
-		            tier.append(self.find(raw,{'date':{'start':bmo,'end':emo}}))
+		            tier.append({ 'name': calendar.month_abbr[i+1], 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
 	    # DAY sorts - uses compute_range TODO - ensure all dates (not just ones w texts) include
-		    elif root is SORTS[1]:
+		    elif root is self.SORTS[1]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
-			    tier.append(self.find(raw,{'date':x})) # consider - removal fr main to avoid olap
+			    tier.append({ 'name': (calendar.day_abbr[x.weekday()]+" "+self.daylabel(x.day)), 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
 	    # HOUR sorts - separate TIME item from DATE
-		elif root is SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
+		elif root is self.SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
 		    for i in range(0,24):
 			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
-			tier.append(self.find(raw,{'time':{'start':temp[0],'end':temp[1]}}))
+			tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
 	    # USERS sorts - parses down to unique subset of USERS
-		elif root is SORTS[3]: # UNIQUE users
-		    for i in raw[:]:
+		elif root is self.SORTS[3]: # UNIQUE users
+		    for i in raw[:]: #TODO
                         found = False
-			for j in tier[:]:
+			for iter,j in enumerate(tier[:]):
 			    if (i['name'] == j['name']): # EQ compare, not ID
 				found = True
+				tier[iter]['children'].append(i) # Add to specific user iter
 			if not found:
-			    tier.append(i) # Adds as new j entry, restarts i-iter
+			    tier.append({'name':i['name'], 'children':[i]}) # Adds as new j entry, restarts i-iter
             # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
-		elif root is SORTS[4]: # NEW UNIQUE users
+		elif root is self.SORTS[4]: # NEW UNIQUE users
 		    tier = self.sort_by("users",raw) # ranged unique users for our set
 		    bot = datetime.date(2013,1,1)
 		    top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
@@ -230,38 +246,23 @@ class Fiend():
 			for j in B[:]:
 			    if (i['name'] == j['name']):
 				tier.remove(i)
-                  		if tier is None: #rmv? TODO
-	   			    print("empty tier")
-	    # COLORS sort - parses down to unique subset of MSGs
-  		elif root is SORTS[5] or root is SORTS[6]:
+            # COLORS sort - parses down to unique subset of MSGs 	
+		elif root is self.SORTS[5] or root is self.SORTS[6]:
 	    	    colorlist = sorted(self.compute_range(raw,'msg'))
-		    for i,x in enumerate(colorlist):
-		        tier.append(self.find(raw,{'msg':x}))
+		    for x in colorlist:
+		        tier.append({'name':x, 'children': self.find(raw,{'msg':x})})
+######TODO HERE
 	    # COLORISH sort - parse down to VAGUELY CLOSE unique subsets of msgs	
-		    if root is SORTS[6]:
+		    if root is self.SORTS[6]:
 			# DO THINGS TO TIER ITSELF - we know that we can go right into
+			# Given color, "Pink" --> create [" Pink ","Pink   ","pink", etc.?]
+			# Then combine prompts with matching
 			print("special colors not made yet")    		    
 		else:
-		    print("SORT_BY: Haven't heard of that one!")
+		    print("SORT_BY:Improper sort parameter "+str(root)+"\n")
 		return tier
-	
-	# helper which takes set of data & returns list of (nonrepeat) dates for assembly
-	def compute_range(self,raw,key):
-	    range = []
-	    for i in raw[:]:
-		found = False
-		for j in range: 
-		    if (i[key] == j):
-			found = True
-		if not found:
-		    range.append(i[key])
-	    return range
 
-	# OPTIONAL function call - cleans empty list creations (ie, range MO:2-10 will gen arr[12] with empty)
-	def clean_sort(self,raw):
-	    return filter(None, raw)
-
-	# HASHING/ALIAS methods (MD5-compliant)
+#-------HASHING/ALIAS methods (MD5-compliant)
 	
 	def get_hashable(self,nos):
 	    nos = re.sub("[^0-9]",'',nos) #rmvs + from Twilio formatting
@@ -286,10 +287,50 @@ class Fiend():
 	    alias = SURS[surkey] + " " + NAMES[namekey]	+ "-" + tagtrail
 	    return alias
 	
-	# MULTIPURPOSE methods - unrelated to self object
+#-------MULTIPURPOSE methods - largely unrelated to self object
+	
+	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
+	def get_jsdt(self):
+	    for x in self.get_log():
+		x['jsdt'] = self.get_ms(x['date'],x['time'])
+		x['size'] = 1
+
+	# MODIFIER for exporting - strips ['date'] and ['time'] categories
+	def rm_dt(self,hier):
+	    for x in hier:
+		if type(x) is list: # A series of nodes; needs nested call
+		    x = self.rm_dt(x)
+		elif type(x) is dict and 'children' in x: # A node; needs nested call on kids
+		    x['children'] = self.rm_dt(x['children'])
+		elif type(x) is dict: #we are @ base level
+		    del x['date']
+		    del x['time']
+	    return hier 
+	
+	# SORT HELPER which takes set of data & returns list of (nonrepeat) dates for assembly
+	def compute_range(self,raw,key):
+	    range = []
+	    for i in raw[:]:
+		found = False
+		for j in range: 
+		    if (i[key] == j):
+			found = True
+		if not found:
+		    range.append(i[key])
+	    return range
+
+	# DAY-ENDING CREATOR - for proper labeling, helper to sort function
+	def daylabel(self,val):
+	    if (val % 10 == 1 and val != 11):
+		return str(val)+"st"
+	    elif (val % 10 == 2):
+		return str(val)+"nd"
+	    elif (val % 10 == 3):
+		return str(val)+"rd"
+	    else:
+		return str(val)+"th"
 	
 	# CONVERTER:date obj and/or time object=> int representing total milliseconds fr UTC-std start
-	
 	def get_ms(self,d,t): # gets in MS; optional D & T entries, if both included adds the 2
 	    dstd = datetime.date(1970,1,1)
 	    if d is None:
@@ -302,7 +343,6 @@ class Fiend():
 	    return int(secs * 1000)
 
 	# CONVERTER:string of "HH:MM:SS YR-MO-DA ..."format => py datetime.datetime obj
-	
 	def convertexcel(self,raw):
 	    raw = raw.strip('"')
 	    raw = raw.split(' ',1) #maxsplit property splits date/time
@@ -312,10 +352,10 @@ class Fiend():
 	    hr,min,sec = tim.split(':')
 	    sec = (sec.split(' '))[0]
 	    dtime = datetime.datetime(int(yr),int(mo),int(day),int(hr),int(min),int(sec))
-	    return (dtime - datetime.timedelta(hours=4)) # CONVERT from UTC format to boston
+#	    return (dtime - datetime.timedelta(hours=4)) # CONVERT from UTC format to boston
+	    return dtime		
 
 	# CONVERTER:tuple of RGB tuples => string with x,y,z|a,b,c|...format
-	
 	def convert_to_str(self, arr):
 	    condensed = ""
 	    last = len(arr)-1
@@ -329,7 +369,6 @@ class Fiend():
 	    return condensed
 
 	# PARSER for PHAROS lights display
-
 	def parse_command(self, message):
 	    FIXTURES = 24
 	    populate = True
@@ -363,16 +402,13 @@ class Fiend():
 	    # FORMAT data from 2 RGB tuples to chain of (24*3) numbers  
    	    if (populate):	
 		data = data * (FIXTURES/2)
-            # DO STUFF HERE TO CHANGE INTO A ARRAY.ARRAY?
 	    data = array.array('B', itertools.chain.from_iterable(data))
 	    return data
 	
 	# COLOR methods (access, complement)
-
 	def complement(self, color): # pass color as (r, g, b) tuple
 	    # simpler, slower version of http://stackoverflow.com/a/40234924
 	    return tuple(max(color) + min(color) - channel for channel in color)
-
 	def look_up_color(self, name):
 	    try:
 		color = tuple(webcolors.hex_to_rgb(xkcd_names_to_hex[name]))

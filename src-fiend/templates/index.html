@@ -7,24 +7,25 @@
 <body>
 <div class="buffer"></div>
 <div id="page">
-        <h1>Interactive Data Visualizaton: Color Commons</h1>
+        <h1>Interactive Data Visualization: Color Commons</h1>
 	
-	<div id="canvas" data-log="{{data|dt_convert}}"></div>
+	<div id="canvas" data-log="{{data}}">
+	    <svg viewbox="0 0 600 600"></svg>
+	</div>
 	
 	<div id="info">
 	    
 	    <div class="tabs">
-	    	<p onclick="showtab(0)">INFO</p>
-		<p onclick="showtab(1)">VIEWS</p>
-		<p onclick="showtab(2)">ADVANCED</p>
+		<div class="view"></div>
+                <div class="tspan"></div>
+	    	<div class="aspan" data-all="{{all}}"></div>
 	    </div>
-	    <div id="about" data-time="{{time|dt_convert}}">
-            	<p>&nbsp;<p>
-            	<p><a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
+	    <div id="about" data-time="{{time}}">
+            	<p>Contact: info@newamericanpublicart.com | <a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
             </div>
 	</div>
 </div>
 <div class="buffer"></div>
-<script src="burst.js"></script>
+<script src="master.js"></script>
 </body>
 </html>

@@ -2,12 +2,12 @@
 # Implementation of Linode app for use in server of color commons project
 # Link: http://www.newamericanpublicart.com/color-commons-2017
 
-from flask import Flask, render_template, request
-import requests # WILL ALLOW US TO POST TO THE PI
-from fiend import Fiend # Personal module
-from os import path
 import datetime
-import time
+from fiend import Fiend # Personal module
+from flask import Flask, render_template, request
+from os import path
+import requests # WILL ALLOW US TO POST TO THE PI
+import time # separate module for calendar
 
 global public
 public = Flask(__name__, static_url_path="", static_folder="templates")
@@ -17,41 +17,27 @@ public.config['PROPAGATE_EXCEPTIONS'] = True
 @public.before_first_request
 def initialize():
     global repo
-    repo = Fiend()
-    repo.get_fr_csv('current.csv')
+    repo = Fiend([],None)
     print("*** SERVER RUNNING, WAITING ON POST REQUEST ***")
 
-## Include "no-cache" header in all POST responses
+## POST RESPONSE INITIALIZER; adds "no-cache" header ##
 @public.after_request
 def add_no_cache(response):
     if request.method == 'POST':
         response.cache_control.no_cache = True
     return response
-
-# FILTER which finds & replaces all DT instances for js
-@public.template_filter('dt_convert')
-def dt_convert(val):
-    if type(val) is datetime.date: # Calls get_ms with d field
-	return repo.get_ms(val,None)
-    elif type(val) is datetime.time: # Calls get_ms with t field
-	today = repo.get_date()
-	return repo.get_ms(today,val)
-    elif type(val) is list: # Calls jsdt creator & returns resulting augmented hierarchy
-	return repo.export_to_js(repo.prep_dts(val))
-    else:
-	print("DT_FILTER:improper entry format")
-	  
+  
 ## HOMEPAGE API ##    
-@public.route('/', methods=['GET'])
-@public.route('/index', methods=['GET'])	# Got em bleeding into each other - should work?
+@public.route('/', methods=['GET']) # Bleeding == nested functionality
+@public.route('/index', methods=['GET'])	
 def serve():
-    std = repo.load()
-#   try:
-    return render_template('/index.html',data=std,time=repo.get_time())
-#   except:
-#	return render_template('/except.html')
+    std = repo.defaultload('current.csv') # rets a copy to ONLY log item of fiend/repo
+    try:
+        return render_template('/index.html',data=std,all=len(repo.get_log()),time=(repo.get_ms(repo.get_date(),repo.get_time())))
+    except:
+	return render_template('/except.html')
 
-## SMS API - PASSES TO PI ##
+## SMS API; passes formatted input to pi ##
 @public.route('/sms', methods=['POST'])
 def parse_sms():
     message = str(request.form['Body']).strip().lower() # NOTE - Fiend object handles most input validation in-module
