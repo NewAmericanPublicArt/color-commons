@@ -58,23 +58,25 @@ function load_data(data,all) {
 			.style('stroke', '#000066')
 			.style("fill", function (d) { return colorize(d); });
  
+        // TODO - gscale pscale syntax
   		var gscale = d3.scaleSequential(d3.interpolateGreys)
                     .domain([0,24]);
         //            .interpolator(d3.interpolateGreys);
         var pscale = d3.scaleSequential(d3.interpolateYlGnBu)
                     .domain([0,500]);
 
+        // TODO - needs to be fixed/modified
         g.selectAll('.hr')
             .style("fill", function (d) { return gscale(d) });
 	    g.selectAll('.person')
             .style("fill", function (d) { return pscale(d) });
 
+        // Set hover elements for tooltip; can be accessed with viewport funct
 		g.selectAll('.node')
 		  .append("title")
 		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
-
-		//      .on("mouseover", function(){ showtext(d,true); })
-                //      .on("mouseout", function(){ showtext(d,false); });
+            .on("mouseover", function (d) { showtext(d) })
+            .on("mouseout", function (d) { killtext(d) });
     }
     run();
 }
@@ -115,21 +117,17 @@ function colorize(node) {
     return d3.color(lookup);
 }
 
-// showtext: TOGGLES TEXT over slices of data viz
-function showtext(obj,show) {
-	// first grab object - SPECIFC the text val
-	console.log("label");
-	var text = d3.select('obj');
-	console.log(text);
-	console.log(typeof text);
-	// then given show, set vis or unvis
-	if (show) {
-		text.attr("visibility","visible");
-	} else {
-		text.attr("visibility","hidden");	
-	}
+// showtext: TOGGLES TEXT over slices of data viz, pulls fr title
+function showtext(d) {
+	var title = d.data.size? d.data.msg : d.data.name; 
+    d3.select('.view')
+      .html("NODE: "+title);
 }
 
+function killtext(d) {
+    d3.select('.view')
+     .html("---");
+}
 // NEED - SET VIEW HOVER TODOs
 	
 // load_tabs: DISPLAYS relevant tab component when selected
@@ -137,6 +135,9 @@ function load_tabs(tree,num) {
     var format = [("<b>Total Texts for All Time:</b> "+num),
                 ("<b>Total Texts for "+tree.data.name+":</b> "+tree.value)];
     d3.select('.tabs')
+        .append('div')
+            .attr('id','.view')
+            .html('___')
         .append('div')
             .attr('id','.aspan')
             .html(format[0])
