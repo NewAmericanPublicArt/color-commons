@@ -119,14 +119,16 @@ function showtext(obj,show) {
 function load_tabs(tree,num) {
     var format = [("<b>Total Texts for All Time:</b> "+num),
                 ("<b>Total Texts for "+tree.data.name+":</b> "+tree.value)];
-    
+
     d3.select('.tabs')
         .append('div')
             .attr('id','.aspan')
             .html(format[0])
+            .style('padding', '5px')
         .append('div')
             .attr('id','.tspan')
-            .html(format[1]);
+            .html(format[1])
+            .style('padding', '5px');
 }
 
 // load_about: LOADER for ABOUT - provides last-updated information
