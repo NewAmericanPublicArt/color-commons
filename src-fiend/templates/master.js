@@ -136,13 +136,13 @@ function load_tabs(tree,num) {
     var format = [("<b>Total Texts for All Time:</b> "+num),
                 ("<b>Total Texts for "+tree.data.name+":</b> "+tree.value)];
     d3.select('.tabs')
-        .append('div')
+        .insert('div')
             .attr('id','view')
             .html('___')
-        .append('div')
+        .insert('div')
             .attr('id','aspan')
             .html(format[0])
-        .append('div')
+        .insert('div')
             .attr('id','tspan')
             .html(format[1]);
 }
