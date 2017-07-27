@@ -8,7 +8,8 @@
 window.onload = function() {
     var log = d3.select("#canvas").attr("data-log");
     var cur = d3.select("#about").attr("data-time");
-    var all = d3.select(".aspan").attr("data-all");
+    var all = d3.select(".tabs").attr("data-all");
+    console.log("onload all"+all);
     main(log,cur,all);
 };
 
@@ -112,21 +113,21 @@ function showtext(obj,show) {
 		text.attr("visibility","hidden");	
 	}
 }
+
+// NEED - SET VIEW HOVER TODOs
 	
 // load_tabs: DISPLAYS relevant tab component when selected
 function load_tabs(tree,num) {
+    var format = [("<b>Total Texts for All Time:</b> "+num),
+                ("<b>Total Texts for "+tree.data.name+":</b> "+tree.value)];
     
-    var format = "<b>Total Texts for All Time:</b> "+num;
-    
-    var all = d3.selectAll('.aspan')
-	   .attr("html",format);
-    
-    format = "<b>Total Texts for "+tree.data.name+":</b> "+tree.value;
-    
-    all = d3.selectAll('.tspan')
-	   .attr("html",format);
-
-    console.log("done w loadtabs");
+    d3.select('.tabs')
+        .append('div')
+            .attr('id','.aspan')
+            .attr('html',format[0])
+        .append('div')
+            .attr('id','.tspan')
+            .attr('html',format[1]);
 }
 
 // load_about: LOADER for ABOUT - provides last-updated information
