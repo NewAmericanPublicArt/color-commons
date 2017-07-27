@@ -31,6 +31,7 @@ body {
 
 #canvas {
     flex: 8 8 0;
+    background-color: #000066;
 }
 
 svg {
@@ -50,24 +51,25 @@ svg {
     flex: 1 1 0;
 
     flex-flow: column nowrap;
-    background-color: #FFCC99;
+    background-color: #000066;
 }
 
 .tabs { 
+    background-color: #000066;
     display: flex;
     flex-flow: column nowrap;
-    font-size: .6em;
 }
 /* Select all children of tabs - ie, #view, #tspan, #aspan as created*/
 .tabs>* {
     background-color: #FFCC99;
+    font-size: .5em;
     padding: 3px;
+    border: 3px solid;
+    margin: 3px;
+    border-radius: 15px;
 }
 
-#about { 
-    font-size: .5em;
-    background-color: #FFCC99;
-}
+h1 { background-color: #FFCC99; }
 
 /*
 CLASS 1 RESPONSIVE - ALL SMARTPHONES & LESS
