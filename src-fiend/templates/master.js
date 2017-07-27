@@ -136,14 +136,14 @@ function load_tabs(tree,num) {
                 ("<b>Total Texts for "+tree.data.name+":</b> "+tree.value)];
     d3.select('.tabs')
         .append('div')
-            .attr('id','.view')
+            .attr('id','view')
             .html('___')
         .append('div')
-            .attr('id','.aspan')
+            .attr('id','aspan')
             .html(format[0])
             .style('padding', '5px')
         .append('div')
-            .attr('id','.tspan')
+            .attr('id','tspan')
             .html(format[1])
             .style('padding', '5px');
 }
