@@ -127,7 +127,7 @@ function showtext(d) {
 function killtext(d) {
     d3.selectAll('.tabs')
       .select('#view')
-        .html("<br>NODE:</br> --- ");
+        .html("<b>NODE:</b> --- ");
 }
 // NEED - SET VIEW HOVER TODOs
 	
