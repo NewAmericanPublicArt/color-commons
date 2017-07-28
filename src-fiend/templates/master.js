@@ -46,6 +46,7 @@ var arc = d3.arc()
 var first = true;
 var partition = d3.partition()
       .size([2*Math.PI, RAD]);
+var ii = 0;
 
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_data(data,all) {
@@ -96,8 +97,12 @@ function load_data(data,all) {
             
         //fr bl.ocks
         } else {
-            console.log("else in RUN called");
+            console.log("2+ RUN");
+            console.log("i :"+i);
+            //1st?
             g.selectAll("path").data(partition(root).descendants());
+            //added HERE
+            g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d,i));//TODO
         }
         g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
         console.log("finished run");
@@ -116,6 +121,7 @@ function load_data(data,all) {
           a.x1s = b.x1;  
           return arc(b);
         }
+        console.log("ATD i "+i);
         if (i == 0) { 
           /* If we are on the first arc, adjust the x domain to match the root node
           // at the current zoom level. (We only need to do this once.)
@@ -132,7 +138,7 @@ function load_data(data,all) {
             return tween(t);
           };
         } else {
-          return tween; //calls tween on NON root
+          return tween;
         }
     }
     // ARC TWEEN ZOOM: When zooming: interpolate the scales.
@@ -151,7 +157,8 @@ function load_data(data,all) {
     // CLICK: click: Respond to slice click.
     function click(d,i) {
         back = d;
-        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d,i));
+        ii = i;
+        update(d);
     }
 
 }
