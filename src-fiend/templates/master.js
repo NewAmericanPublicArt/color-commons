@@ -16,6 +16,7 @@ function main(data,time,all) {
     load_about(time); // Coordinates 2/2 page
     tree = traverse_tree(data, JSON.parse);
     load_data(tree,all); // Calls with assumption of asynchronous updating? TODO 1/
+}
 // GLOBALS for data viz
 //TODO - smooth sorting tweening
 var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10;
