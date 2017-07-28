@@ -94,7 +94,7 @@ function load_data(data,all) {
     }
     run();
 
-    // When switching data: interpolate the arcs in data space.
+    // ARC TWEEN DATA: When switching data: interpolate the arcs in data space.
     function arcTweenData(a, i) {
         // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
         // avoids the stash() and allows the sunburst to grow into being
@@ -105,6 +105,8 @@ function load_data(data,all) {
           a.x1s = b.x1;  
           return arc(b);
         }
+        console.log("called aTD on i: "+i);
+        console.log(a);
         if (i == 0) { 
           // If we are on the first arc, adjust the x domain to match the root node
           // at the current zoom level. (We only need to do this once.)
@@ -116,31 +118,28 @@ function load_data(data,all) {
         } else {
           return tween;
         }
-        console.log("called aTD");
     }
-
-    // click: Respond to slice click.
+    // ARC TWEEN ZOOM: When zooming: interpolate the scales.
+    function arcTweenZoom(d) {
+        var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+            yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
+            yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
+        console.log("in ATZ; called interpolate on i:"+i);
+        console.log(d);
+        return function (d, i) {
+          return i
+              ? function (t) { return arc(d); }
+              : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+        };
+    }
+    // CLICK: click: Respond to slice click.
     function click(d) {
         back = d;
-        console.log("registered click on");
-        console.log(d);
         g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
     }
 
 }
 // ************************   HELPER FUNCTIONS   ***************************  //
-
-// When zooming: interpolate the scales.
-function arcTweenZoom(d) {
-    var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
-        yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
-        yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
-    return function (d, i) {
-      return i
-          ? function (t) { return arc(d); }
-          : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
-    };
-}
 // colorize: FINDS COLOR for each slice based on node
 function colorize(d) {
     var lookup = "black";
