@@ -44,10 +44,10 @@ function load_data(data,all) {
     	  .outerRadius(function(d) { return d.y1; }),*/
 
     var arc = d3.arc()
-            .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
-            .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
-            .innerRadius(function(d) { return d.parent ? Math.max(0, y(d.y0)) : 0; })
-            .outerRadius(function(d) { return d.parent ? Math.max(0, y(d.y1)) : 10; }); // TODO - needs more accurate call
+            .startAngle(function(d) { d.x0s = d.x0; return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
+            .endAngle(function(d) { d.x1s = d.x1; return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
+            .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
+            .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
     var first = true;
 
     // When switching data: interpolate the arcs in data space.
