@@ -109,16 +109,17 @@ function load_data(data,all) {
             g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d,i));//TODO
         }
         // TODO - standalone ATD for ea load
-        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
+        g.selectAll("path")
+            .attr('id',function(d,i){ return d ? i : "xxx";})
+            .transition()
+            .duration(1000)
+            .attrTween("d", arcTweenData);
     }
     run();
 
     // ARC TWEEN DATA: When switching data: interpolate the arcs in data space.
     // i is the # in order
     function arcTweenData(a, i) {
-        console.log("ATD i=="+i);
-        d3.select(a)
-            .attr("i",i);
         // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
         // avoids the stash() and allows the sunburst to grow into being
         var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
