@@ -51,14 +51,15 @@ var partition = d3.partition()
 function load_data(data,all) {
 
     var iterhelper = 0;
-    var iterf = function(d,i){
-        console.log("iter "+i);
-        d.data.iter = i;
+    var iterf = function(d){
+        console.log("iterh "+iterhelper);
+        d.data.iter = iterhelper;
+        iterhelper += 1;
     }
     var root = d3.hierarchy(data)
     	.sum(function(d) { return d.size; })
     	.sort(function(a,b) { return b.value - a.value; })
-        .each(function(d,i) { return d.depth ? iterf(d,i) : iterf(d,i); });
+        .each(function(d) { return iterf(d); });
     //    .id(function (d) { return d.name; })
     //.attr('id',function(d,i){ return d ? i : "xxx";})
     var back = root; //saves for tweening
