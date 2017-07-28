@@ -53,13 +53,13 @@ function load_data(data,all) {
     var iter = function(d,i){
         console.log("iter "+i);
         d.data.iter = i;
-        i++;
+        //i++;
     }
-    var v;
+    var v=0;
     var root = d3.hierarchy(data)
     	.sum(function(d) { return d.size; })
     	.sort(function(a,b) { return b.value - a.value; })
-        .each(function(d) { return d.depth ? iter(d,v) : iter(d,v=0); });
+        .each(function(d) { return d.depth ? iter(d,++v) : iter(d,v); });
     //    .id(function (d) { return d.name; })
     //.attr('id',function(d,i){ return d ? i : "xxx";})
     var back = root; //saves for tweening
