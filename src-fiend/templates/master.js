@@ -89,31 +89,40 @@ function load_data(data,all) {
         g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
     }
     run();
+
+    // When switching data: interpolate the arcs in data space.
+    function arcTweenData(a, i) {
+        // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
+        // avoids the stash() and allows the sunburst to grow into being
+        var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
+        function tween(t) {
+          var b = oi(t);
+          a.x0s = b.x0;  
+          a.x1s = b.x1;  
+          return arc(b);
+        }
+        if (i == 0) { 
+          // If we are on the first arc, adjust the x domain to match the root node
+          // at the current zoom level. (We only need to do this once.)
+          var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
+          return function (t) {
+            x.domain(xd(t));
+            return tween(t);
+          };
+        } else {
+          return tween;
+        }
+    }
+
+    // click: Respond to slice click.
+    function click(d) {
+        back = d;
+        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
+    }
+    
 }
 // ************************   HELPER FUNCTIONS   ***************************  //
-// When switching data: interpolate the arcs in data space.
-function arcTweenData(a, i) {
-    // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
-    // avoids the stash() and allows the sunburst to grow into being
-    var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
-    function tween(t) {
-      var b = oi(t);
-      a.x0s = b.x0;  
-      a.x1s = b.x1;  
-      return arc(b);
-    }
-    if (i == 0) { 
-      // If we are on the first arc, adjust the x domain to match the root node
-      // at the current zoom level. (We only need to do this once.)
-      var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
-      return function (t) {
-        x.domain(xd(t));
-        return tween(t);
-      };
-    } else {
-      return tween;
-    }
-}
+
 // When zooming: interpolate the scales.
 function arcTweenZoom(d) {
     var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
@@ -124,11 +133,6 @@ function arcTweenZoom(d) {
           ? function (t) { return arc(d); }
           : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
     };
-}
-// click: Respond to slice click.
-function click(d) {
-    back = d;
-    g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
 }
 // colorize: FINDS COLOR for each slice based on node
 function colorize(d) {
