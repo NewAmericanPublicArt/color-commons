@@ -13,11 +13,13 @@ body {
     height: 100%;
     display: flex;
     flex-flow: row nowrap;
+    align-items: stretch;
+    background-color: #000000;
 }
 
 .buffer {
     flex: 1 0 0;
-    background-color: #FFFFFF;
+    background-color: #000000;
 }
 
 #page {
@@ -25,7 +27,7 @@ body {
 
     display: flex;
     flex-flow: column nowrap;
-    background-color: #FFCC99;
+    background-color: #000066;
     min-width: 0;
 }
 
@@ -51,17 +53,42 @@ svg {
     flex: 1 1 0;
 
     flex-flow: column nowrap;
+    background-color: #000066;
+}
+
+#about { 
+    align-self: center;
     background-color: #FFCC99;
+    padding: 5px;
+    font-size: .3em;
 }
 
 .tabs { 
+    background-color: #000066;
     display: flex;
     flex-flow: column nowrap;
-    
-    padding: 5px;
-    font-size: .75em;
+    align-items: center;
 }
-#about { font-size: .5em }
+/* Select all children of tabs - ie, #view, #tspan, #aspan as created*/
+.tabs>* {
+    background-color: #FFCC99;
+    font-size: .7em;
+    padding: 5px;
+    border: 3px #FFCC99;
+    margin: 3px;
+    border-radius: 25px;
+}
+
+h1 {
+    font-size: .8em; 
+    background-color: #FFCC99; 
+}
+
+p {
+    padding: 0;
+    border: 0;
+    margin: 0;
+}
 
 /*
 CLASS 1 RESPONSIVE - ALL SMARTPHONES & LESS

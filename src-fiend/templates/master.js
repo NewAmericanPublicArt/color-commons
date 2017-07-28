@@ -2,131 +2,212 @@
  * Loader functions for sunburst graphic, linked to DATAVIZ.HTML
  * Instantiates with main() call from window ONLOAD method, fed python list of dicts
  * Strongly modified from https://bl.ocks.org/denjn5/1a3f8e44cdcb3054121dfd991f59fbc2
- * With additional mods from https://bl.ocks.org/maybelinot/5552606564ef37b5de7e47ed2b7dc099 */
-
+ * With additional mods from https://bl.ocks.org/maybelinot/5552606564ef37b5de7e47ed2b7dc099 
+ */
 // INSTANTIATOR - collects and validates data-attribute info fr embedded index.html
 window.onload = function() {
     var log = d3.select("#canvas").attr("data-log");
     var cur = d3.select("#about").attr("data-time");
-    var all = d3.select(".aspan").attr("data-all");
+    var all = parseInt(d3.select(".tabs").attr("data-all"));
     main(log,cur,all);
 };
-
 // MAIN - coordinates CANVAS data viz (using data/log) and TIME update
 function main(data,time,all) {
     load_about(time); // Coordinates 2/2 page
     tree = traverse_tree(data, JSON.parse);
-    load_data(tree,all); // Calls with assumption of asynchronous updating? TODO 1/2
+    load_data(tree,all); // Calls with assumption of asynchronous updating? TODO 1/
 }
+// GLOBALS for data viz
+//TODO - smooth sorting tweening
+var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10;
+var x = d3.scaleLinear().range([0, 2 * Math.PI]);
+var y = d3.scaleSqrt().range([0, RAD]);
+/*var arc = d3.arc()
+    .startAngle(function(d) { d.x0s = d.x0; return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
+    .endAngle(function(d) { d.x1s = d.x1; return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
+    .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
+    .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
+*/ 
+var arc = d3.arc()
+    .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
+    .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
+    .innerRadius(function(d) { return d.y0; })
+    .outerRadius(function(d) { return d.y1; });
+
+var first = true;
+var partition = d3.partition()
+      .size([2*Math.PI, RAD]);
 
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_data(data,all) {
-    var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10,
-	//gscale = d3.scaleSequential(d3.interpolateGreys),
-        partition = d3.partition()
-	  .size([2*Math.PI, RAD]),
-	root = d3.hierarchy(data)
-	  .sum(function(d) { return d.size; })
-	  .sort(function(a,b) { return b.value - a.value; }),
-	g = d3.select("svg")
-	  .append("g")
-	  .attr("transform","translate("+WID/2+","+(HEI/2)+")"),
-	node = root,
-	arc = d3.arc()
-	  .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
-	  .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
-	  .innerRadius(function(d) { return d.y0; })
-	  .outerRadius(function(d) { return d.y1; });
 
-    partition(root); //calls partition on root (links structure & data)
-    load_tabs(root,all);
-	
-    var run = function() { 		
-		var slice = g.selectAll('g')
-		  .data(root.descendants())
-		  .enter()
-		  .append('g')
-		    .attr("class", "node");
-		slice.append('path')
-		    .attr("display", function (d) { return d.depth ? null : "none"; })
-		    .attr("d", arc)
-			.style('stroke', '#000066')
-			.style("fill", function (d) { return colorize(d); });
- 
-  		var gscale = d3.scaleSequential()
-                    .domain([0,function(d){ return d.parent.children.length; }])
-                    .interpolator(d3.interpolateGreys);
-	    	
-		g.selectAll('.node')
-		  .append("title")
-		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
+    var root = d3.hierarchy(data)
+    	.sum(function(d) { return d.size; })
+    	.sort(function(a,b) { return b.value - a.value; });
+    //    .id(function (d) { return d.name; })
+    //    .parentId(function (d) { return d.parent; })
+    var g = d3.select("svg")
+    	  .append("g")
+    	  .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
 
-		//      .on("mouseover", function(){ showtext(d,true); })
-                //      .on("mouseout", function(){ showtext(d,false); });
+    var back = root; //saves for tweening
+
+    var run = function() { 	
+        console.log("populating dataset from")
+        console.log(root);
+
+        if (first) {
+            first = false; //doesnt run again
+            partition(root); //calls partition on root (links structure & data) 
+            load_tabs(root,all);
+
+    		var slice = g.selectAll('g') //does this grab all? TODO
+    		  .data(root.descendants())
+    		  .enter()
+    		  .append('g')
+                .attr("class", function (d) { return rowize(d); })// rets node+
+        	    .append('path')//inner path elem in ea g
+    		    .attr("display", function (d) { return d.depth ? null : "none"; })
+        		    .attr("d", arc)
+        			.style('stroke', '#000066')
+        			.style("fill", function (d) { return colorize(d); });
+            g.selectAll('.node')// Set hover elements for tooltip/view funct
+              .on("mouseover", function (d,i) { showtext(d); })
+              .on("mouseout", function (d,i) { killtext(d); })
+              .on("click", function(d,i) { click(d);})
+              .append("title")
+                .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
+
+            // TODO - gscale pscale syntax
+      		var gscale = d3.scaleSequential(d3.interpolateGreys).domain([0,24]);
+            var pscale = d3.scaleSequential(d3.interpolateYlGnBu).domain([0,500]);
+            //            .interpolator(d3.interpolateGreys);
+            g.selectAll('.hr').style("fill", function (d) { return gscale(d) });
+    	    g.selectAll('.person').style("fill", function (d) { return pscale(d) });
+            
+        //fr bl.ocks
+        } else {
+            g.selectAll("path").data(partition(root).descendants());
+        }
+        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
+        console.log("finished run");
     }
     run();
-}
 
-// HELPER FUNCTIONS //
-
-// colorize: FINDS COLOR for each slice based on node
-function colorize(node) {
-    var lookup = "black";
-    if (!node.data.size) {
-	lookup = COLORS[node.data['name'].toLowerCase()];
-    } else {
-	lookup = COLORS[node.data['msg'].toLowerCase()];   
+    // When switching data: interpolate the arcs in data space.
+    function arcTweenData(a, i) {
+        // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
+        // avoids the stash() and allows the sunburst to grow into being
+        var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
+        function tween(t) {
+          var b = oi(t);
+          a.x0s = b.x0;  
+          a.x1s = b.x1;  
+          return arc(b);
+        }
+        if (i == 0) { 
+          // If we are on the first arc, adjust the x domain to match the root node
+          // at the current zoom level. (We only need to do this once.)
+          var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
+          return function (t) {
+            x.domain(xd(t));
+            return tween(t);
+          };
+        } else {
+          return tween;
+        }
+        console.log("called aTD");
     }
-    if (lookup == null && node.depth!=0) {
-	lookup = "white";//color scale - our space/dom
+
+    // click: Respond to slice click.
+    function click(d) {
+        back = d;
+        console.log("registered click on");
+        console.log(d);
+        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
+    }
+
+}
+// ************************   HELPER FUNCTIONS   ***************************  //
+
+// When zooming: interpolate the scales.
+function arcTweenZoom(d) {
+    var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+        yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
+        yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
+    return function (d, i) {
+      return i
+          ? function (t) { return arc(d); }
+          : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+    };
+}
+// colorize: FINDS COLOR for each slice based on node
+function colorize(d) {
+    var lookup = "black";
+    if (d.data.msg) {
+        lookup = COLORS[d.data['msg'].toLowerCase()];   
+        if (lookup == null) {
+	       lookup = "white";//color scale - our space/dom
+        }
     }
     return d3.color(lookup);
 }
-
-// showtext: TOGGLES TEXT over slices of data viz
-function showtext(obj,show) {
-	// first grab object - SPECIFC the text val
-	console.log("label");
-	var text = d3.select('obj');
-	console.log(text);
-	console.log(typeof text);
-	// then given show, set vis or unvis
-	if (show) {
-		text.attr("visibility","visible");
-	} else {
-		text.attr("visibility","hidden");	
-	}
+//killtext: TOGGLES nontext over nonslice
+function killtext(d) {
+    d3.selectAll('.tabs')
+      .select('#view')
+        .html("<b>NODE:</b> --- ");
 }
-	
-// load_tabs: DISPLAYS relevant tab component when selected
-function load_tabs(tree,num) {
-    console.log("hey"); 
-    var format = "<b>Total Texts for All Time:</b> "+num;
-    var all = d3.selectAll('.aspan')
-	.attr("html",format);
-    format = "<b>Total Texts for "+tree.data.name+":</b> "+tree.value;
-    all = d3.selectAll('.tspan')
-	.attr("html",format);
-}
-
 // load_about: LOADER for ABOUT - provides last-updated information
 function load_about(time) {
     var val = new Date(parseInt(time));
     var format = "Last Updated: " + val + ".";
-    d3.select("#about").insert("div",":first-child").html(format);
+    d3.select("#about").insert('p',":first-child").text(format);
 }
-
-// computeTextRotation: COURTESY OF denjn5 Sunburst Viz tutorial
-function computeTextRotation(d) {
-     var angle = (d.x0 + d.x1) / Math.PI * 90;  // <-- 1
-
-    // Avoid upside-down labels
-    return (angle < 90 || angle > 270) ? angle : angle + 180;  // <--2 "labels aligned with slices"
-
-    // Alternate label formatting
-    //return (angle < 180) ? angle - 90 : angle + 90;  // <-- 3 "labels as spokes"
+// load_tabs: DISPLAYS relevant tab component when selected
+function load_tabs(tree,num) {
+    var format = [("<b>Total Texts for All Time:</b> "+num),
+                ("<b>Total Texts for "+tree.data.name+":</b> "+tree.value)];
+    d3.select('.tabs')
+        .insert('div')
+            .attr('id','view')
+            .html('<b>NODE:</b> ___ ');
+    d3.select('.tabs')           
+        .insert('div')
+            .attr('id','aspan')
+            .html(format[0]);
+    d3.select('.tabs')
+        .insert('div')
+            .attr('id','tspan')
+            .html(format[1]);
 }
-	
+//rowise: SORTS LEVELS w unique class marker
+function rowize(d) {
+    var row = "";
+    if (!d.data.msg){
+        var str = d.data.name;
+        if (str.slice(0,2) == "hr") {
+            row = " hr";
+        } else {
+            var len = str.length;//8, we want index *4|5|6|7, so 8-(4) = 4
+            if ((str.charAt(len-4) == '-') || (str.charAt(len-3) == '-')) { // a NAME eg, Ms. MARY-123 OR trailing 0 Ms. HAM-78
+                row = " person";
+            } else if (str.charAt(3) == ' '){// So now check for TUE[]23rd
+                row = " day";
+            } else {            // Would be... months, yr, etc
+                row = " other";
+            }
+        }
+    } //else; leafs need no other class
+    return "node"+row;
+}
+// showtext: TOGGLES TEXT over slices of data viz, pulls fr title
+function showtext(d) {
+    var title = d.data.size? d.data.msg : d.data.name; 
+    d3.selectAll('.tabs')
+      .select('#view')
+        .html("<b>NODE:</b> "+title+" ");
+}
 // traverse_tree: CONVERTS raw string=>nested JSON dict format
 function traverse_tree(raw, apply) {
     if (typeof raw === 'string'){ //parse it regardless, then assess children/recall	

@@ -27,8 +27,7 @@ class Fiend():
 	    self.SORTS = ["month","day","hour","user","newuser","color","color2"]
 
 	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
-	def __deepcopy__(self,memo={}):
-	    # http://code.activestate.com/recipes/259179/
+	def __deepcopy__(self,memo={}):# http://code.activestate.com/recipes/259179/
 	    dcopy = Fiend(deepcopy(self.get_log()),None)
             return dcopy
 
@@ -36,9 +35,9 @@ class Fiend():
         def get_log(self):
             return self.log
 	def get_time(self):
-	   return datetime.datetime.time(datetime.datetime.now()) # TODO - incorp tzinfo, convert
+	    return datetime.datetime.time(datetime.datetime.now()) # TODO - incorp tzinfo, convert
 	def get_date(self):
-	   return datetime.date.today() # DATE hardwired naive; TODO convert format
+	    return datetime.date.today() # DATE hardwired naive; TODO convert format
 	
 #-------IMPORT/EXPORT of CSV format
 
@@ -143,7 +142,7 @@ class Fiend():
 
 	def defaultload(self,optional):
 	    if optional is not None:	#file import optional
-		self.get_fr_csv(optional);
+		self.get_fr_csv(optional)
 	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
 	    hier.get_jsdt() # CONVERTER - check now
 	    dataset = hier.find(hier.log,{'date':hier.get_date()})
@@ -153,8 +152,21 @@ class Fiend():
 	    hier.rm_dt(dataset)
 	    format = { 'name':(calendar.day_abbr[hier.get_date().weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
 	    return json.dumps(format) 
-	   #return self.load(optional,["week","users","colors"]);		
-	
+	   #return self.load(optional,["week","users","colors"]);
+
+	def thu_load(self,optional):
+	    if optional is not None:	#file import optional
+		self.get_fr_csv(optional)
+	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+	    hier.get_jsdt() # CONVERTER - check now
+	    dataset = hier.find(hier.log,{'date':datetime.date(2017,7,27)})
+	    dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
+	    for i,hr in enumerate(dataset):
+	    	dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
+	    hier.rm_dt(dataset)
+	    format = { 'name':(calendar.day_abbr[datetime.date(2017,7,27).weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
+	    return json.dumps(format)
+
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
 	def find(self,arr,query):
