@@ -17,7 +17,7 @@ body {
 
 .buffer {
     flex: 1 0 0;
-    background-color: #FFFFFF;
+    background-color: #000000;
 }
 
 #page {
@@ -57,7 +57,6 @@ svg {
 #about { 
     align-self: center;
     background-color: #FFCC99;
-    margin: 3px;
     padding: 5px;
     font-size: .3em;
 }

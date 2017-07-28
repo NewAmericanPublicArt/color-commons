@@ -90,6 +90,7 @@ function load_data(data,all) {
             g.selectAll("path").data(partition(root).descendants());
         }
         g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
+        console.log("finished run");
     }
     run();
 
@@ -121,6 +122,8 @@ function load_data(data,all) {
     // click: Respond to slice click.
     function click(d) {
         back = d;
+        console.log("registered click on");
+        console.log(d);
         g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
     }
 
