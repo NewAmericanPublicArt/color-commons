@@ -13,6 +13,8 @@ body {
     height: 100%;
     display: flex;
     flex-flow: row nowrap;
+    align-items: stretch;
+    background-color: #000000;
 }
 
 .buffer {
