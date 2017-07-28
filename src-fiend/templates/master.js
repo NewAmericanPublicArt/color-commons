@@ -22,18 +22,27 @@ function main(data,time,all) {
 var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10;
 var x = d3.scaleLinear().range([0, 2 * Math.PI]);
 var y = d3.scaleSqrt().range([0, RAD]);
-/*var arc = d3.arc()
+/*
+VERSION1
+var arc = d3.arc()
     .startAngle(function(d) { d.x0s = d.x0; return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
     .endAngle(function(d) { d.x1s = d.x1; return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
     .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
     .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
 */ 
+/*var arc = d3.arc()
+    .startAngle(function(d) { d.x0s = d.x0; return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
+    .endAngle(function(d) { d.x1s = d.x1; return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
+    .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
+    .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
+*/
+
+//WORKING VERSION
 var arc = d3.arc()
     .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
     .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
     .innerRadius(function(d) { return d.y0; })
     .outerRadius(function(d) { return d.y1; });
-
 var first = true;
 var partition = d3.partition()
       .size([2*Math.PI, RAD]);
@@ -87,6 +96,7 @@ function load_data(data,all) {
             
         //fr bl.ocks
         } else {
+            console.log("else in RUN called");
             g.selectAll("path").data(partition(root).descendants());
         }
         g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
@@ -95,6 +105,7 @@ function load_data(data,all) {
     run();
 
     // ARC TWEEN DATA: When switching data: interpolate the arcs in data space.
+    // i is the # in order
     function arcTweenData(a, i) {
         // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
         // avoids the stash() and allows the sunburst to grow into being
@@ -105,18 +116,23 @@ function load_data(data,all) {
           a.x1s = b.x1;  
           return arc(b);
         }
-        console.log("called aTD on i: "+i);
-        console.log(a);
         if (i == 0) { 
-          // If we are on the first arc, adjust the x domain to match the root node
+          /* If we are on the first arc, adjust the x domain to match the root node
           // at the current zoom level. (We only need to do this once.)
           var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
           return function (t) {
             x.domain(xd(t));
             return tween(t);
+          };*/
+          var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
+          return function (t) {
+            console.log("t is ");
+            console.log(t);
+            x.domain(xd(t));
+            return tween(t);
           };
         } else {
-          return tween;
+          return tween; //calls tween on NON root
         }
     }
     // ARC TWEEN ZOOM: When zooming: interpolate the scales.
@@ -124,7 +140,7 @@ function load_data(data,all) {
         var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
             yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
             yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
-        console.log("in ATZ; called interpolate on i:"+i);
+        console.log("in ATZ; called interpolate on i: "+i);
         console.log(d);
         return function (d, i) {
           return i
