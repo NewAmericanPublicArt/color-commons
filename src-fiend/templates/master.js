@@ -116,43 +116,40 @@ function load_data(data,all) {
     // ARC TWEEN DATA: When switching data: interpolate the arcs in data space.
     // i is the # in order
     function arcTweenData(a, i) {
+        console.log("ATD i=="+i+"&a:");
+        console.log(a);
         // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
         // avoids the stash() and allows the sunburst to grow into being
         var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
-        function tween(t) {
-            console.log("ADTtween t: "+t);
-
-            var b = oi(t);
-            a.x0s = b.x0;  
-            a.x1s = b.x1;  
-            return arc(b);
-        }
-        console.log("ATD i is "+i);
+        var tween = function(t) {
+                console.log(t+"=="+i);
+                var b = oi(t);
+                a.x0s = b.x0;  
+                a.x1s = b.x1;  
+                return arc(b);
+        }; 
         if (i == 0) { 
-            /* If we are on the first arc, adjust the x domain to match the root node
-            // at the current zoom level. (We only need to do this once.)
+            /* If we are on the first arc, adjust the x domain to match the root node at the current zoom level. (We only need to do this once.)
             var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
             return function (t) {
-            x.domain(xd(t));
-            return tween(t);
+                x.domain(xd(t));
+                return tween(t);
             };*/
             var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
-            console.log(i);
-            console.log("xd-"+xd)
             return function (t) {
-                console.log(t);
+                console.log(i+"=="+t);
                 x.domain(xd(t));
                 return tween(t);
             };
-        } else { console.log(i); return tween(i); }
+        } else { return tween(i); }
     }
     // ARC TWEEN ZOOM: When zooming: interpolate the scales.
     function arcTweenZoom(d,i) {
+        console.log("i:=="+i+"&d:");
+        console.log(d);
         var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
             yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
             yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
-        console.log("in ATZ; called interpolate on i: "+i+" and d:");
-        console.log(d);
         return function (d, i) {
           return i
               ? function (t) { return arc(d); }
@@ -161,6 +158,8 @@ function load_data(data,all) {
     }
     // CLICK: Respond to slice click.
     function click(d,i) {
+        console.log("i:=="+i+"&d:");
+        console.log(d);
         back = root;
         root = d;
         run();
