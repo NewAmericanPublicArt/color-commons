@@ -159,7 +159,7 @@ function killtext(d) {
 function load_about(time) {
     var val = new Date(parseInt(time));
     var format = "Last Updated: " + val + ".";
-    d3.select("#about").insert("div",":first-child").html(format);
+    d3.select("#about").insert('p',":first-child").text(format);
 }
 // load_tabs: DISPLAYS relevant tab component when selected
 function load_tabs(tree,num) {
