@@ -61,7 +61,7 @@ function load_data(data,all) {
         .each(function(d) { return iterf(d); });
 
     var back = root; //saves for tweening
-
+    var g;
     var run = function() { 	
         console.log("populating dataset from")
         console.log(root);
@@ -71,7 +71,7 @@ function load_data(data,all) {
             partition(root); //calls partition on root (links structure & data) 
             load_tabs(root,all);
 
-            var g = d3.select("svg")
+            g = d3.select("svg")
               .append("g")
               .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
     		var slice = g.selectAll('g') //does this grab all? TODO
