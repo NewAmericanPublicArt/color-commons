@@ -120,8 +120,7 @@ function load_data(data,all) {
         // avoids the stash() and allows the sunburst to grow into being
         var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
         function tween(t) {
-            console.log("ADTtween t: ");
-            console.log(t);
+            console.log("ADTtween t: "+t);
 
             var b = oi(t);
             a.x0s = b.x0;  
@@ -145,7 +144,7 @@ function load_data(data,all) {
                 x.domain(xd(t));
                 return tween(t);
             };
-        } else { console.log(i); return tween; }
+        } else { console.log(i); return tween(i); }
     }
     // ARC TWEEN ZOOM: When zooming: interpolate the scales.
     function arcTweenZoom(d,i) {
