@@ -136,11 +136,11 @@ function load_data(data,all) {
                 return tween(t);
             };*/
             var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
-            return function (t) {
+            return (function (t) {
                 console.log(i+"=="+t);
                 x.domain(xd(t));
                 return tween(t);
-            };
+            })(i);
         } else { return tween(i); }
     }
     // ARC TWEEN ZOOM: When zooming: interpolate the scales.
