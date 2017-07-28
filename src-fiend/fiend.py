@@ -22,7 +22,7 @@ class Fiend():
 	
 	# INITIALIZE
 	def __init__(self,log,hash):
-        self.log = log # Empty list of log entry
+            self.log = log # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
 	    self.SORTS = ["month","day","hour","user","newuser","color","color2"]
 
