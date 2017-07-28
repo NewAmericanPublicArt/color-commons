@@ -54,10 +54,6 @@ function load_data(data,all) {
     	.sum(function(d) { return d.size; })
     	.sort(function(a,b) { return b.value - a.value; });
     //    .id(function (d) { return d.name; })
-    //    .parentId(function (d) { return d.parent; })
-    var g = d3.select("svg")
-    	  .append("g")
-    	  .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
 
     var back = root; //saves for tweening
 
@@ -70,6 +66,9 @@ function load_data(data,all) {
             partition(root); //calls partition on root (links structure & data) 
             load_tabs(root,all);
 
+            var g = d3.select("svg")
+              .append("g")
+              .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
     		var slice = g.selectAll('g') //does this grab all? TODO
     		  .data(root.descendants())
     		  .enter()
@@ -98,13 +97,19 @@ function load_data(data,all) {
         } else {
             console.log("2+ RUN");
             console.log("i :"+i);
-            //1st?
+
+            console.log("g is");
+            console.log(g);
+
             g.selectAll("path").data(partition(root).descendants());
             //added HERE
+            console.log("g is");
+            console.log(g);
+            //
             g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d,i));//TODO
         }
+        // TODO - standalone ATD for ea load
         g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
-        console.log("finished run");
     }
     run();
 
@@ -115,37 +120,35 @@ function load_data(data,all) {
         // avoids the stash() and allows the sunburst to grow into being
         var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
         function tween(t) {
-          var b = oi(t);
-          a.x0s = b.x0;  
-          a.x1s = b.x1;  
-          return arc(b);
-        }
-        console.log("ATD i "+i);
-        if (i == 0) { 
-          /* If we are on the first arc, adjust the x domain to match the root node
-          // at the current zoom level. (We only need to do this once.)
-          var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
-          return function (t) {
-            x.domain(xd(t));
-            return tween(t);
-          };*/
-          var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
-          return function (t) {
-            console.log("t is ");
+            console.log("random tween on t: ");
             console.log(t);
+
+            var b = oi(t);
+            a.x0s = b.x0;  
+            a.x1s = b.x1;  
+            return arc(b);
+        }
+        if (i == 0) { 
+            /* If we are on the first arc, adjust the x domain to match the root node
+            // at the current zoom level. (We only need to do this once.)
+            var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
+            return function (t) {
             x.domain(xd(t));
             return tween(t);
-          };
-        } else {
-          return tween;
-        }
+            };*/
+            var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
+            return function (t) {
+                x.domain(xd(t));
+                return tween(t);
+            };
+        } else { return tween; }
     }
     // ARC TWEEN ZOOM: When zooming: interpolate the scales.
     function arcTweenZoom(d,i) {
         var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
             yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
             yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
-        console.log("in ATZ; called interpolate on i: "+i);
+        console.log("in ATZ; called interpolate on i: "+i+" and d:");
         console.log(d);
         return function (d, i) {
           return i
