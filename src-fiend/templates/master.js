@@ -50,16 +50,15 @@ var partition = d3.partition()
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_data(data,all) {
 
-    var iter = function(d,i){
+    var iterhelper = 0;
+    var iterf = function(d,i){
         console.log("iter "+i);
         d.data.iter = i;
-        //i++;
     }
-    var v=0;
     var root = d3.hierarchy(data)
     	.sum(function(d) { return d.size; })
     	.sort(function(a,b) { return b.value - a.value; })
-        .each(function(d) { return d.depth ? iter(d,++v) : iter(d,v); });
+        .each(function(d,i) { return d.depth ? iterf(d,i) : iterf(d,i); });
     //    .id(function (d) { return d.name; })
     //.attr('id',function(d,i){ return d ? i : "xxx";})
     var back = root; //saves for tweening
