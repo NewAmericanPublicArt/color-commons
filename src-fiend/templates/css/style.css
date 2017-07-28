@@ -55,13 +55,11 @@ svg {
 }
 
 #about { 
-    background-color: #FFCC99; 
-    border: 3px #FFFFFF;
-    border-radius: 25px;
+    align-self: center;
+    background-color: #FFCC99;
     margin: 3px;
     padding: 5px;
     font-size: .3em;
-    align-self: center;
 }
 
 .tabs { 
@@ -83,6 +81,12 @@ svg {
 h1 {
     font-size: .8em; 
     background-color: #FFCC99; 
+}
+
+p {
+    padding: 0;
+    border: 0;
+    margin: 0;
 }
 
 /*
