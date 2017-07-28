@@ -116,15 +116,14 @@ function load_data(data,all) {
     // ARC TWEEN DATA: When switching data: interpolate the arcs in data space.
     // i is the # in order
     function arcTweenData(a, i) {
-        console.log("ATD i=="+i+"&a:");
-        console.log(a);
+        console.log("ATD i=="+i);
+        d3.select(a)
+            .attr("i",i);
         // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
         // avoids the stash() and allows the sunburst to grow into being
         var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
         var tween = function(t) {
-                console.log(t+"=="+i);
                 var b = oi(t);
-                console.log("ran oi");
                 a.x0s = b.x0;  
                 a.x1s = b.x1;  
                 return arc(b);
