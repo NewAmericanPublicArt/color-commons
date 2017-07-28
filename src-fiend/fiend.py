@@ -142,26 +142,29 @@ class Fiend():
 
 	def defaultload(self,optional):
 	    if optional is not None:	#file import optional
-		self.get_fr_csv(optional)
+			self.get_fr_csv(optional)
 	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
 	    hier.get_jsdt() # CONVERTER - check now
 	    dataset = hier.find(hier.log,{'date':hier.get_date()})
-            dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
+        dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
 	    for i,hr in enumerate(dataset):
-		dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
+			dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
 	    hier.rm_dt(dataset)
 	    format = { 'name':(calendar.day_abbr[hier.get_date().weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
 	    return json.dumps(format) 
 	   #return self.load(optional,["week","users","colors"]);
 
 	def thu_load(self,optional):
+		if optional is not None:	#file import optional
+			self.get_fr_csv(optional)
+	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
 	    hier.get_jsdt() # CONVERTER - check now
 	    dataset = hier.find(hier.log,{'date':datetime.date(2017,7,27)})
 	    dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
 	    for i,hr in enumerate(dataset):
 	    	dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
 	    hier.rm_dt(dataset)
-	    format = { 'name':(calendar.day_abbr[hier.get_date().weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
+	    format = { 'name':(calendar.day_abbr[datetime.date(2017,7,27).weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
 	    return json.dumps(format)
 
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
