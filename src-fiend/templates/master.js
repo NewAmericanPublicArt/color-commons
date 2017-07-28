@@ -46,7 +46,6 @@ var arc = d3.arc()
 var first = true;
 var partition = d3.partition()
       .size([2*Math.PI, RAD]);
-var ii = 0;
 
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_data(data,all) {
@@ -154,11 +153,11 @@ function load_data(data,all) {
               : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
         };
     }
-    // CLICK: click: Respond to slice click.
+    // CLICK: Respond to slice click.
     function click(d,i) {
-        back = d;
-        ii = i;
-        update(d);
+        back = root;
+        root = d;
+        run();
     }
 
 }
