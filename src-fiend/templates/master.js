@@ -15,83 +15,43 @@ window.onload = function() {
 function main(data,time,all) {
     load_about(time); // Coordinates 2/2 page
     tree = traverse_tree(data, JSON.parse);
-    load_data(tree,all); // Calls with assumption of asynchronous updating? TODO 1/2
-}
+    load_data(tree,all); // Calls with assumption of asynchronous updating? TODO 1/
+// GLOBALS for data viz
+//TODO - smooth sorting tweening
+var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10;
+var x = d3.scaleLinear().range([0, 2 * Math.PI]);
+var y = d3.scaleSqrt().range([0, RAD]);
+var arc = d3.arc()
+    .startAngle(function(d) { d.x0s = d.x0; return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
+    .endAngle(function(d) { d.x1s = d.x1; return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
+    .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
+    .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
+   /* var arc = d3.arc()
+          .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
+          .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
+          .innerRadius(function(d) { return d.y0; })
+          .outerRadius(function(d) { return d.y1; }),*/
+var first = true;
+var partition = d3.partition()
+      .size([2*Math.PI, RAD]);
 
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_data(data,all) {
 
-    //TODO - smooth sorting tweening
-
-    var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10;
-    var x = d3.scaleLinear().range([0, 2 * Math.PI]);
-    var y = d3.scaleSqrt().range([0, RAD]);
-    var partition = d3.partition()
-    	  .size([2*Math.PI, RAD]);
     var root = d3.hierarchy(data)
-    //    .id(function (d) { return d.name; })
-    //    .parentId(function (d) { return d.parent; })
     	.sum(function(d) { return d.size; })
     	.sort(function(a,b) { return b.value - a.value; });
+    //    .id(function (d) { return d.name; })
+    //    .parentId(function (d) { return d.parent; })
     var g = d3.select("svg")
     	  .append("g")
     	  .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
-    var node = root; //saves for tweening
-    	/* var arc = d3.arc()
-    	  .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
-    	  .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
-    	  .innerRadius(function(d) { return d.y0; })
-    	  .outerRadius(function(d) { return d.y1; }),*/
 
-    var arc = d3.arc()
-            .startAngle(function(d) { d.x0s = d.x0; return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
-            .endAngle(function(d) { d.x1s = d.x1; return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
-            .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
-            .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
-    var first = true;
+    var back = root; //saves for tweening
 
-    // When switching data: interpolate the arcs in data space.
-    function arcTweenData(a, i) {
-        // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
-        // avoids the stash() and allows the sunburst to grow into being
-        var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
-        function tween(t) {
-          var b = oi(t);
-          a.x0s = b.x0;  
-          a.x1s = b.x1;  
-          return arc(b);
-        }
-        if (i == 0) { 
-          // If we are on the first arc, adjust the x domain to match the root node
-          // at the current zoom level. (We only need to do this once.)
-          var xd = d3.interpolate(x.domain(), [node.x0, node.x1]);
-          return function (t) {
-            x.domain(xd(t));
-            return tween(t);
-          };
-        } else {
-          return tween;
-        }
-    }
-    // When zooming: interpolate the scales.
-    function arcTweenZoom(d) {
-        var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
-            yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
-            yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
-        return function (d, i) {
-          return i
-              ? function (t) { return arc(d); }
-              : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
-        };
-    }
-    // click: Respond to slice click.
-    function click(d) {
-        node = d;
-        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
-    }
-    //**************************************************************************
     var run = function() { 	
         console.log("populating dataset from" + root);
+
         if (first) {
             first = false; //doesnt run again
             partition(root); //calls partition on root (links structure & data) 
@@ -101,29 +61,27 @@ function load_data(data,all) {
     		  .data(root.descendants())
     		  .enter()
     		  .append('g')
-                .attr("class", function (d) { return rowize(d); })
-        	    .append('path')
+                .attr("class", function (d) { return rowize(d); })// rets node+
+        	    .append('path')//inner path elem in ea g
     		    .attr("display", function (d) { return d.depth ? null : "none"; })
         		    .attr("d", arc)
         			.style('stroke', '#000066')
         			.style("fill", function (d) { return colorize(d); });
-     
-            // TODO - gscale pscale syntax
-      		var gscale = d3.scaleSequential(d3.interpolateGreys).domain([0,24]);
-            //            .interpolator(d3.interpolateGreys);
-            var pscale = d3.scaleSequential(d3.interpolateYlGnBu).domain([0,500]);
-            // TODO - needs to be fixed/modified
-            g.selectAll('.hr').style("fill", function (d) { return gscale(d) });
-    	    g.selectAll('.person').style("fill", function (d) { return pscale(d) });
-
-            // Set hover elements for tooltip; can be accessed with viewport funct
-    		g.selectAll('.node')
+            g.selectAll('.node')// Set hover elements for tooltip/view funct
               .on("mouseover", function (d,i) { showtext(d); })
               .on("mouseout", function (d,i) { killtext(d); })
               .on("click", function(d,i) { click(d);})
               .append("title")
-    		    .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
+                .text(function(d) { return d.data.size? d.data.msg : d.data.name; });
 
+            // TODO - gscale pscale syntax
+      		var gscale = d3.scaleSequential(d3.interpolateGreys).domain([0,24]);
+            var pscale = d3.scaleSequential(d3.interpolateYlGnBu).domain([0,500]);
+            //            .interpolator(d3.interpolateGreys);
+            g.selectAll('.hr').style("fill", function (d) { return gscale(d) });
+    	    g.selectAll('.person').style("fill", function (d) { return pscale(d) });
+            
+        //fr bl.ocks
         } else {
             g.selectAll("path").data(partition(root).descendants());
         }
@@ -132,11 +90,50 @@ function load_data(data,all) {
     run();
 }
 // ************************   HELPER FUNCTIONS   ***************************  //
+// When switching data: interpolate the arcs in data space.
+function arcTweenData(a, i) {
+    // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
+    // avoids the stash() and allows the sunburst to grow into being
+    var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
+    function tween(t) {
+      var b = oi(t);
+      a.x0s = b.x0;  
+      a.x1s = b.x1;  
+      return arc(b);
+    }
+    if (i == 0) { 
+      // If we are on the first arc, adjust the x domain to match the root node
+      // at the current zoom level. (We only need to do this once.)
+      var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
+      return function (t) {
+        x.domain(xd(t));
+        return tween(t);
+      };
+    } else {
+      return tween;
+    }
+}
+// When zooming: interpolate the scales.
+function arcTweenZoom(d) {
+    var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+        yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
+        yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
+    return function (d, i) {
+      return i
+          ? function (t) { return arc(d); }
+          : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+    };
+}
+// click: Respond to slice click.
+function click(d) {
+    back = d;
+    g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
+}
 // colorize: FINDS COLOR for each slice based on node
-function colorize(node) {
+function colorize(d) {
     var lookup = "black";
-    if (node.data.msg) {
-        lookup = COLORS[node.data['msg'].toLowerCase()];   
+    if (d.data.msg) {
+        lookup = COLORS[d.data['msg'].toLowerCase()];   
         if (lookup == null) {
 	       lookup = "white";//color scale - our space/dom
         }
@@ -173,10 +170,10 @@ function load_tabs(tree,num) {
             .html(format[1]);
 }
 //rowise: SORTS LEVELS w unique class marker
-function rowize(node) {
+function rowize(d) {
     var row = "";
-    if (!node.data.msg){
-        var str = node.data.name;
+    if (!d.data.msg){
+        var str = d.data.name;
         if (str.slice(0,2) == "hr") {
             row = " hr";
         } else {
