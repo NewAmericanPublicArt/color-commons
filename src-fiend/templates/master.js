@@ -120,7 +120,7 @@ function load_data(data,all) {
         }
     }
     // ARC TWEEN ZOOM: When zooming: interpolate the scales.
-    function arcTweenZoom(d) {
+    function arcTweenZoom(d,i) {
         var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
             yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
             yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
@@ -133,9 +133,9 @@ function load_data(data,all) {
         };
     }
     // CLICK: click: Respond to slice click.
-    function click(d) {
+    function click(d,i) {
         back = d;
-        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
+        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d,i));
     }
 
 }
