@@ -52,16 +52,14 @@ function load_data(data,all) {
 
     var iterhelper = 0;
     var iterf = function(d){
-        console.log("iterh "+iterhelper);
         d.data.iter = iterhelper;
         iterhelper += 1;
-    }
+    };
     var root = d3.hierarchy(data)
     	.sum(function(d) { return d.size; })
     	.sort(function(a,b) { return b.value - a.value; })
         .each(function(d) { return iterf(d); });
-    //    .id(function (d) { return d.name; })
-    //.attr('id',function(d,i){ return d ? i : "xxx";})
+
     var back = root; //saves for tweening
 
     var run = function() { 	
@@ -105,9 +103,6 @@ function load_data(data,all) {
             var i = root.data.iter;
             console.log("2+ RUN");
             console.log("i :"+i);
-
-            console.log("g is");
-            console.log(g);
 
             g.selectAll("path").data(partition(root).descendants());
             //added HERE
