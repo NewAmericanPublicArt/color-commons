@@ -29,8 +29,10 @@ function load_data(data,all) {
     var partition = d3.partition()
     	  .size([2*Math.PI, RAD]);
     var root = d3.hierarchy(data)
-    	  .sum(function(d) { return d.size; })
-    	  .sort(function(a,b) { return b.value - a.value; });
+        .id(function (d) { return d.name; })
+        .parentId(function (d) { return d.parent; })
+    	.sum(function(d) { return d.size; })
+    	.sort(function(a,b) { return b.value - a.value; });
     var g = d3.select("svg")
     	  .append("g")
     	  .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
