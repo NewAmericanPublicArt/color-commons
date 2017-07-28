@@ -114,6 +114,7 @@ function load_data(data,all) {
             .transition()
             .duration(1000)
             .attrTween("d", arcTweenData);
+        console.log("safe?");
     }
     run();
 
@@ -138,12 +139,11 @@ function load_data(data,all) {
             };*/
             var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
             return (function (t) {
-                console.log(i+"=="+t);
                 x.domain(xd(t));
                 return tween(t);
             })(i);
         } else { return tween(i); }
-    }
+    };
     // ARC TWEEN ZOOM: When zooming: interpolate the scales.
     function arcTweenZoom(d,i) {
         console.log("i:=="+i+"&d:");
@@ -156,7 +156,7 @@ function load_data(data,all) {
               ? function (t) { return arc(d); }
               : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
         };
-    }
+    };
     // CLICK: Respond to slice click.
     function click(d,i) {
         console.log("i:=="+i+"&d:");
@@ -164,8 +164,11 @@ function load_data(data,all) {
         back = root;
         root = d;
         run();
-    }
+    };
 
+
+
+    console.log("END");
 }
 // ************************   HELPER FUNCTIONS   ***************************  //
 // colorize: FINDS COLOR for each slice based on node
