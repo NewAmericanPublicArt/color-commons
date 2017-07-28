@@ -22,16 +22,18 @@ function main(data,time,all) {
 var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10;
 var x = d3.scaleLinear().range([0, 2 * Math.PI]);
 var y = d3.scaleSqrt().range([0, RAD]);
-var arc = d3.arc()
+/*var arc = d3.arc()
     .startAngle(function(d) { d.x0s = d.x0; return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
     .endAngle(function(d) { d.x1s = d.x1; return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
     .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
     .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
-   /* var arc = d3.arc()
-          .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
-          .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
-          .innerRadius(function(d) { return d.y0; })
-          .outerRadius(function(d) { return d.y1; }),*/
+*/ 
+var arc = d3.arc()
+    .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
+    .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
+    .innerRadius(function(d) { return d.y0; })
+    .outerRadius(function(d) { return d.y1; });
+    
 var first = true;
 var partition = d3.partition()
       .size([2*Math.PI, RAD]);
@@ -51,7 +53,8 @@ function load_data(data,all) {
     var back = root; //saves for tweening
 
     var run = function() { 	
-        console.log("populating dataset from" + root);
+        console.log("populating dataset from")
+        console.log(root);
 
         if (first) {
             first = false; //doesnt run again
@@ -119,7 +122,7 @@ function load_data(data,all) {
         back = d;
         g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
     }
-    
+
 }
 // ************************   HELPER FUNCTIONS   ***************************  //
 
