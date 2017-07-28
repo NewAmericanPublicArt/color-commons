@@ -124,6 +124,7 @@ function load_data(data,all) {
         var tween = function(t) {
                 console.log(t+"=="+i);
                 var b = oi(t);
+                console.log("ran oi");
                 a.x0s = b.x0;  
                 a.x1s = b.x1;  
                 return arc(b);
