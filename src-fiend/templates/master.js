@@ -120,7 +120,7 @@ function load_data(data,all) {
         // avoids the stash() and allows the sunburst to grow into being
         var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
         function tween(t) {
-            console.log("random tween on t: ");
+            console.log("ADTtween t: ");
             console.log(t);
 
             var b = oi(t);
@@ -128,6 +128,7 @@ function load_data(data,all) {
             a.x1s = b.x1;  
             return arc(b);
         }
+        console.log("ATD i is "+i);
         if (i == 0) { 
             /* If we are on the first arc, adjust the x domain to match the root node
             // at the current zoom level. (We only need to do this once.)
@@ -137,11 +138,14 @@ function load_data(data,all) {
             return tween(t);
             };*/
             var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
+            console.log(i);
+            console.log("xd-"+xd)
             return function (t) {
+                console.log(t);
                 x.domain(xd(t));
                 return tween(t);
             };
-        } else { return tween; }
+        } else { console.log(i); return tween; }
     }
     // ARC TWEEN ZOOM: When zooming: interpolate the scales.
     function arcTweenZoom(d,i) {
