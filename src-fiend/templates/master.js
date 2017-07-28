@@ -50,11 +50,18 @@ var partition = d3.partition()
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_data(data,all) {
 
+    var iter = function(d,i){
+        console.log("iter "+i);
+        d.data.iter = i;
+        i++;
+    }
+    var v;
     var root = d3.hierarchy(data)
     	.sum(function(d) { return d.size; })
-    	.sort(function(a,b) { return b.value - a.value; });
+    	.sort(function(a,b) { return b.value - a.value; })
+        .each(function(d) { return d.depth ? iter(d,v) : iter(d,v=0); });
     //    .id(function (d) { return d.name; })
-
+    //.attr('id',function(d,i){ return d ? i : "xxx";})
     var back = root; //saves for tweening
 
     var run = function() { 	
@@ -95,6 +102,7 @@ function load_data(data,all) {
             
         //fr bl.ocks
         } else {
+            var i = root.data.iter;
             console.log("2+ RUN");
             console.log("i :"+i);
 
@@ -110,11 +118,9 @@ function load_data(data,all) {
         }
         // TODO - standalone ATD for ea load
         g.selectAll("path")
-            .attr('id',function(d,i){ return d ? i : "xxx";})
             .transition()
             .duration(1000)
             .attrTween("d", arcTweenData);
-        console.log("safe?");
     }
     run();
 
@@ -159,8 +165,6 @@ function load_data(data,all) {
     };
     // CLICK: Respond to slice click.
     function click(d,i) {
-        console.log("i:=="+i+"&d:");
-        console.log(d);
         back = root;
         root = d;
         run();
