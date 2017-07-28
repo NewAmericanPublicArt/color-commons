@@ -33,7 +33,7 @@ var arc = d3.arc()
     .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
     .innerRadius(function(d) { return d.y0; })
     .outerRadius(function(d) { return d.y1; });
-    
+
 var first = true;
 var partition = d3.partition()
       .size([2*Math.PI, RAD]);
@@ -115,6 +115,7 @@ function load_data(data,all) {
         } else {
           return tween;
         }
+        console.log("called aTD");
     }
 
     // click: Respond to slice click.
