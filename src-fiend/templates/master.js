@@ -104,9 +104,9 @@ function load_data(data,all) {
             console.log("i :"+i);
 
             console.log("g._groups[0] is");
-            console.log(g._groups[0]);
-            console.log("g[0] is");
-            console.log(g[0]);
+            console.log(g._groups[0][0]);
+            console.log("g._groups[0][i] is");
+            console.log(g._groups[0][i]);
 
             g.selectAll("path").data(partition(root).descendants());
             //added HERE
