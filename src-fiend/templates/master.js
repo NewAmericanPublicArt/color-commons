@@ -103,13 +103,14 @@ function load_data(data,all) {
             var i = root.data.iter;
             console.log("i :"+i);
 
-            console.log("g is");
-            console.log(g);
+            console.log("g._groups[0] is");
+            console.log(g._groups[0]);
+            console.log("g[0] is");
+            console.log(g[0]);
 
             g.selectAll("path").data(partition(root).descendants());
             //added HERE
-            console.log("g is");
-            console.log(g);
+
             //
             g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d,i));//TODO
         }
