@@ -38,6 +38,15 @@ Though when certain methods are called, the log or its copies may be mutated int
 
 where `jsdt` refers to a combined integer value indicating number of milliseconds past UTC-stdz time (see `get_ms`), necessary in converting the data stored in Pythonic date/time objects into JS Date objects when rendered to the client. 
 
+A sample hierarchy structure might unfold as follows;
+> {'name': "Week of Jul 31st", 'children': [
+>	{'name': "31st Jul", 'children': [...] },
+>	{'name': "1st Aug", 'children':[
+>		{'name': "Mr HAMISH-ef4", 'children': [ ] },
+>		{'name': "Ms ADELE-333", 'children': [ ] }
+>		] }
+>	 ] }  
+
 ## Methods
 
 `__init__` : Constructor; creates empty log, hash stream
