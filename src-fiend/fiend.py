@@ -165,7 +165,8 @@ class Fiend():
 	    	dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
 	    hier.rm_dt(dataset)
 	    format = { 'name':(calendar.day_abbr[datetime.date(2017,7,27).weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
-	    return json.dumps(format)
+	    return format
+#	    return json.dumps(format)
 
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
@@ -206,8 +207,6 @@ class Fiend():
 		    devi = datetime.timedelta(second=30) # Grabbing all within minute range
 		    return (elem>=(test-devi) and elem<=(test+devi))
 		else:
-		    if (elem == datetime.date(2017,7,25)):
-			print("foundmatch")
 	            return (elem == test)
 	
 #-------SORT method, returns a tree tier of lists **w modified JSON hierarchy
