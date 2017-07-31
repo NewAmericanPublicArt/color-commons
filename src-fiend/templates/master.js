@@ -103,10 +103,10 @@ function load_data(data,all) {
             var i = root.data.iter;
             console.log("i :"+i);
 
-            console.log("g._groups[0] is");
-            console.log(g._groups[0][0]);
-            console.log("g._groups[0][i] is");
-            console.log(g._groups[0][i]);
+            console.log("g._groups[0][0][i] is");
+            console.log(g._groups[0][0][i]);
+            console.log("g._groups[0][0].NodeList[i] is");
+            console.log(g._groups[0][0].NodeList[i]);
 
             g.selectAll("path").data(partition(root).descendants());
             //added HERE
