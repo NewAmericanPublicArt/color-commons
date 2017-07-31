@@ -101,8 +101,10 @@ function load_data(data,all) {
         //fr bl.ocks
         } else {
             var i = root.data.iter;
-            console.log("2+ RUN");
             console.log("i :"+i);
+
+            console.log("g is");
+            console.log(g);
 
             g.selectAll("path").data(partition(root).descendants());
             //added HERE
