@@ -165,6 +165,7 @@ class Fiend():
 	    	dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
 	    hier.rm_dt(dataset)
 	    format = { 'name':(calendar.day_abbr[datetime.date(2017,7,27).weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
+	    return format
 #	    return json.dumps(format)
 
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)

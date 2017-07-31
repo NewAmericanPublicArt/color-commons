@@ -4,7 +4,7 @@
 
 import datetime
 from fiend import Fiend # Personal module
-from flask import Flask, render_template, request
+from flask import Flask, jsonify, render_template, request
 from os import path
 import requests # WILL ALLOW US TO POST TO THE PI
 import time # separate module for calendar
@@ -51,7 +51,7 @@ def parse_sms():
 @public.route('/serveburst', methods=['POST'])
 def send_to_json():
     std = repo.thu_load('current.csv') # rets a copy to ONLY log item of fiend/repo
-    return jsonify(std)
+    return jsonify(results=std)
 
 if __name__ == "__main__":
    public.run(host='0.0.0.0', port=12345, debug=True)
