@@ -48,5 +48,10 @@ def parse_sms():
     response = requests.post('http://127.0.0.1:54321/colors',data={'raw': package}) # Passes dict as FORM-ENCODED object to pi
     return "POSTED"
 
+@public.route('/serveburst', methods=['POST'])
+def send_to_json():
+    std = repo.thu_load('current.csv') # rets a copy to ONLY log item of fiend/repo
+    return jsonify(std)
+
 if __name__ == "__main__":
    public.run(host='0.0.0.0', port=12345, debug=True)

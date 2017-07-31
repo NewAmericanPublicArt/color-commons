@@ -22,18 +22,27 @@ function main(data,time,all) {
 var WID = 600, HEI = 600, RAD = (Math.min(WID,HEI)/2)-10;
 var x = d3.scaleLinear().range([0, 2 * Math.PI]);
 var y = d3.scaleSqrt().range([0, RAD]);
-/*var arc = d3.arc()
+/*
+VERSION1
+var arc = d3.arc()
     .startAngle(function(d) { d.x0s = d.x0; return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
     .endAngle(function(d) { d.x1s = d.x1; return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
     .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
     .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
 */ 
+/*var arc = d3.arc()
+    .startAngle(function(d) { d.x0s = d.x0; return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
+    .endAngle(function(d) { d.x1s = d.x1; return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
+    .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
+    .outerRadius(function(d) { return Math.max(0, y(d.y1)); }); // TODO - needs more accurate call
+*/
+
+/*WORKING VERSION
 var arc = d3.arc()
     .startAngle(function(d) { d.x0s = d.x0; return d.x0; }) //set start angles
     .endAngle(function(d) { d.x1s = d.x1; return d.x1; })
     .innerRadius(function(d) { return d.y0; })
     .outerRadius(function(d) { return d.y1; });
-
 var first = true;
 var partition = d3.partition()
       .size([2*Math.PI, RAD]);
@@ -41,17 +50,18 @@ var partition = d3.partition()
 // DATA VIZ MAIN - coordinates canvas drawing
 function load_data(data,all) {
 
+    var iterhelper = 0;
+    var iterf = function(d){
+        d.data.iter = iterhelper;
+        iterhelper += 1;
+    };
     var root = d3.hierarchy(data)
     	.sum(function(d) { return d.size; })
-    	.sort(function(a,b) { return b.value - a.value; });
-    //    .id(function (d) { return d.name; })
-    //    .parentId(function (d) { return d.parent; })
-    var g = d3.select("svg")
-    	  .append("g")
-    	  .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
+    	.sort(function(a,b) { return b.value - a.value; })
+        .each(function(d) { return iterf(d); });
 
     var back = root; //saves for tweening
-
+    var g;
     var run = function() { 	
         console.log("populating dataset from")
         console.log(root);
@@ -61,6 +71,9 @@ function load_data(data,all) {
             partition(root); //calls partition on root (links structure & data) 
             load_tabs(root,all);
 
+            g = d3.select("svg")
+              .append("g")
+              .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
     		var slice = g.selectAll('g') //does this grab all? TODO
     		  .data(root.descendants())
     		  .enter()
@@ -87,60 +100,238 @@ function load_data(data,all) {
             
         //fr bl.ocks
         } else {
+            var i = root.data.iter;
+            console.log("i :"+i);
+
+            console.log("g._groups[0][0].children[i] is");
+            console.log(g._groups[0][0].children[i]);
+            g = d3.select("svg")
+              .append("g")
+              .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
+                .append(g._groups[0][0].children[i];
+            // if no, try to get all past i->
             g.selectAll("path").data(partition(root).descendants());
+            //added HERE
+            console.log(g);
+            //
+            g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d,i));//TODO
         }
-        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenData);
-        console.log("finished run");
+        // TODO - standalone ATD for ea load
+        g.selectAll("path")
+            .transition()
+            .duration(1000)
+            .attrTween("d", arcTweenData);
     }
     run();
 
-    // When switching data: interpolate the arcs in data space.
+    // ARC TWEEN DATA: When switching data: interpolate the arcs in data space.
+    // i is the # in order
     function arcTweenData(a, i) {
         // (a.x0s ? a.x0s : 0) -- grab the prev saved x0 or set to 0 (for 1st time through)
         // avoids the stash() and allows the sunburst to grow into being
         var oi = d3.interpolate({ x0: (a.x0s ? a.x0s : 0), x1: (a.x1s ? a.x1s : 0) }, a);  
-        function tween(t) {
-          var b = oi(t);
-          a.x0s = b.x0;  
-          a.x1s = b.x1;  
-          return arc(b);
-        }
+        var tween = function(t) {
+                var b = oi(t);
+                a.x0s = b.x0;  
+                a.x1s = b.x1;  
+                return arc(b);
+        }; 
         if (i == 0) { 
-          // If we are on the first arc, adjust the x domain to match the root node
-          // at the current zoom level. (We only need to do this once.)
-          var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
-          return function (t) {
-            x.domain(xd(t));
-            return tween(t);
-          };
-        } else {
-          return tween;
-        }
-        console.log("called aTD");
-    }
-
-    // click: Respond to slice click.
-    function click(d) {
-        back = d;
-        console.log("registered click on");
-        console.log(d);
-        g.selectAll("path").transition().duration(1000).attrTween("d", arcTweenZoom(d));
-    }
-
-}
-// ************************   HELPER FUNCTIONS   ***************************  //
-
-// When zooming: interpolate the scales.
-function arcTweenZoom(d) {
-    var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
-        yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
-        yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
-    return function (d, i) {
-      return i
-          ? function (t) { return arc(d); }
-          : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+            /* If we are on the first arc, adjust the x domain to match the root node at the current zoom level. (We only need to do this once.)
+            var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
+            return function (t) {
+                x.domain(xd(t));
+                return tween(t);
+            };*//*
+            var xd = d3.interpolate(x.domain(), [back.x0, back.x1]);
+            return (function (t) {
+                x.domain(xd(t));
+                return tween(t);
+            })(i);
+        } else { return tween(i); }
     };
+    // ARC TWEEN ZOOM: When zooming: interpolate the scales.
+    function arcTweenZoom(d,i) {
+        console.log("i:=="+i+"&d:");
+        console.log(d);
+        var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+            yd = d3.interpolate(y.domain(), [d.y0, 1]), // [d.y0, 1]
+            yr = d3.interpolate(y.range(), [d.y0 ? 40 : 0, RAD]);
+        return function (d, i) {
+          return i
+              ? function (t) { return arc(d); }
+              : function (t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+        };
+    };
+    // CLICK: Respond to slice click.
+    function click(d,i) {
+        back = root;
+        root = d;
+        run();
+    };
+
+
+
+    console.log("END");
 }
+*/
+function load_data(data,all) {
+
+    var margin = {top: 350, right: 480, bottom: 350, left: 480},
+        radius = Math.min(margin.top, margin.right, margin.bottom, margin.left) - 10;
+
+//    var hue = d3.scale.category10();
+
+    var luminance = d3.scale.sqrt()
+        .domain([0, 1e6])
+        .clamp(true)
+        .range([90, 20]);
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", margin.left + margin.right)
+        .attr("height", margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var partition = d3.layout.partition()
+        .sort(function(a, b) { return d3.ascending(a.name, b.name); })
+        .size([2 * Math.PI, radius]);
+
+    var arc = d3.svg.arc()
+        .startAngle(function(d) { return d.x; })
+        .endAngle(function(d) { return d.x + d.dx ; })
+        .padAngle(.01)
+        .padRadius(radius / 3)
+        .innerRadius(function(d) { return radius / 3 * d.depth; })
+        .outerRadius(function(d) { return radius / 3 * (d.depth + 1) - 1; });
+
+    var root = d3.hierarchy(data);
+    // Compute the initial layout on the entire tree to sum sizes.
+    // Also compute the full name and fill color for each node,
+    // and stash the children so they can be restored as we descend.
+    load_tabs(root,all);
+    partition
+      .value(function(d) { return d.size; })
+      .nodes(root)
+      .forEach(function(d) {
+        d._children = d.children;
+        d.sum = d.value;
+        d.key = key(d);
+        d.fill = colorize(d);
+      });
+
+    // Now redefine the value function to use the previously-computed sum.
+    partition
+      .children(function(d, depth) { return depth < 2 ? d._children : null; })
+      .value(function(d) { return d.sum; });
+
+    var center = svg.append("circle")
+      .attr("r", radius / 3)
+      .on("click", zoomOut);
+
+    center.append("title")
+      .text("zoom out");
+
+    var path = svg.selectAll("path")
+      .data(partition.nodes(root).slice(1))
+        .enter().append("path")
+          .attr("d", arc)
+          .style("fill", function(d) { return d.fill; })
+          .each(function(d) { this._current = updateArc(d); })
+          .on("click", zoomIn);
+
+    function zoomIn(p) {
+        if (p.depth > 1) p = p.parent;
+        if (!p.children) return;
+        zoom(p, p);
+    }
+
+    function zoomOut(p) {
+        if (!p.parent) return;
+        zoom(p.parent, p);
+    }
+
+    // Zoom to the specified new root.
+    function zoom(root, p) {
+        if (document.documentElement.__transition__) return;
+
+        // Rescale outside angles to match the new layout.
+        var enterArc,
+            exitArc,
+            outsideAngle = d3.scale.linear().domain([0, 2 * Math.PI]);
+
+        function insideArc(d) {
+          return p.key > d.key
+              ? {depth: d.depth - 1, x: 0, dx: 0} : p.key < d.key
+              ? {depth: d.depth - 1, x: 2 * Math.PI, dx: 0}
+              : {depth: 0, x: 0, dx: 2 * Math.PI};
+        }
+
+        function outsideArc(d) {
+          return {depth: d.depth + 1, x: outsideAngle(d.x), dx: outsideAngle(d.x + d.dx) - outsideAngle(d.x)};
+        }
+
+        center.datum(root);
+
+        // When zooming in, arcs enter from the outside and exit to the inside.
+        // Entering outside arcs start from the old layout.
+        if (root === p) enterArc = outsideArc, exitArc = insideArc, outsideAngle.range([p.x, p.x + p.dx]);
+
+        path = path.data(partition.nodes(root).slice(1), function(d) { return d.key; });
+
+        // When zooming out, arcs enter from the inside and exit to the outside.
+        // Exiting outside arcs transition to the new layout.
+        if (root !== p) enterArc = insideArc, exitArc = outsideArc, outsideAngle.range([p.x, p.x + p.dx]);
+
+        d3.transition().duration(d3.event.altKey ? 7500 : 750).each(function() {
+          path.exit().transition()
+              .style("fill-opacity", function(d) { return d.depth === 1 + (root === p) ? 1 : 0; })
+              .attrTween("d", function(d) { return arcTween.call(this, exitArc(d)); })
+              .remove();
+
+          path.enter().append("path")
+              .style("fill-opacity", function(d) { return d.depth === 2 - (root === p) ? 1 : 0; })
+              .style("fill", function(d) { return d.fill; })
+              .on("click", zoomIn)
+              .each(function(d) { this._current = enterArc(d); });
+
+          path.transition()
+              .style("fill-opacity", 1)
+              .attrTween("d", function(d) { return arcTween.call(this, updateArc(d)); });
+        });
+    }
+
+    function key(d) {
+        var k = [], p = d;
+        while (p.depth) k.push(p.name), p = p.parent;
+        return k.reverse().join(".");
+    }
+
+/*    function fill(d) {
+        var p = d;
+        while (p.depth > 1) p = p.parent;
+        var c = d3.lab(hue(p.name));
+        c.l = luminance(d.sum);
+        return c;
+    }
+*/
+    function arcTween(b) {
+        var i = d3.interpolate(this._current, b);
+        this._current = i(0);
+        return function(t) {
+            return arc(i(t));
+        };
+    }
+
+    function updateArc(d) {
+        return {depth: d.depth, x: d.x, dx: d.dx};
+    }
+
+    d3.select(self.frameElement).style("height", margin.top + margin.bottom + "px");
+
+}
+
+// ************************   HELPER FUNCTIONS   ***************************  //
 // colorize: FINDS COLOR for each slice based on node
 function colorize(d) {
     var lookup = "black";
