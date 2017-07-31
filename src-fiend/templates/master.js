@@ -180,7 +180,7 @@ function load_data(data,all) {
     var margin = {top: 350, right: 480, bottom: 350, left: 480},
         radius = Math.min(margin.top, margin.right, margin.bottom, margin.left) - 10;
 
-    var hue = d3.scale.category10();
+//    var hue = d3.scale.category10();
 
     var luminance = d3.scale.sqrt()
         .domain([0, 1e6])
@@ -307,14 +307,14 @@ function load_data(data,all) {
         return k.reverse().join(".");
     }
 
-    function fill(d) {
+/*    function fill(d) {
         var p = d;
         while (p.depth > 1) p = p.parent;
         var c = d3.lab(hue(p.name));
         c.l = luminance(d.sum);
         return c;
     }
-
+*/
     function arcTween(b) {
         var i = d3.interpolate(this._current, b);
         this._current = i(0);
