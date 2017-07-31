@@ -4,7 +4,7 @@
 
 import datetime
 from fiend import Fiend # Personal module
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, json, render_template, request
 from os import path
 import requests # WILL ALLOW US TO POST TO THE PI
 import time # separate module for calendar
@@ -12,6 +12,7 @@ import time # separate module for calendar
 global public
 public = Flask(__name__, static_url_path="", static_folder="templates")
 public.config['PROPAGATE_EXCEPTIONS'] = True
+public.config['JSON_SORT_KEYS'] = False
 
 ## FIEND FRAMEWORK INITIALIZER ##
 @public.before_first_request
@@ -48,10 +49,15 @@ def parse_sms():
     response = requests.post('http://127.0.0.1:54321/colors',data={'raw': package}) # Passes dict as FORM-ENCODED object to pi
     return "POSTED"
 
-@public.route('/serveburst', methods=['POST'])
+@public.route('/serve', methods=['GET'])
 def send_to_json():
-    std = repo.thu_load('current.csv') # rets a copy to ONLY log item of fiend/repo
-    return jsonify(results=std)
+    data = repo.thu_load('current.csv') # rets a copy to ONLY log item of fiend
+    response = public.response_class(
+        response=json.dumps(data),
+        status=200,
+        mimetype='application/json'
+    )
+    return response #https://stackoverflow.com/a/26961568
 
 if __name__ == "__main__":
    public.run(host='0.0.0.0', port=12345, debug=True)

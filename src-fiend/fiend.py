@@ -207,8 +207,6 @@ class Fiend():
 		    devi = datetime.timedelta(second=30) # Grabbing all within minute range
 		    return (elem>=(test-devi) and elem<=(test+devi))
 		else:
-		    if (elem == datetime.date(2017,7,25)):
-			print("foundmatch")
 	            return (elem == test)
 	
 #-------SORT method, returns a tree tier of lists **w modified JSON hierarchy
