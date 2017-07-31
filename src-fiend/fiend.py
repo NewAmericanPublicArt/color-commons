@@ -108,9 +108,9 @@ class Fiend():
 #-------LOADER for page information by category
 	
         def load(self,optional,args):
-	    if optional is not None:	#file import optional
+	    if optional is not None: # file import optional
 		self.get_fr_csv(optional);
-	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+	    hier = self.__deepcopy__()
 	    hier.get_jsdt() # CONVERTER
 	    dataset = hier.get_log()
 	    for i, arg in enumerate(args):
@@ -143,7 +143,7 @@ class Fiend():
 	def defaultload(self,optional):
 	    if optional is not None:	#file import optional
 		self.get_fr_csv(optional)
-	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+	    hier = self.__deepcopy__()
 	    hier.get_jsdt() # CONVERTER - check now
 	    dataset = hier.find(hier.log,{'date':hier.get_date()})
             dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
@@ -157,7 +157,7 @@ class Fiend():
 	def thu_load(self,optional):
 	    if optional is not None:	#file import optional
 		self.get_fr_csv(optional)
-	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+	    hier = self.__deepcopy__()
 	    hier.get_jsdt() # CONVERTER - check now
 	    dataset = hier.find(hier.log,{'date':datetime.date(2017,7,27)})
 	    dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
@@ -226,7 +226,7 @@ class Fiend():
 			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
 			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
 		            tier.append({ 'name': calendar.month_abbr[i+1], 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
-	    # DAY sorts - uses compute_range TODO - ensure all dates (not just ones w texts) include
+	    # DAY sorts - uses compute_range
 		    elif root is self.SORTS[1]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
@@ -238,7 +238,7 @@ class Fiend():
 			tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
 	    # USERS sorts - parses down to unique subset of USERS
 		elif root is self.SORTS[3]: # UNIQUE users
-		    for i in raw[:]: #TODO
+		    for i in raw[:]: 
                         found = False
 			for iter,j in enumerate(tier[:]):
 			    if (i['name'] == j['name']): # EQ compare, not ID
@@ -262,13 +262,21 @@ class Fiend():
 	    	    colorlist = sorted(self.compute_range(raw,'msg'))
 		    for x in colorlist:
 		        tier.append({'name':x, 'children': self.find(raw,{'msg':x})})
-######TODO HERE
 	    # COLORISH sort - parse down to VAGUELY CLOSE unique subsets of msgs	
 		    if root is self.SORTS[6]:
-			# DO THINGS TO TIER ITSELF - we know that we can go right into
-			# Given color, "Pink" --> create [" Pink ","Pink   ","pink", etc.?]
+			tierish = []
+			print(tier)
+			for branch in tier:
+			    branch['name'] = branch['name'].strip().lower() # TODO - remove bc only really needed for csvs
+			print(tier);
 			# Then combine prompts with matching
-			print("special colors not made yet")    		    
+			for i,b1 in enumerate(tier[:]):
+			    elem = b1['name']
+			    for j,b2 in enumerate(tier[:]):
+				if ((i!=j) and (elem==b2['name'])):
+				    b1['children']+=b2['children']
+				    tier.remove(b2)
+			print(tier)    		    
 		else:
 		    print("SORT_BY:Improper sort parameter "+str(root)+"\n")
 		return tier
