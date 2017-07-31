@@ -105,7 +105,10 @@ function load_data(data,all) {
 
             console.log("g._groups[0][0].children[i] is");
             console.log(g._groups[0][0].children[i]);
-            g = g._groups[0][0].children[i];
+            g = d3.select("svg")
+              .append("g")
+              .attr("transform","translate("+(WID/2)+","+(HEI/2)+")");
+                .append(g._groups[0][0].children[i];
             // if no, try to get all past i->
             g.selectAll("path").data(partition(root).descendants());
             //added HERE
