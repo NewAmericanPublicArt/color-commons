@@ -3,7 +3,11 @@
 
 ## SUMMARY
 
-xxx
+This directory of New American Public Art's Github has all associated files for implementing your own Color-Commons system, as shown below;
+
+![alt text](color-commons/docs/ColorCommons_NAPA_v2.pdf "Logo Title Text 1")
+
+
 
 ## STRUCTURE
 
