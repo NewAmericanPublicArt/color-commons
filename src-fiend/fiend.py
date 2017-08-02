@@ -25,6 +25,7 @@ class Fiend():
             self.log = log # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
 	    self.SORTS = ["month","day","hour","user","newuser","color","color2"]
+	    self.SPECS = ["on","range","since"]	
 
 	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
 	def __deepcopy__(self,memo={}):# http://code.activestate.com/recipes/259179/
@@ -108,56 +109,78 @@ class Fiend():
 #-------LOADER for page information by category
 	
         def load(self,optional,args):
-	    if optional is not None:	#file import optional
+	    if optional is not None: # file import optional
 		self.get_fr_csv(optional);
-	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+	    hier = self.__deepcopy__()
 	    hier.get_jsdt() # CONVERTER
-	    dataset = hier.get_log()
+	    	    
 	    for i, arg in enumerate(args):
-		if arg in self.SORTS:
-		    if arg in self.SORTS[:3]: # Timespan ['month','day','hr'...
+		if arg in self.SPECS:
+
+		    # Depending on what it is, grabs 1-2 of next vals
+		    # ESSENTIALLY; FIRST/ ANY OF THESE CALLS INSTANTIATE A FIND
+		
+		elif arg in self.SORTS:
+
+		    if arg in self.SORTS[:3]: # Timespan 'month' 'day' 'hr'
+
 		    	now = hier.get_date()
 			if arg is self.SORTS[0]: # Range: 1yr
 			    delta = datetime.timedelta(days=364) # TODO - precise date/month?
 			    dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
 			    dataset = hier.sort_by(arg,dataset)
 			    # LABEL FORMAT - eg Year of 2017
-			elif arg is self.SORTS[1]:
+
+			elif arg is self.SORTS[1]: # "day"
+
 			    delta = datetime.timedelta(days=6)
 			    dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
                             dataset = hier.sort_by(arg,dataset)
 			    # format - Week of [MON]
-			elif arg is SELF.SORTS[2]:
+
+			elif arg is SELF.SORTS[2]: # "hour"
+
 		    	    delta = datetime.timedelta(hours=24)
 			    # format - Monday the 25th
 			dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
                         dataset = hier.sort_by(arg,dataset)
 			# TODO - consolidate, worry about passing either [] or {name []} - LOOPING REQUIRED essentially
-		    elif arg in self.SORTS[3:]: # Unique ...'user','newuser','color','color2']
+		    
+		elif arg in self.SORTS[3:]: # Unique ...'user','newuser','color','color2']
+		
 		        dataset = hier.sort_by(arg,dataset)
+		
 		else:
-		    print("LOAD:Unable to sort by "+str(arg))	
-	    format = {}	    
-	    return json.dumps(format)
+		    print("LOAD:Improper sort by "+str(arg))	
+	    
+# TODO - RM_DT THINGY
 
-	def defaultload(self,optional):
-	    if optional is not None:	#file import optional
-		self.get_fr_csv(optional)
-	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
-	    hier.get_jsdt() # CONVERTER - check now
-	    dataset = hier.find(hier.log,{'date':hier.get_date()})
-            dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
-	    for i,hr in enumerate(dataset):
-		dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
-	    hier.rm_dt(dataset)
-	    format = { 'name':(calendar.day_abbr[hier.get_date().weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
-	    return json.dumps(format) 
-	   #return self.load(optional,["week","users","colors"]);
+	    format = {'name': 'TODO', 'children': hier.get_log()}    
+	    return format
+
+#	def defaultload(self,optional):
+#	    if optional is not None:	#file import optional
+#		self.get_fr_csv(optional)
+#	    hier = self.__deepcopy__()
+#	    hier.get_jsdt() # CONVERTER - check now
+#	    dataset = hier.find(hier.log,{'date':hier.get_date()})
+#           dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
+#	    for i,hr in enumerate(dataset):
+#		dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
+#	    hier.rm_dt(dataset)
+#	    format = { 'name':(calendar.day_abbr[hier.get_date().weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
+#	    return json.dumps(format) 
+	
+	def defaultload(self, optional):
+	    return self.load(optional,['since','day','hour','user'])
+
+	def sampleload(self, optional):
+	    return self.load(optional, ['on',datetime.date(2017,7,27),'hour','user'])	
 
 	def thu_load(self,optional):
 	    if optional is not None:	#file import optional
 		self.get_fr_csv(optional)
-	    hier = self.__deepcopy__() # TODO - access memo as [] framework?
+	    hier = self.__deepcopy__()
 	    hier.get_jsdt() # CONVERTER - check now
 	    dataset = hier.find(hier.log,{'date':datetime.date(2017,7,27)})
 	    dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
@@ -166,7 +189,6 @@ class Fiend():
 	    hier.rm_dt(dataset)
 	    format = { 'name':(calendar.day_abbr[datetime.date(2017,7,27).weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
 	    return format
-#	    return json.dumps(format)
 
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
@@ -226,7 +248,7 @@ class Fiend():
 			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
 			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
 		            tier.append({ 'name': calendar.month_abbr[i+1], 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
-	    # DAY sorts - uses compute_range TODO - ensure all dates (not just ones w texts) include
+	    # DAY sorts - uses compute_range
 		    elif root is self.SORTS[1]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
@@ -238,7 +260,7 @@ class Fiend():
 			tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
 	    # USERS sorts - parses down to unique subset of USERS
 		elif root is self.SORTS[3]: # UNIQUE users
-		    for i in raw[:]: #TODO
+		    for i in raw[:]: 
                         found = False
 			for iter,j in enumerate(tier[:]):
 			    if (i['name'] == j['name']): # EQ compare, not ID
@@ -262,13 +284,21 @@ class Fiend():
 	    	    colorlist = sorted(self.compute_range(raw,'msg'))
 		    for x in colorlist:
 		        tier.append({'name':x, 'children': self.find(raw,{'msg':x})})
-######TODO HERE
 	    # COLORISH sort - parse down to VAGUELY CLOSE unique subsets of msgs	
 		    if root is self.SORTS[6]:
-			# DO THINGS TO TIER ITSELF - we know that we can go right into
-			# Given color, "Pink" --> create [" Pink ","Pink   ","pink", etc.?]
+			tierish = []
+			print(tier)
+			for branch in tier:
+			    branch['name'] = branch['name'].strip().lower() # TODO - remove bc only really needed for csvs
+			print(tier);
 			# Then combine prompts with matching
-			print("special colors not made yet")    		    
+			for i,b1 in enumerate(tier[:]):
+			    elem = b1['name']
+			    for j,b2 in enumerate(tier[:]):
+				if ((i!=j) and (elem==b2['name'])):
+				    b1['children']+=b2['children']
+				    tier.remove(b2)
+			print(tier)    		    
 		else:
 		    print("SORT_BY:Improper sort parameter "+str(root)+"\n")
 		return tier
