@@ -74,28 +74,29 @@ dansfiend = Fiend( [], None )
 
 SO now that we have our particular instance of Fiend, `dansfiend`, we need him to possess information in order to manipulate it. The two methods allowing for entry are `new_entry` and `new_entry2` (which is instantiated by `get_fr_csv`). The main difference between these two functions is the format of an entry when it is passed in via a new_entry call.
 
-`new_entry`: accepts entries of format `{ 'name': x, 'msg': y }
+`new_entry`: accepts entries of format `{ 'name': x, 'msg': y }`
 
-`new_entry2`: accepts entries of format `{ 'name': x, 'msg': y, 'date': z, 'time': a}
+`new_entry2`: accepts entries of format `{ 'name': x, 'msg': y, 'date': z, 'time': a}`
 
-As we mentioned,, the 2nd entry style can be called from the master-method, `get_fr_csv`. This function allows for the importation of an unspecified number of entries into Fiend rapidly from the .csv file format. *Weird Note* there is a specific format for this entry style for .csvs. Refer to /resources/csvs for examples on how to correctly set up fields for mass importation. Of particular note is the |x| brackets for the 'msg' field in order to allow for commas in the message body without messing up the csv format.
+As we mentioned,, the 2nd entry style can be called from the master-method, `get_fr_csv`. This function allows for the importation of an unspecified number of entries into Fiend rapidly from the .csv file format.
+**Weird Note:** There is a specific format for this entry style for .csvs. Refer to */resources/csvs* for examples on how to correctly set up fields for mass importation. Of particular note is the |x| brackets for the 'msg' field in order to allow for commas in the message body without messing up the csv format.
 
-*ASSUMING WE ALREADY IMPORTED THE HEADER AND CALLED THE INIT AS FOUND IN SEGMENT II*,
-Here are three different ways to import an entry from someone with the phone number '5089001000' and the message 'purple':
+*ASSUMING WE ALREADY IMPORTED THE HEADER AND CALLED THE INIT AS FOUND IN SEGMENT II*, Here are three different ways to import an entry from someone with the phone number '5089001000' and the message 'purple':
 
-1.
+1. **new_entry**
 ```python
 entry = { 'name': '5089001000', 'msg':'purple'} # This simply declares an intermediate variable in dictionary format
 dansfiend.new_entry(entry) # returns True/False depending on success of entry; can be assigned a variable or ignored
 ```
 *Note*: If you don't know what is/how to construct a python dictionary, refer to [Docs](https://docs.python.org/3/reference/expressions.html#dict)
 
-2.
+2. **new_entry2**
 ```python
 entry = { 'name': '5089001000', 'msg':'purple', 'date': dansfiend.get_date(), 'time':dansfiend.get_time() } # This will give exact same date & time values as above
 dansfiend.new_entry2(entry) # also returns True/False depending on success of entry; can be assigned a variable or ignored
 ```
-3. Make a .csv document in the src-fiend folder with the format:
+3. **get_fr_csv** 
+Make a .csv document in the src-fiend folder with the format:
 ```
 [THROWAWAY FIRST LINE - From,To,Body,SentDate,AcctSid,Sid]
 5089001000,[placeholder],|purple|,2017-07-11 17:00:00 UTC,[placeholder],[placeholder]
@@ -104,17 +105,18 @@ Let's name this file 'import.csv'. Then in the file you've set up from (II), wri
 ```python
 dansfiend.get_fr_csv('import.csv')
 ```
-To put in another entry? Use any of the three previous formats all over again; Fiend never hard-programs to only accept 1 entry style, and you can always change the method by which data is being inputted. As you can see, there is a TIME-AND-PLACE for all of these method calls; the 1st is best suited to a fresh Twilio SMS message request, the 2nd best suited to entries where the Date and Time fields can't be defaulted to the current date and time, and the 3rd best suited to huge backlogs of entries in the .csv format.
+To put in another entry? Use any of the three previous formats all over again; Fiend never hard-programs to only accept 1 entry style, and you can always change the method by which data is being inputted. As you can see, there is a *TIME AND PLACE* for all of these method calls; the 1st is best suited to a fresh Twilio SMS message request, the 2nd best suited to entries where the Date and Time fields can't be defaulted to the current date and time, and the 3rd best suited to huge backlogs of entries in the .csv format.
 
-**Weird Note** You may be wondering why the .csvs are set up in such a strange format. In the development of Fiend, all of the old data we were working with came from direct dowmloads of status logs on the Twilio console, which had very particular field formats upon download. Although we maintained a few placeholders, like the 'To' and 'Sid' fields, the intent was to allow for a relatively standardized CSV format, with some wiggle room, that could be used by other services.
+**Weird Note:** You may be wondering why the .csvs are set up in such a strange format. In the development of Fiend, all of the old data we were working with came from direct dowmloads of status logs on the Twilio console, which had very particular field formats upon download. Although we maintained a few placeholders, like the 'To' and 'Sid' fields, the intent was to allow for a relatively standardized CSV format, with some wiggle room, that could be used by other services.
 
 ## IV. Find Queries
 
-Now that we have *hundreds* of log entries loaded into dansfiend and ready to go (let's say that this is the case), we want to find a subset of data with particular attributes. The method to focus on here is `find`; it requires two parameters, a source-array (from which to draw), and a query. For those who don't know, a 'query' is a set of parameters from which the Fiend attempts to find matching entries for. In our Fiend implementation, queries take a dictionary format (the same class of object as the entry format we saw above) of really any length. *Weird Note* Passing in a None as the source-array value defaults searching on the current Fiend's log of all values. Passing in an empty dictionary ({}) as a query value returns the full source-array.
+Now that we have *hundreds* of log entries loaded into dansfiend and ready to go (let's say that this is the case), we want to find a subset of data with particular attributes. The method to focus on here is `find`; it requires two parameters, a source-array (from which to draw), and a query. For those who don't know, a 'query' is a set of parameters from which the Fiend attempts to find matching entries for. In our Fiend implementation, queries take a dictionary format (the same class of object as the entry format we saw above) of really any length.
+**Weird Note:** Passing in a None as the source-array value defaults searching on the current Fiend's log of all values. Passing in an empty dictionary ({}) as a query value returns the full source-array.
 
-For illustration, we will be providing three increasingly complex example scenarios; seeking a subset of all entries where the message was "orange" or "redorange", seeking a subset of all entries between the hours of 12AM and 6AM, and seeking a subset of all entries where the message was "orange" between the hours of 12AM and 6AM on Christmas 2017 (trick question - that's in the future! But we're still going to show it).
+For illustration, we will be providing three increasingly complex example scenarios; seeking a subset of all entries where the message was "orange" or "redorange", seeking a subset of all entries between the hours of 12AM and 6AM, and seeking a subset of all entries where the message was "orange" between the hours of 12AM and 6AM on Christmas 2017 *(trick question - that's in the future! But we're still going to show it)*.
 
-1. "orange" or "redorange" query
+1. **"orange" or "redorange" query**
 ```python
 oquery = {'msg':'orange'} # Setting up both of our queries
 roquery = {'msg':'redorange'}
@@ -122,14 +124,15 @@ set1 = dansfiend.find(None,oquery) # First search, for oranges
 set2 = dansfiend.find(None,roquery) # Second search, for redoranges
 redoranges = set1 + set2 # To find all, simply combine the two; obviously no overlap/repeated values here
 ```
-2. all 12AM-6AM (early-morning) query
+2. **all 12AM-6AM (early-morning) query**
+*Note:* uses datetime format. Refer to [this](https://docs.python.org/2/library/datetime.html#time-objects) for more, but if you are using the header file provided as a template then this object-type should already be included and not cause an error.
 ```python
-t0 = datetime.time(6,0,0) # In hr, min, sec format - see [here](https://docs.python.org/2/library/datetime.html#time-objects)
+t0 = datetime.time(6,0,0) # In hr, min, sec format
 t1 = datetime.time(12,0,0) # If we wanted PM we would use 24 or 0
 query = {'time': {'start':t0, 'end':t1} } # NOTE - CAN PUT RANGE INTO ANYTHING. So we couldve used the alphabet to our advantage on our last prompt - how?
 mornings = dansfiend.find(query) # Now mornings should hold all 12AM-6AM entries regardless of date
 ```
-3. Christmas "orange" early-morning query
+3. **Christmas "orange" early-morning query**
 ```python
 christmas = datetime.date(2017,1,25)
 t0 = datetime.time(6,0,0)
@@ -141,10 +144,13 @@ xmasmorningoranges = dansfiend.find(query) # Now xmasmorningoranges should hold 
 
 ## V. Sort_by Queries
 
-As witnessed above, we can get a surprisingly high degree of specificity from combining these multi-key queries on data sets. But this methodology is limited in its scope; for example, let's look at the first `find` query we performed. The (concatenated) list we got back at the end of those commands contained data for just two (orange, redorange) of over 1000 colors recognized by the color-commons library that translates to manipulation of the light blades. What if we wanted to know all of the different colors people sent in? Sure, we could run a `find` for all of the colors in /resources/xkcd_colors.py, but what about misspelled or undefined colors, like "blaqq" or "old shoe"? We wouldn't even know *to* search for them, let alone if we forgot to include them in our list of all colors submitted. Instead, we introduce a new functionality; `sort_by`. This accepts two parameters; a root string deciding what quality to sort by, and a source/raw/array from which to draw. **Weird Note** Although leaving the source in `find` blank substitutes log, we must actually manually write `dansfiend.get_log()` or `dansfiend.log` as the second parameter in `sort_by` or it will not default on its own log.
+As witnessed above, we can get a surprisingly high degree of specificity from combining these multi-key queries on data sets. But this methodology is limited in its scope; for example, let's look at the first `find` query we performed. The (concatenated) list we got back at the end of those commands contained data for just two (orange, redorange) of over 1000 colors recognized by the color-commons library that translates to manipulation of the light blades. What if we wanted to know all of the different colors people sent in? Sure, we could run a `find` for all of the colors in /resources/xkcd_colors.py, but what about misspelled or undefined colors, like "blaqq" or "old shoe"? We wouldn't even know *to* search for them, let alone if we forgot to include them in our list of all colors submitted. Instead, we introduce a new functionality; `sort_by`. This accepts two parameters; a root string deciding what quality to sort by, and a source/raw/array from which to draw.
+**Weird Note** Although leaving the source in `find` blank substitutes log, we must actually manually write `dansfiend.get_log()` or `dansfiend.log` as the second parameter in `sort_by` or it will *not* default on its own log.
 Thus, to solve our problem introduced above, we'd simply query the following;
 ```python
-allcolors = dansfiend.sort_by( "color", dansfiend.get_log() )
+allcolors = dansfiend.sort_by( "color", dansfiend.get_log() ) 
+# Or, optionally, this;
+allcolors2 = dansfiend.sort_by( "color", dansfiend.log )
 ```
 This would return something like
 ```
@@ -153,7 +159,8 @@ This would return something like
  {'name': 'basalt', 'children': [...entries] }
  ...more color groupings...] #As 1 big list object of nested node-lists
 ```
-The sort queries ("month","day","hour","user","newuser","color","color2") are hardwired into evry instance of Fiend, and organize by their category name, respectively. The "month" and "hour" sorts default to 12- and 24-entry subsets per yr or day. "user" refers to a unique user with their subset of all entries, and newuser" refers to a first-time user with a subset of entries compared against all past entries. Sorts can be nested inside each other, although only to one degree of nesting, as `sort_by` is not smart enough to intuitively work its way through complex tree systems. Thus I could call sort_by for unique users on `{'name':'aubergine', 'children':[]}` and sort_by would know to refer to the children subset, but not be able to call sort_by on each color from the main object without a for loop calling sort_by multiple times.
+The sort queries ("month","day","hour","user","newuser","color","color2") are hardwired into evry instance of Fiend, and organize by their category name, respectively. The "month" and "hour" sorts default to 12- and 24-entry subsets per yr or day. "user" refers to a unique user with their subset of all entries, and newuser" refers to a first-time user with a subset of entries compared against all past entries. 
+Sorts can be nested inside each other, although only to one degree of nesting, as `sort_by` is not smart enough to intuitively work its way through complex tree systems. Thus I could call sort_by for unique users on `{'name':'aubergine', 'children':[]}` and sort_by would know to refer to the children subset, but not be able to call sort_by on each color from the main object without a for loop calling sort_by multiple times.
 
 ## VI. Load (BETA) Queries
 
@@ -167,10 +174,12 @@ TODO
 ## VII. Connecting Fiend to a Server
 
 So now that we understand Fiend, and a 'sample.py' file with a series of commands, how do we run this file on Python? Depending on what version of Python you have installed, this command-line command could be a little different, but essentially;
-`>> python sample.py`
+```
+>> python sample.py
+```
 should run your program. Be sure to include `print(x)` or `send_to_csv()` messages so that you can actually get it to spit out the results of your aggregation onto terminal or to a file. Otherwise it'll just run, work fine, and not really "say" anything to you, the caller of the program. Also remember that every "python x" command instantiates a *new* instance of Fiend, so no data entered into the Fiend in an earlier, different iteration of the sample file will hang around when respecified in a later iteration of sample.py. With this in might, it might be easier to understand why `get_fr_csv` can be such a powerful tool on multiple instantiations of Fiend.
 
 But what about the color-commons `server.py` file, and that one point earlier where we mentioned @before-first-request or something equally confusing?? Is this a completely different "thing" from the Fiend?
-* The answer is no;* the server simply spawns its own Fiend and gives it very specific instructions using POST/GET APIs (this can get confusing if you've never done web apps - refer to [Flask](http://flask.pocoo.org/) if it's a serious roadblock to understanding what we are trying to accomplish here) so that the Fiend takes new entries in through the Twilio /SMS API, and displays a `load`-ed version of its log through the / or /index API. Essentially, the Fiend is just a venus flytrap that catches flies; the server is the homeowner that puts the Fiend near the window that flies are coming in through. 
+*The answer is no;* the server simply spawns its own Fiend and gives it very specific instructions using POST/GET APIs (this can get confusing if you've never done web apps - refer to [Flask](http://flask.pocoo.org/) if it's a serious roadblock to understanding what we are trying to accomplish here) so that the Fiend takes new entries in through the Twilio /SMS API, and displays a `load`-ed version of its log through the / or /index API. Essentially, the Fiend is just a venus flytrap that catches flies; the server is the homeowner that puts the Fiend near the window that flies are coming in through. 
 
 ## VIII. Resources
