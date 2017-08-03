@@ -1,4 +1,6 @@
-# README for FIEND.py MODULE
+___
+
+# README for VAULT.py
 ###### (c) Sydney Strzempko for New American Public Art, Color Commons 2017
 
 ## Overview
@@ -20,3 +22,5 @@ The structure is that of a basic Flask app with a single method, POST, called ex
 ## Interaction
 
 As mentioned in the overview, the Pi server does not directly interact with any Color-Commons users; instead, it relays the command (in the form of a string of RGB values translated from the original phrase) forward to the DMX controller (with infinitely less computational abilities) in order for the controller to coordinate the lighting with the Pharos controller further down the chain of command.
+
+___
