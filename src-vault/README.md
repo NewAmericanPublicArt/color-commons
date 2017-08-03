@@ -30,3 +30,4 @@ The Pi server runs completely independently from the main server and can be inst
 * [Open Lighting Architecture](https://www.openlighting.org/ola/developer-documentation/python-api/)
 
 ___
+![cc logo](http://www.etcs.ipfw.edu/~dupenb/Pictures/CC-BY-SA%20logo.jpg)
