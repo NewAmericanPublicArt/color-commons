@@ -2,22 +2,22 @@
 ###### (c) Sydney Strzempko for NAPA, 2017
 
 ### Table of Contents
-I 		Overview, Methods List
 
-II 		Instantiating a Fiend
+**I**[Overview, Methods List](../blob/master/src-fiend/TUTORIAL.md#i-overview-methods-list)
 
-III 	Loading in data
+**II**[Instantiating a Fiend](../blob/master/src-fiend/TUTORIAL.md#ii-instantiating-a-fiend)
 
-IV 		Find Queries
+**III**[Loading in data](../blob/master/src-fiend/TUTORIAL.md#iii-loading-in-data)
 
-V 		Sort_by Queries
+**IV**[Find Queries](../blob/master/src-fiend/TUTORIAL.md#iv-find-queries)
 
-VI 		Load (BETA) Queries
+**V**[Sort_by Queries](../blob/master/src-fiend/TUTORIAL.md#v-sort_by-queries)
 
-VII 	Connecting Fiend to a Server
+**VI**[Load (BETA) Queries](../blob/master/src-fiend/TUTORIAL.md#vi-load-beta-queries)
 
-VIII 	Resources
+**VII**[Connecting Fiend to a Server](../blob/master/src-fiend/TUTORIAL.md#vii-connecting-fiend-to-a-server)
 
+**VIII**[Resources](../blob/master/src-fiend/TUTORIAL.md#viii-resources)
 ___
 
 ## I. Overview, Methods List
@@ -95,8 +95,7 @@ dansfiend.new_entry(entry) # returns True/False depending on success of entry; c
 entry = { 'name': '5089001000', 'msg':'purple', 'date': dansfiend.get_date(), 'time':dansfiend.get_time() } # This will give exact same date & time values as above
 dansfiend.new_entry2(entry) # also returns True/False depending on success of entry; can be assigned a variable or ignored
 ```
-3.
-- Make a .csv document in the src-fiend folder with the format:
+3. Make a .csv document in the src-fiend folder with the format:
 ```
 [THROWAWAY FIRST LINE - From,To,Body,SentDate,AcctSid,Sid]
 5089001000,[placeholder],|purple|,2017-07-11 17:00:00 UTC,[placeholder],[placeholder]
