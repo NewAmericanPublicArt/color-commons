@@ -3,21 +3,21 @@
 
 ### Table of Contents
 
-**I**[Overview, Methods List](../blob/master/src-fiend/TUTORIAL.md#i-overview-methods-list)
+**I**[Overview, Methods List](../src-fiend/TUTORIAL.md#i-overview-methods-list)
 
-**II**[Instantiating a Fiend](../blob/master/src-fiend/TUTORIAL.md#ii-instantiating-a-fiend)
+**II**[Instantiating a Fiend](../src-fiend/TUTORIAL.md#ii-instantiating-a-fiend)
 
-**III**[Loading in data](../blob/master/src-fiend/TUTORIAL.md#iii-loading-in-data)
+**III**[Loading in data](../src-fiend/TUTORIAL.md#iii-loading-in-data)
 
-**IV**[Find Queries](../blob/master/src-fiend/TUTORIAL.md#iv-find-queries)
+**IV**[Find Queries](../src-fiend/TUTORIAL.md#iv-find-queries)
 
-**V**[Sort_by Queries](../blob/master/src-fiend/TUTORIAL.md#v-sort_by-queries)
+**V**[Sort_by Queries](../src-fiend/TUTORIAL.md#v-sort_by-queries)
 
-**VI**[Load (BETA) Queries](../blob/master/src-fiend/TUTORIAL.md#vi-load-beta-queries)
+**VI**[Load (BETA) Queries](../src-fiend/TUTORIAL.md#vi-load-beta-queries)
 
-**VII**[Connecting Fiend to a Server](../blob/master/src-fiend/TUTORIAL.md#vii-connecting-fiend-to-a-server)
+**VII**[Connecting Fiend to a Server](../src-fiend/TUTORIAL.md#vii-connecting-fiend-to-a-server)
 
-**VIII**[Resources](../blob/master/src-fiend/TUTORIAL.md#viii-resources)
+**VIII**[Resources](../src-fiend/TUTORIAL.md#viii-resources)
 ___
 
 ## I. Overview, Methods List
