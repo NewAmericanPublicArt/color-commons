@@ -11,7 +11,7 @@ The *src-vault* folder contains the Flask implementation of the server running o
 
 The structure is that of a basic Flask app with a single method, POST, called exclusively by the Fiend server when passing information over to be displayed. Thus, the structure of this API is simply a few commands on the received string, then the opening of a socket in order to talk to the DMX controller. _Note:_ Refer to the Open Lighting Architecture [Doc](https://www.openlighting.org/ola/developer-documentation/python-api/).
 
-## Functions
+## Methods
 
 `sendtoDmx()`: Instantiated by post request (with public "/colors" route), main function in app. Calls *convert_barr*, SendDmx (OLA-specified func) with *DmxSent* as function closure. Coordinates RGB parsing of string input (of the form "R,G,B|R,G,B...") into an array of integers as needed by OLA standards. Calls run and returns positive XML success message upon completion of these tasks.
 
@@ -21,6 +21,12 @@ The structure is that of a basic Flask app with a single method, POST, called ex
 
 ## Interaction
 
-As mentioned in the overview, the Pi server does not directly interact with any Color-Commons users; instead, it relays the command (in the form of a string of RGB values translated from the original phrase) forward to the DMX controller (with infinitely less computational abilities) in order for the controller to coordinate the lighting with the Pharos controller further down the chain of command.
+The Pi server runs completely independently from the main server and can be instantiated with either a Flask or Python call, though we use UWSGI as the app manager. This allows the Pi to sit waiting for POST requests by the other server upstream until it is called into action. As mentioned in the overview, the Pi server does not directly interact with any Color-Commons users; instead, it relays the command (in the form of a string of RGB values translated from the original phrase) forward to the DMX controller (with infinitely less computational abilities) in order for the controller to coordinate the lighting with the Pharos controller further down the chain of command.
+
+## Resources
+
+* [Main Documentation](../master/README.md)
+* [Raspberry Pi Documentation](https://www.raspberrypi.org/documentation/usage/python/)
+* [Open Lighting Architecture](https://www.openlighting.org/ola/developer-documentation/python-api/)
 
 ___
