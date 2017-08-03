@@ -113,45 +113,73 @@ class Fiend():
 		self.get_fr_csv(optional);
 	    hier = self.__deepcopy__()
 	    hier.get_jsdt() # CONVERTER
-	    	    
+	    
+	    s = [False, False] # skip value; max 2
+            query = {}
+	    
 	    for i, arg in enumerate(args):
-		if arg in self.SPECS:
-
-		    # Depending on what it is, grabs 1-2 of next vals
-		    # ESSENTIALLY; FIRST/ ANY OF THESE CALLS INSTANTIATE A FIND
-		
-		elif arg in self.SORTS:
-
-		    if arg in self.SORTS[:3]: # Timespan 'month' 'day' 'hr'
-
-		    	now = hier.get_date()
-			if arg is self.SORTS[0]: # Range: 1yr
-			    delta = datetime.timedelta(days=364) # TODO - precise date/month?
-			    dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
-			    dataset = hier.sort_by(arg,dataset)
-			    # LABEL FORMAT - eg Year of 2017
-
-			elif arg is self.SORTS[1]: # "day"
-
-			    delta = datetime.timedelta(days=6)
-			    dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
-                            dataset = hier.sort_by(arg,dataset)
-			    # format - Week of [MON]
-
-			elif arg is SELF.SORTS[2]: # "hour"
-
-		    	    delta = datetime.timedelta(hours=24)
-			    # format - Monday the 25th
-			dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
-                        dataset = hier.sort_by(arg,dataset)
+		if (s[0]^s[1] is False):
+		    if arg in self.SPECS: # Depending on what it is, grabs 1-2 of next vals
+			s[0] = True # At least 1 skip
+		    	if arg is self.SPECS[0]: # "on"
+			    q = args[i+1]
+			    if (type(q) is datetime.date):
+			    	query['date'] = q
+			    elif (type(q) is datetime.time):
+			    	query['time'] = q
+			    else:
+			    	print("Improper follower to ON")
+				return None
+		    	elif arg is self.SPECS[1]: # "range"
+			    s[1] = True
+			    q0 = args[i+1]
+			    q1 = args[i+2]
+			    q = {'start':q0, 'end':q1}
+			    if (type(q0) is datetime.time & type(q1) is datetime.time):
+				query['time'] = q
+			    elif (type(q0) is datetime.date & type(q1) is datetime.date):
+				query['date'] = q
+			    else:
+				print("Improper/unmatched followers to RANGE")
+				return None
+		    	else: # self.SPECS[2] "since"
+			    # TODO
+			    q0 = args[i+1]
+			    if (type(q0) is datetime.time):
+				q1 = self.get_time()
+				query['time'] = {'start':q0,'end':q1}
+			    elif (type(q0) is datetime.date):
+				q1 = self.get_date()
+				query['date'] = {'start':q0,'end':q1}
+			    else:
+				print("Improper follower to SINCE")
+				return None
+		    elif arg in self.SORTS:
+		    	if arg in self.SORTS[:3]: # Timespan 'month' 'day' 'hr' TODO
+   		    	    now = hier.get_date()
+			    if arg is self.SORTS[0]: # Range: 1yr
+			    	delta = datetime.timedelta(days=364) # TODO - precise date/month?
+			   	dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
+			    	dataset = hier.sort_by(arg,dataset)
+			    	# LABEL FORMAT - eg Year of 2017
+			    elif arg is self.SORTS[1]: # "day"
+			    	delta = datetime.timedelta(days=6)
+			    	dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
+                            	dataset = hier.sort_by(arg,dataset)
+			    	# format - Week of [MON]
+			    elif arg is SELF.SORTS[2]: # "hour"
+		    	    	delta = datetime.timedelta(hours=24)
+			    	# format - Monday the 25th
+				dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
+                        	dataset = hier.sort_by(arg,dataset)
 			# TODO - consolidate, worry about passing either [] or {name []} - LOOPING REQUIRED essentially
 		    
-		elif arg in self.SORTS[3:]: # Unique ...'user','newuser','color','color2']
-		
-		        dataset = hier.sort_by(arg,dataset)
-		
-		else:
-		    print("LOAD:Improper sort by "+str(arg))	
+	       	    	    elif arg in self.SORTS[3:]: # Unique ...'user','newuser','color','color2']
+				dataset = hier.sort_by(arg,dataset)
+		elif (s[1] is True):
+		    s[1] = False
+		else: # Know that s[0] is true
+		    s[0] = False		
 	    
 # TODO - RM_DT THINGY
 
