@@ -24,7 +24,7 @@ class Fiend():
 	def __init__(self,log,hash):
             self.log = log # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
-	    self.SORTS = ["month","day","hour","user","newuser","color","color2"]
+	    self.SORTS = ["month","week","day","hour","user","newuser","color","color2"]
 	    self.SPECS = ["on","range","since"]	
 
 	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
@@ -116,67 +116,61 @@ class Fiend():
 	    
 	    s = [False, False] # skip value; max 2
             query = {}
-	    
+	    treed = False
+
 	    for i, arg in enumerate(args):
 		if (s[0]^s[1] is False):
 		    if arg in self.SPECS: # Depending on what it is, grabs 1-2 of next vals
-			s[0] = True # At least 1 skip
+				s[0] = True # At least 1 skip
 		    	if arg is self.SPECS[0]: # "on"
-			    q = args[i+1]
-			    if (type(q) is datetime.date):
-			    	query['date'] = q
-			    elif (type(q) is datetime.time):
-			    	query['time'] = q
-			    else:
-			    	print("Improper follower to ON")
-				return None
+				    q = args[i+1]
+				    if (type(q) is datetime.date):
+				    	query['date'] = q
+				    elif (type(q) is datetime.time):
+				    	query['time'] = q
+				    else:
+				    	print("Improper follower to ON")
+						return None
 		    	elif arg is self.SPECS[1]: # "range"
-			    s[1] = True
-			    q0 = args[i+1]
-			    q1 = args[i+2]
-			    q = {'start':q0, 'end':q1}
-			    if (type(q0) is datetime.time & type(q1) is datetime.time):
-				query['time'] = q
-			    elif (type(q0) is datetime.date & type(q1) is datetime.date):
-				query['date'] = q
-			    else:
-				print("Improper/unmatched followers to RANGE")
-				return None
+				    s[1] = True
+				    q0 = args[i+1]
+				    q1 = args[i+2]
+				    q = {'start':q0, 'end':q1}
+				    if (type(q0) is datetime.time & type(q1) is datetime.time):
+						query['time'] = q
+				    elif (type(q0) is datetime.date & type(q1) is datetime.date):
+						query['date'] = q
+				    else:
+						print("Improper/unmatched followers to RANGE")
+						return None
 		    	else: # self.SPECS[2] "since"
-			    # TODO
-			    q0 = args[i+1]
-			    if (type(q0) is datetime.time):
-				q1 = self.get_time()
-				query['time'] = {'start':q0,'end':q1}
-			    elif (type(q0) is datetime.date):
-				q1 = self.get_date()
-				query['date'] = {'start':q0,'end':q1}
-			    else:
-				print("Improper follower to SINCE")
-				return None
+				    q0 = args[i+1]
+				    if (type(q0) is datetime.time):
+						q1 = self.get_time()
+						query['time'] = {'start':q0,'end':q1}
+				    elif (type(q0) is datetime.date):
+						q1 = self.get_date()
+						query['date'] = {'start':q0,'end':q1}
+					elif (q0 in self.SORTS):
+						# TODO
+				    else:
+						print("Improper follower to SINCE")
+						return None
 		    elif arg in self.SORTS:
-		    	if arg in self.SORTS[:3]: # Timespan 'month' 'day' 'hr' TODO
-   		    	    now = hier.get_date()
-			    if arg is self.SORTS[0]: # Range: 1yr
-			    	delta = datetime.timedelta(days=364) # TODO - precise date/month?
-			   	dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
-			    	dataset = hier.sort_by(arg,dataset)
-			    	# LABEL FORMAT - eg Year of 2017
-			    elif arg is self.SORTS[1]: # "day"
-			    	delta = datetime.timedelta(days=6)
-			    	dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
-                            	dataset = hier.sort_by(arg,dataset)
-			    	# format - Week of [MON]
-			    elif arg is SELF.SORTS[2]: # "hour"
-		    	    	delta = datetime.timedelta(hours=24)
-			    	# format - Monday the 25th
-				dataset = hier.find(dataset,{'date':{'start': (hier.get_date()-delta),'end':hier.get_date()}})
-                        	dataset = hier.sort_by(arg,dataset)
-			# TODO - consolidate, worry about passing either [] or {name []} - LOOPING REQUIRED essentially
-		    
-	       	    	    elif arg in self.SORTS[3:]: # Unique ...'user','newuser','color','color2']
-				dataset = hier.sort_by(arg,dataset)
-		elif (s[1] is True):
+	    		if (treed is False): # Transition over fr FIND to SORT
+	    			treed = True
+	    			dataset = deepcopy(self.find(None,query)) # ACTUALLY IMPLEMENTS above query-builder
+			    	dataset = self.sort_by(arg,dataset)
+			    else:
+			    	restoreset = dataset # saves ptr to top object
+			    	# PERFORM NEEDED NESTING
+			    	while 'children' in dataset['children'][0]: # going to 2nd fr bottom layer
+			    		dataset = dataset['children'][0]
+			    		# TODO	
+			    	dataset = self.sort_by(arg)
+			else:
+				print("Improper usage of LOAD; unknown key")
+		elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
 		    s[1] = False
 		else: # Know that s[0] is true
 		    s[0] = False		
@@ -263,70 +257,81 @@ class Fiend():
 
 	def sort_by(self, root, raw):
 	    if root not in self.SORTS or raw is None or raw == []:
-		return raw
+			return raw
 	    else:
-		if type(raw) is dict:
-		    raw = raw['children'] # Focuses on important component for reference
-		tier = [] # RET item
-	        if root is self.SORTS[0] or root is self.SORTS[1]:
+	    	tier = [] # RET item
+			if type(raw) is dict:
+			    raw = raw['children'] # Focuses on important component for reference
+	    	if root is self.SORTS[0] or root is self.SORTS[1]:
 	            ouryear = raw[0]['date'].year # And same for year
 	    # MONTH sorts - assumes 12 always
-		    if root is self.SORTS[0]: # by MONTH	
-			for i in range(0,12):
-			    bmo = datetime.date(ouryear, (i+1), 1)# begin month
-			    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
-		            tier.append({ 'name': calendar.month_abbr[i+1], 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
+		    	if root is self.SORTS[0]: # by MONTH	
+					for i in range(0,12):
+					    bmo = datetime.date(ouryear, (i+1), 1)# begin month
+					    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
+				            tier.append({ 'name': calendar.month_abbr[i+1], 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
+		# WEEK sorts
+				elif root is self.SORTS[1]: # by WEEK
+					daylist = sorted(self.compute_range(raw,'date'))
+					print(daylist)
+					startdate = self.compute_mon(daylist[0]) # Grabs 1st date
+					enddate = daylist[(len(daylist)-1)] # Grabs last date
+					while (startdate < enddate): # THIS DECISION allows for full-week completion
+						weekset = []
+						for i in range(0,7):
+							offset = startdate + datetime.timedelta(days=i)
+							weekset += self.find(raw,{'date':offset})
+						dcopy = deepcopy(weekset) # TODO - not sure this is essential
+						tier.append({'name': ("Week of"+calendar.day_abbr[startdate.weekday()]+" "+self.daylabel(startdate.day)), 'children': dcopy })
 	    # DAY sorts - uses compute_range
-		    elif root is self.SORTS[1]:
+		    elif root is self.SORTS[2]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
 			    tier.append({ 'name': (calendar.day_abbr[x.weekday()]+" "+self.daylabel(x.day)), 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
 	    # HOUR sorts - separate TIME item from DATE
-		elif root is self.SORTS[2]: #BY 24-HR, 1/24 CATEGORIES
-		    for i in range(0,24):
-			temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
-			tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
-	    # USERS sorts - parses down to unique subset of USERS
-		elif root is self.SORTS[3]: # UNIQUE users
-		    for i in raw[:]: 
-                        found = False
-			for iter,j in enumerate(tier[:]):
-			    if (i['name'] == j['name']): # EQ compare, not ID
-				found = True
-				tier[iter]['children'].append(i) # Add to specific user iter
-			if not found:
-			    tier.append({'name':i['name'], 'children':[i]}) # Adds as new j entry, restarts i-iter
-            # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
-		elif root is self.SORTS[4]: # NEW UNIQUE users
-		    tier = self.sort_by("users",raw) # ranged unique users for our set
-		    bot = datetime.date(2013,1,1)
-		    top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
-		    top = top - datetime.timedelta(days = 1) # Should reset BEFORE line far enough		
-		    B = self.sort_by("users",(self.find(None,{'date':{'start':bot,'end':top}}))) # comp gainst prev vals    
-		    for i in tier[:]: # [SO]/questions/742371/python-strange-behavior-in-for-loop-or-lists
-			for j in B[:]:
-			    if (i['name'] == j['name']):
-				tier.remove(i)
-            # COLORS sort - parses down to unique subset of MSGs 	
-		elif root is self.SORTS[5] or root is self.SORTS[6]:
-	    	    colorlist = sorted(self.compute_range(raw,'msg'))
-		    for x in colorlist:
-		        tier.append({'name':x, 'children': self.find(raw,{'msg':x})})
+			elif root is self.SORTS[3]: #BY 24-HR, 1/24 CATEGORIES
+			    for i in range(0,24):
+				temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
+				tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
+		    # USERS sorts - parses down to unique subset of USERS
+			elif root is self.SORTS[4]: # UNIQUE users
+			    for i in raw[:]: 
+	                        found = False
+				for iter,j in enumerate(tier[:]):
+				    if (i['name'] == j['name']): # EQ compare, not ID
+					found = True
+					tier[iter]['children'].append(i) # Add to specific user iter
+				if not found:
+				    tier.append({'name':i['name'], 'children':[i]}) # Adds as new j entry, restarts i-iter
+        # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
+			elif root is self.SORTS[5]: # NEW UNIQUE users
+			    tier = self.sort_by("users",raw) # ranged unique users for our set
+			    bot = datetime.date(2013,1,1)
+			    top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
+			    top = top - datetime.timedelta(days = 1) # Should reset BEFORE line far enough		
+			    B = self.sort_by("users",(self.find(None,{'date':{'start':bot,'end':top}}))) # comp gainst prev vals    
+			    for i in tier[:]: # [SO]/questions/742371/python-strange-behavior-in-for-loop-or-lists
+				for j in B[:]:
+				    if (i['name'] == j['name']):
+					tier.remove(i)
+        # COLORS sort - parses down to unique subset of MSGs 	
+			elif root is self.SORTS[6] or root is self.SORTS[6]:
+		    	    colorlist = sorted(self.compute_range(raw,'msg'))
+			    for x in colorlist:
+			        tier.append({'name':x, 'children': self.find(raw,{'msg':x})})
 	    # COLORISH sort - parse down to VAGUELY CLOSE unique subsets of msgs	
-		    if root is self.SORTS[6]:
-			tierish = []
-			print(tier)
-			for branch in tier:
-			    branch['name'] = branch['name'].strip().lower() # TODO - remove bc only really needed for csvs
-			print(tier);
-			# Then combine prompts with matching
-			for i,b1 in enumerate(tier[:]):
-			    elem = b1['name']
-			    for j,b2 in enumerate(tier[:]):
-				if ((i!=j) and (elem==b2['name'])):
-				    b1['children']+=b2['children']
-				    tier.remove(b2)
-			print(tier)    		    
+			    if root is self.SORTS[7]:
+					tierish = []
+					for branch in tier:
+					    branch['name'] = branch['name'].strip().lower() # TODO - remove bc only really needed for csvs
+					# Then combine prompts with matching
+					for i,b1 in enumerate(tier[:]):
+					    elem = b1['name']
+					    for j,b2 in enumerate(tier[:]):
+							if ((i!=j) and (elem==b2['name'])):
+							    b1['children']+=b2['children']
+							    tier.remove(b2)
+		# ERROR HANDLER		    
 		else:
 		    print("SORT_BY:Improper sort parameter "+str(root)+"\n")
 		return tier
