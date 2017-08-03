@@ -23,10 +23,10 @@ The only information transmitted between the server and the vault is RGB-encoded
 ## RESOURCES
 
 * [NAPA Page Link](http://www.newamericanpublicart.com/color-commons-2017/)
-* [Vault Readme](../blob/master/src-vault/README.md)
-* [Server Readme](../blob/master/src-fiend/README.md)
-* [Fiend Readme](../blob/master/src-fiend/README2.md)
-* [Fiend Tutorial](../blob/master/src-fiend/TUTORIAL.md)
+* [Vault Readme](../src-vault/README.md)
+* [Server Readme](../src-fiend/README.md)
+* [Fiend Readme](../src-fiend/README2.md)
+* [Fiend Tutorial](../src-fiend/TUTORIAL.md)
 * [Data Visualization](http://97.107.136.63:12345/)
 
 ___
