@@ -19,11 +19,16 @@ Note that the flexible search/sorts allow for nested 'start' and 'end' parameter
 
 The most important part of Fiend is its ability to process log data once inputted; using a combination of the previously mentioned search/sorts, the `server.py` file can request multi-level hierarchies of information sorted by very specific criteria. For example, Fiend could generate a hierarchy such as:
 
-[ ONE WEEK (ex Jul 31-Aug 6th) ] | [ x7 ONE DAY (ex. Aug 4th) ] | [ x24 ONE HOUR (ex. 13:00) ] | [x# ONE COLOR (ex. Pink) ] | [ x# unique users for this given spec ]
+                                           [ ONE WEEK (ex Jul 31-Aug 6th) ]
+                                       [][][][ x7 ONE DAY (ex. Aug 4th) ][][][]
+                        [][][][][][][][][][][][][ x24 ONE HOUR (ex. 13:00) ][][][][][][][][][][][]
+                      [][][][][][][][][][][][][][x# ONE COLOR (ex. Pink) ][][][][][][][][][][][][][]
+    [][][][][][][][][][][][][][][][][][][][][ x# unique users for this given spec ][][][][][][][][][][][][][][][][][][][][]
 
 or even something such as
 
-[ ONE MONTH (ex Feb 2017) ] | [ x# UNIQUE COLORS ]
+                                            [ ONE MONTH (ex Feb 2017) ]
+                                  [][][][][][][][ x# UNIQUE COLORS ][][][][][][][]
 
 with complete flexibility in the `load` call. This allows for direct importation from the server-side to the data visualization given by the `index.html` page served in the \templates folder, in a format perfectly suited to the D3 Hierarchy/Partition model for a sunburst.
 
