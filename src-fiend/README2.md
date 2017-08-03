@@ -9,13 +9,39 @@ Accordingly, the resultant Fiend takes in information from a variety of inputs; 
 
 Fiend can display any of its log information at any time, as the attribute is not protected; in later usage of Fiend this may bear addressing, but for the time being input validation is strong enough and the Fiend module resides on the server-side. This design decision allows for easy access of specific components of the log, as indicated by the sorting suite present in the module; more than a few methods implemented have an optional parameter for which large set to draw from when organizing data, and when set to None these sets default to the Fiend's log.
 
+## Structure
+
+A Fiend consists of a **list**-type of entries and a **md5-stream** generated upon instantiation with an implicit init call, along with a few hardwired arrays for definition searches and sorts.
+
+#### Queries
+
 In considering search and sort criteria, every design decision was made to encourage ease of access for future users; accordingly, the `find` method (for ex) takes a query parameter similar to MongoDB query patterns, namely a dictionary of variable-length with inclusive selectors. Thus, a search query for the color red would look like this;
-> {'msg':'red'}
+```python
+{'msg':'red'}
+```
 
 whereas a more specific query for the color red *during the month of October* would look like this;
-> {'msg':'red','date':{'start':date(2017,10,1),'end':date(2017,10,31)}} 
+```python
+{'msg':'red','date':{'start':date(2017,10,1),'end':date(2017,10,31)}} 
+```
 
 Note that the flexible search/sorts allow for nested 'start' and 'end' parameters for all attributes of log entries.
+
+#### Log
+
+The list of entries, referred to as LOG, initially contains entries of the type
+```python
+{'name':x,'date':y,'msg':z,'time':w}
+```
+
+Though when certain methods are called, the log or its copies may be mutated into entries of the type
+```python
+{'name':x,'msg':y,'jsdt':z}
+```
+
+where `jsdt` refers to a combined integer value indicating number of milliseconds past UTC-stdz time (see `get_ms`), necessary in converting the data stored in Pythonic date/time objects into JS Date objects when rendered to the client. 
+
+#### Output
 
 The most important part of Fiend is its ability to process log data once inputted; using a combination of the previously mentioned search/sorts, the `server.py` file can request multi-level hierarchies of information sorted by very specific criteria. For example, Fiend could generate a hierarchy such as:
 
@@ -23,7 +49,7 @@ The most important part of Fiend is its ability to process log data once inputte
                                        [][][][ x7 ONE DAY (ex. Aug 4th) ][][][]
                         [][][][][][][][][][][][][ x24 ONE HOUR (ex. 13:00) ][][][][][][][][][][][]
                       [][][][][][][][][][][][][][x# ONE COLOR (ex. Pink) ][][][][][][][][][][][][][]
-    [][][][][][][][][][][][][][][][][][][][][ x# unique users for this given spec ][][][][][][][][][][][][][][][][][][][][]
+    [][][][][][][][][][][][][][][][][][][][ x# unique users for this given spec ][][][][][][][][][][][][][][][][][][][]
 
 or even something such as
 
@@ -31,26 +57,6 @@ or even something such as
                                   [][][][][][][][ x# UNIQUE COLORS ][][][][][][][]
 
 with complete flexibility in the `load` call. This allows for direct importation from the server-side to the data visualization given by the `index.html` page served in the \templates folder, in a format perfectly suited to the D3 Hierarchy/Partition model for a sunburst.
-
-## Structure
-
-A Fiend consists of a LIST-type of entries and a UNIQUE md5 hashstream generated upon instantiation with an implicit init call.
-The list of entries, referred to as LOG, initially contains entries of the type
-> {'name':x,'date':y,'msg':z,'time':w}
-
-Though when certain methods are called, the log or its copies may be mutated into entries of the type
-> {'name':x,'msg':y,'jsdt':z}
-
-where `jsdt` refers to a combined integer value indicating number of milliseconds past UTC-stdz time (see `get_ms`), necessary in converting the data stored in Pythonic date/time objects into JS Date objects when rendered to the client. 
-
-A sample hierarchy structure might unfold as follows;
-> {'name': "Week of Jul 31st", 'children': [
->	{'name': "31st Jul", 'children': [...] },
->	{'name': "1st Aug", 'children':[
->		{'name': "Mr HAMISH-ef4", 'children': [ ] },
->		{'name': "Ms ADELE-333", 'children': [ ] }
->		] }
->	 ] }  
 
 ## Methods
 
@@ -68,7 +74,7 @@ A sample hierarchy structure might unfold as follows;
 
 `load( str optional )` : Initiator function for generating hierarchy structure of specified log items. Standardized currently to 3 tiers; [1-week],[1-day],[1-color]. Optional parameter calls `get_fr_csv` on file string if given.
 
-`get_jsdt( obj hier )` : TODO
+`get_jsdt( obj hier )` : Creates ['jsdt'] key for all elements in log; value is `get_ms` calculated ms past 1970.
 
 `export_to_js( obj hier )` : TODO
 
@@ -96,7 +102,7 @@ A sample hierarchy structure might unfold as follows;
 
 `convertexcel( obj raw )` : Converts string in "HH:MM:SS YR-MO-DA UTCHJF....etc" format to Datetime (containing date, time) object in UTC format.
 
-`convert_to_str`( obj arr )` : Converts a nested list of RGB integer tuples to a single comma-and-bar separated string of values for passing to the Pi.
+`convert_to_str( obj arr )` : Converts a nested list of RGB integer tuples to a single comma-and-bar separated string of values for passing to the Pi.
 
 `parse_command( str message )` : Parser for light display; *currently* accepts format: `[COLOR]`, `flip [COLOR]`, `rainbow`, `secret`.
 
@@ -120,6 +126,9 @@ TODO
 
 The third and newest component of our Fiend interaction was the development of a new API (given the default "/" route in a GET request scenario) to allow users of the Color Commons project to see an interactive data vizualization of all user input to the Fiend organized by time span, unique user ID, colors, etc - the goal is to make this information accessible and live-updating to the clients interacting with it on the webpage. Accordingly, the handler for this API loads `index.html` which contains extensive js work in `master.js`, as well as the inclusion of the js graphics/data package D3 in order to generate an infographic out of a SVG. 
 
-
+## Resources
+* [Fiend Tutorial](../master/src-fiend/TUTORIAL.md)
+* [Server Readme](../master/src-fiend/README.md)
+* [Data Visualization](http://97.107.136.63:12345/)
 ___
-
+![cc-logo](http://www.etcs.ipfw.edu/~dupenb/Pictures/CC-BY-SA%20logo.jpg)
