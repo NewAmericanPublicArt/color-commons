@@ -13,10 +13,7 @@ There are 2 main components to this implementation; the server and the Pi contro
 
 ## STRUCTURE
 
-For an in-depth description of the intake and logging process, as well as a breakdown of each API, refer to [this link](http://prezi.com/mmt0cdq5fzi2/?utm_campaign=share&utm_medium=copy&rc=ex0share) for an interactive schema, embedded below;
-
-<iframe id="iframe_container" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen="" width="550" height="400" src="https://prezi.com/embed/mmt0cdq5fzi2/?bgcolor=ffffff&amp;lock_to_path=1&amp;autoplay=0&amp;autohide_ctrls=0&amp;landing_data=bHVZZmNaNDBIWnNjdEVENDRhZDFNZGNIUE43MHdLNWpsdFJLb2ZHanI0bE44R1ZsNWlwcGVncTR0WVFFajRvRUFRPT0&amp;landing_sign=jzX1JV80V-kUZC0LTaCI7MUwI02ntuMoxNVfy_kAT4c">
-</iframe>
+For an in-depth description of the intake and logging process, as well as a breakdown of each API, refer to [this link](http://prezi.com/mmt0cdq5fzi2/?utm_campaign=share&utm_medium=copy&rc=ex0share) for an interactive schema.
 
 The only information transmitted between the server and the vault is RGB-encoded color values; for an in-depth look at each component refer to the resources tab below.
 
