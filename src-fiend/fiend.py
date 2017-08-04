@@ -22,7 +22,7 @@ class Fiend():
 	
 	# INITIALIZE
 	def __init__(self,log,hash):
-            self.log = log # Empty list of log entry
+        self.log = log # Empty list of log entry
 	    self.hasher = md5.new() # Establishes multipurpose md5 stream
 	    self.SORTS = ["month","week","day","hour","user","newuser","color","color2"]
 	    self.SPECS = ["on","range","since"]	
@@ -30,11 +30,11 @@ class Fiend():
 	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
 	def __deepcopy__(self,memo={}):# http://code.activestate.com/recipes/259179/
 	    dcopy = Fiend(deepcopy(self.get_log()),None)
-            return dcopy
+        return dcopy
 
 	# GETTERS
-        def get_log(self):
-            return self.log
+    def get_log(self):
+        return self.log
 	def get_time(self):
 	    return datetime.datetime.time(datetime.datetime.now()) # TODO - incorp tzinfo, convert
 	def get_date(self):
@@ -43,11 +43,11 @@ class Fiend():
 #-------IMPORT/EXPORT of CSV format
 
 	def send_to_csv(self):
-            log = open("log.csv",'w')
-            for x in self.log:
-                newline = str(x['name'])+","+str(x['msg'])+","+x['date']+","+x['time']+"\r\n"
-                log.write(newline)
-            log.close()
+        log = open("log.csv",'w')
+        for x in self.log:
+            newline = str(x['name'])+","+str(x['msg'])+","+x['date']+","+x['time']+"\r\n"
+            log.write(newline)
+        log.close()
 
 	def get_fr_csv(self,FILE):
 	    if( self.get_log() != []): # No more than 1 file import allowed - can disable
@@ -57,25 +57,25 @@ class Fiend():
 		parse = csv.reader(csvfile, strict=True)
 		next(parse,None) #Skips intro line
 		for row in parse:# FILE looper
-                    elem = {}
-                    elem['name'] = str(row[0]).translate(None,'"') # name acquired
-		    if len(row) is not 6:
+            elem = {}
+            elem['name'] = str(row[0]).translate(None,'"') # name acquired
+    		if len(row) is not 6:
 		    	endmsg = False
 		    	msg = row[2].translate(None, '|"')  # combine row[2] onwards till |
 		    	for s in row[3:]:    
-			    if not endmsg:
-				s = str(s).translate(None,'"') #cleans
-				if s.find('|') != -1:		
-				    endmsg = True
-				msg += s
-			    else:
-				msg = msg.translate(None,'|"') #rmv delim
-				elem['msg'] = msg
-				xdate = s
-				break    
+				    if not endmsg:
+						s = str(s).translate(None,'"') #cleans
+						if s.find('|') != -1:		
+						    endmsg = True
+						msg += s
+				    else:
+						msg = msg.translate(None,'|"') #rmv delim
+						elem['msg'] = msg
+						xdate = s
+						break    
 		    else:
-			elem['msg'] = str(row[2]).translate(None,'|"') # remove delimiters
-		        xdate = row[3]
+				elem['msg'] = str(row[2]).translate(None,'|"') # remove delimiters
+			    xdate = row[3]
 		    dtime = self.convertexcel(xdate)
 		    elem['date'] = dtime.date() 
 		    elem['time'] = dtime.time()
