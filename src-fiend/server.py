@@ -36,7 +36,7 @@ def serve():
     try:
         return render_template('/index.html',data=std,all=len(repo.get_log()),time=(repo.get_ms(repo.get_date(),repo.get_time())))
     except:
-	return render_template('/except.html')
+	   return render_template('/except.html')
 
 ## SMS API; passes formatted input to pi ##
 @public.route('/sms', methods=['POST'])
