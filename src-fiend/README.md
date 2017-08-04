@@ -3,8 +3,7 @@
 
 ## Overview
 
-*Describe that it essentially houses Fiend with some added outside components*
-
+The server acts as an instantiator and director for the Fiend-side activity and forwarding from SMS to the light display server housed in the Pi (see */src-vault*). Although it does not directly control the lighting system, it renders the data visualization of the activity recorded along the forwarding chain.
 For information on FIEND, refer [here](../blob/master/src-fiend/README2.md) or [here](../blob/master/src-fiend/TUTORIAL.md).
 
 ## Structure
