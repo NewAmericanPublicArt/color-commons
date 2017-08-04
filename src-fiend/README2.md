@@ -80,9 +80,9 @@ with complete flexibility in the `load` call. This allows for direct importation
 
 `new_entry2( dict elem )` : Same as new_entry but allows for date & time fields to be specified. Called by `get_fr_csv` for each new entry.
 
-`load( str optional )` : Initiator function for generating hierarchy structure of specified log items. Standardized currently to 3 tiers; [1-week],[1-day],[1-color]. Optional parameter calls `get_fr_csv` on file string if given.
+`load( str optional )` : Initiator function for generating hierarchy structure of specified log items. Optional parameter calls `get_fr_csv` on file string if given.
 
-`defaultload( str optional )` : TODO
+`defaultload( str optional )` : TODO ^ and above
 
 `sampleload( str optional )` : Returns pretty-ranged array of particular day/user/color load
 
@@ -120,21 +120,10 @@ with complete flexibility in the `load` call. This allows for direct importation
 
 ## Interaction
 
-There are 3 main ways in which Fiend works behind the scenes to interact with clientele; in **accepting SMS**, in **manipulating content**, and in **formatting display** of content. This means that each Fiend instance is uniquely tied to an invocation of `server.py`, and interacts/is called upon to do the heavy lifting with all APIs offered on server-side. This allows for complete encapsulation of essentially all server-side and semi-server-side data into a convenient bundle of methods.
-
-#### Accepting SMS
-
-TODO
-
-#### Manipulating Content
-
-TODO
-
-#### Formatting Display
-
-The third and newest component of our Fiend interaction was the development of a new API (given the default "/" route in a GET request scenario) to allow users of the Color Commons project to see an interactive data vizualization of all user input to the Fiend organized by time span, unique user ID, colors, etc - the goal is to make this information accessible and live-updating to the clients interacting with it on the webpage. Accordingly, the handler for this API loads `index.html` which contains extensive js work in `master.js`, as well as the inclusion of the js graphics/data package D3 in order to generate an infographic out of a SVG. 
+The Fiend is first instantiated by the server, then fed entries with subsequent /SMS POST requests. Performs (in order) `new_entry`, (and within that, `get_hashable`) `parse_command`, `convert_to_str`. When called upon by /index renders, `load` calls a combo of `find` and `sort_by` along with `daylabel`, `get_time`, `get_date`, etc to return a hierarchy object with correctly nested labels and objects. Similarly, /serve pathway calls `load` and associated suite as well.
 
 ## Resources
+
 * [Fiend Tutorial](../master/src-fiend/TUTORIAL.md)
 * [Server Readme](../master/src-fiend/README.md)
 * [Data Visualization](http://97.107.136.63:12345/)

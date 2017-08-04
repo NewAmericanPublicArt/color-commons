@@ -42,7 +42,7 @@ def serve():
 @public.route('/sms', methods=['POST'])
 def parse_sms():
     message = str(request.form['Body']).strip().lower() # NOTE - Fiend object handles most input validation in-module
-    sender = repo.get_hashable(str(request.form['From']))
+    sender = str(request.form['From'])
     if (repo.new_entry({'name':sender,'msg':message})): # Also generates date/time specs with new_entry
     	data = repo.parse_command(message)
     package = repo.convert_to_str(data)
