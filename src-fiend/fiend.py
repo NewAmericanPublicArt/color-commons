@@ -85,95 +85,109 @@ class Fiend():
 #-------DIRECT API ENTRY method for /sms POST       
 
 	def new_entry(self,elem):
-            # Elem should be of type {'name':'x','msg':'y'}
-            if not(elem and ('name' in elem) and ('msg' in elem)):
-                print("N_E:Improper entry format\n")
-                return False
+        # Elem should be of type {'name':'x','msg':'y'}
+        if not(elem and ('name' in elem) and ('msg' in elem)):
+            print("N_E:Improper entry format\n")
+            return False
 	    elem['name'] = elem['name'].translate(None,'+')
 	    elem['name'] = self.get_hashable(elem['name'])
-            elem['date'] = self.get_date() #Bc TWILIO does not provide a timestamp when SENT
-            elem['time'] = self.get_time() #It is worth noting that these are times RECEIVED
-            self.log.append(elem) # Elem is in type {'name':'x','msg':'y','date':x,'time':y}
-            return True
+        elem['date'] = self.get_date() #Bc TWILIO does not provide a timestamp when SENT
+        elem['time'] = self.get_time() #It is worth noting that these are times RECEIVED
+        self.log.append(elem) # Elem is in type {'name':'x','msg':'y','date':x,'time':y}
+        return True
 
 	# ALTERNATE ENTRY - for direct input from .csv files. See readme for proper format
 	def new_entry2(self,elem):
 	    # Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
   	    if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
-                print("N_E2:Improper entry2 format\n")              
-                return False
-            elem['name'] = self.get_hashable(elem['name']) # No need for + removal
-      	    self.log.append(elem)
+            print("N_E2:Improper entry2 format\n")              
+            return False
+        elem['name'] = self.get_hashable(elem['name']) # No need for + removal
+  	    self.log.append(elem)
 	    return True
 	
 #-------LOADER for page information by category
 	
-        def load(self,optional,args):
+    def load(self,optional,args):
 	    if optional is not None: # file import optional
-		self.get_fr_csv(optional);
+			self.get_fr_csv(optional);
 	    hier = self.__deepcopy__()
 	    hier.get_jsdt() # CONVERTER
 	    
 	    s = [False, False] # skip value; max 2
-            query = {}
+        query = {}
 	    treed = False
 
 	    for i, arg in enumerate(args):
-		if (s[0]^s[1] is False):
-		    if arg in self.SPECS: # Depending on what it is, grabs 1-2 of next vals
-				s[0] = True # At least 1 skip
-		    	if arg is self.SPECS[0]: # "on"
-				    q = args[i+1]
-				    if (type(q) is datetime.date):
-				    	query['date'] = q
-				    elif (type(q) is datetime.time):
-				    	query['time'] = q
+			if (s[0]^s[1] is False):
+			    if arg in self.SPECS: # Depending on what it is, grabs 1-2 of next vals
+					s[0] = True # At least 1 skip
+			    	if arg is self.SPECS[0]: # "on"
+					    q = args[i+1]
+					    if (type(q) is datetime.date):
+					    	query['date'] = q
+					    elif (type(q) is datetime.time):
+					    	query['time'] = q
+					    else:
+					    	print("Improper follower to ON")
+							return None
+			    	elif arg is self.SPECS[1]: # "range"
+					    s[1] = True
+					    q0 = args[i+1]
+					    q1 = args[i+2]
+					    q = {'start':q0, 'end':q1}
+					    if (type(q0) is datetime.time & type(q1) is datetime.time):
+							query['time'] = q
+					    elif (type(q0) is datetime.date & type(q1) is datetime.date):
+							query['date'] = q
+					    else:
+							print("Improper/unmatched followers to RANGE")
+							return None
+			    	else: # self.SPECS[2] "since"
+					    q0 = args[i+1]
+					    if (type(q0) is datetime.time):
+							q1 = self.get_time()
+							query['time'] = {'start':q0,'end':q1}
+					    elif (type(q0) is datetime.date):
+							q1 = self.get_date()
+							query['date'] = {'start':q0,'end':q1}
+						elif (q0 in self.SORTS):
+							key = q0
+							if (key in self.SORTS[:3]):
+								q0 = self.get_date()
+								if (key is self.SORTS[0]): #month
+									q1 = q0 - datetime.timedelta(months=1) # TODO -right span?
+								elif (key is self.sorts[1]): #week
+									q1 = q0 - datetime.timedelta(days=6) 
+								elif (key is self.sorts[2]): #day
+									q1 = q0 - datetime.timedelta(days=1)
+							elif (key is self.SORTS[3]): #hour
+								q0 = self.get_time()
+								q1 = q0 - datetime.timedelta(hours=1)
+							else: #othersort
+								print("Improper usage of SINCE")
+								return None
+					    else:
+							print("Improper follower to SINCE")
+							return None
+			    elif arg in self.SORTS:
+		    		if (treed is False): # Transition over fr FIND to SORT
+		    			treed = True
+		    			dataset = deepcopy(self.find(None,query)) # ACTUALLY IMPLEMENTS above query-builder
+				    	dataset = self.sort_by(arg,dataset)
 				    else:
-				    	print("Improper follower to ON")
-						return None
-		    	elif arg is self.SPECS[1]: # "range"
-				    s[1] = True
-				    q0 = args[i+1]
-				    q1 = args[i+2]
-				    q = {'start':q0, 'end':q1}
-				    if (type(q0) is datetime.time & type(q1) is datetime.time):
-						query['time'] = q
-				    elif (type(q0) is datetime.date & type(q1) is datetime.date):
-						query['date'] = q
-				    else:
-						print("Improper/unmatched followers to RANGE")
-						return None
-		    	else: # self.SPECS[2] "since"
-				    q0 = args[i+1]
-				    if (type(q0) is datetime.time):
-						q1 = self.get_time()
-						query['time'] = {'start':q0,'end':q1}
-				    elif (type(q0) is datetime.date):
-						q1 = self.get_date()
-						query['date'] = {'start':q0,'end':q1}
-					elif (q0 in self.SORTS):
-						# TODO
-				    else:
-						print("Improper follower to SINCE")
-						return None
-		    elif arg in self.SORTS:
-	    		if (treed is False): # Transition over fr FIND to SORT
-	    			treed = True
-	    			dataset = deepcopy(self.find(None,query)) # ACTUALLY IMPLEMENTS above query-builder
-			    	dataset = self.sort_by(arg,dataset)
-			    else:
-			    	restoreset = dataset # saves ptr to top object
-			    	# PERFORM NEEDED NESTING
-			    	while 'children' in dataset['children'][0]: # going to 2nd fr bottom layer
-			    		dataset = dataset['children'][0]
-			    		# TODO	
-			    	dataset = self.sort_by(arg)
-			else:
-				print("Improper usage of LOAD; unknown key")
-		elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
-		    s[1] = False
-		else: # Know that s[0] is true
-		    s[0] = False		
+				    	restoreset = dataset # saves ptr to top object
+				    	# PERFORM NEEDED NESTING
+				    	while 'children' in dataset['children'][0]: # going to 2nd fr bottom layer
+				    		dataset = dataset['children'][0]
+				    		# TODO	
+				    	dataset = self.sort_by(arg)
+				else:
+					print("Improper usage of LOAD; unknown key")
+			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
+			    s[1] = False
+			else: # Know that s[0] is true
+			    s[0] = False		
 	    
 # TODO - RM_DT THINGY
 
@@ -215,19 +229,19 @@ class Fiend():
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
 	def find(self,arr,query):
-	    found = self.log # Uneccessary assignment - note bottom functional for ALL implementation
+	    found = self.log
 	    if query: #Essentially generates placeholders for cond_find
-		if 'name' not in query:
-             	   query['name'] = False
-                if 'msg' not in query:
-                   query['msg'] = False
-                if 'date' not in query:
-		    query['date'] = False
-		if 'time' not in query:
-		   query['time'] = False
-                if arr is None:
+			if 'name' not in query:
+	     	   query['name'] = False
+	        if 'msg' not in query:
+	           query['msg'] = False
+	        if 'date' not in query:
+	    		query['date'] = False
+			if 'time' not in query:
+			   query['time'] = False
+        if arr is None:
 		    found = self.range_find(found,query) #More precise range find
-	        else:
+	    else:
 		    found = self.range_find(arr,query)
 	    return found # if !query, returns full list
 	
@@ -237,20 +251,20 @@ class Fiend():
 	    for x in arr:
         	if ((query['name']==False or self.in_range(x['name'],query['name'])) and
 		    (query['msg']==False or self.in_range(x['msg'],query['msg'])) and
-                    (query['date']==False or self.in_range(x['date'],query['date'])) and
-                    (query['time']==False or self.in_range(x['time'],query['time']))):
-		    temp.append(x)
+            (query['date']==False or self.in_range(x['date'],query['date'])) and
+            (query['time']==False or self.in_range(x['time'],query['time']))):
+		    	temp.append(x)
 	    return temp
 
 	# RANGE checker, returns a boolean T/F for single value/query in range/equivalent
 	def in_range(self,elem,test):
 	    if type(test) is dict:
-		return ((elem>=test['start']) and (elem<=test['end']))
+			return ((elem>=test['start']) and (elem<=test['end']))
 	    else:
-		if (type(elem) is datetime.time) and (type(test) is datetime.time):
-		    devi = datetime.timedelta(second=30) # Grabbing all within minute range
-		    return (elem>=(test-devi) and elem<=(test+devi))
-		else:
+			if (type(elem) is datetime.time) and (type(test) is datetime.time):
+			    devi = datetime.timedelta(second=30) # Grabbing all within minute range
+			    return (elem>=(test-devi) and elem<=(test+devi))
+			else:
 	            return (elem == test)
 	
 #-------SORT method, returns a tree tier of lists **w modified JSON hierarchy
@@ -269,11 +283,10 @@ class Fiend():
 					for i in range(0,12):
 					    bmo = datetime.date(ouryear, (i+1), 1)# begin month
 					    emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
-				            tier.append({ 'name': calendar.month_abbr[i+1], 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
+				        tier.append({ 'name': calendar.month_abbr[i+1], 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
 		# WEEK sorts
 				elif root is self.SORTS[1]: # by WEEK
 					daylist = sorted(self.compute_range(raw,'date'))
-					print(daylist)
 					startdate = self.compute_mon(daylist[0]) # Grabs 1st date
 					enddate = daylist[(len(daylist)-1)] # Grabs last date
 					while (startdate < enddate): # THIS DECISION allows for full-week completion
@@ -287,22 +300,22 @@ class Fiend():
 		    elif root is self.SORTS[2]:
 		        daylist = self.compute_range(raw,'date')
 		    	for x in daylist:
-			    tier.append({ 'name': (calendar.day_abbr[x.weekday()]+" "+self.daylabel(x.day)), 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
+			    	tier.append({ 'name': (calendar.day_abbr[x.weekday()]+" "+self.daylabel(x.day)), 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
 	    # HOUR sorts - separate TIME item from DATE
 			elif root is self.SORTS[3]: #BY 24-HR, 1/24 CATEGORIES
 			    for i in range(0,24):
-				temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
-				tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
+					temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
+					tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
 		    # USERS sorts - parses down to unique subset of USERS
 			elif root is self.SORTS[4]: # UNIQUE users
 			    for i in raw[:]: 
-	                        found = False
-				for iter,j in enumerate(tier[:]):
-				    if (i['name'] == j['name']): # EQ compare, not ID
-					found = True
-					tier[iter]['children'].append(i) # Add to specific user iter
-				if not found:
-				    tier.append({'name':i['name'], 'children':[i]}) # Adds as new j entry, restarts i-iter
+	                found = False
+					for iter,j in enumerate(tier[:]):
+					    if (i['name'] == j['name']): # EQ compare, not ID
+							found = True
+							tier[iter]['children'].append(i) # Add to specific user iter
+					if not found:
+					    tier.append({'name':i['name'], 'children':[i]}) # Adds as new j entry, restarts i-iter
         # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
 			elif root is self.SORTS[5]: # NEW UNIQUE users
 			    tier = self.sort_by("users",raw) # ranged unique users for our set
@@ -311,9 +324,9 @@ class Fiend():
 			    top = top - datetime.timedelta(days = 1) # Should reset BEFORE line far enough		
 			    B = self.sort_by("users",(self.find(None,{'date':{'start':bot,'end':top}}))) # comp gainst prev vals    
 			    for i in tier[:]: # [SO]/questions/742371/python-strange-behavior-in-for-loop-or-lists
-				for j in B[:]:
-				    if (i['name'] == j['name']):
-					tier.remove(i)
+					for j in B[:]:
+					    if (i['name'] == j['name']):
+							tier.remove(i)
         # COLORS sort - parses down to unique subset of MSGs 	
 			elif root is self.SORTS[6] or root is self.SORTS[6]:
 		    	    colorlist = sorted(self.compute_range(raw,'msg'))
@@ -366,54 +379,54 @@ class Fiend():
 	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
 	def get_jsdt(self):
 	    for x in self.get_log():
-		x['jsdt'] = self.get_ms(x['date'],x['time'])
-		x['size'] = 1
+			x['jsdt'] = self.get_ms(x['date'],x['time'])
+			x['size'] = 1
 
 	# MODIFIER for exporting - strips ['date'] and ['time'] categories
 	def rm_dt(self,hier):
 	    for x in hier:
-		if type(x) is list: # A series of nodes; needs nested call
-		    x = self.rm_dt(x)
-		elif type(x) is dict and 'children' in x: # A node; needs nested call on kids
-		    x['children'] = self.rm_dt(x['children'])
-		elif type(x) is dict: #we are @ base level
-		    del x['date']
-		    del x['time']
+			if type(x) is list: # A series of nodes; needs nested call
+			    x = self.rm_dt(x)
+			elif type(x) is dict and 'children' in x: # A node; needs nested call on kids
+			    x['children'] = self.rm_dt(x['children'])
+			elif type(x) is dict: #we are @ base level
+			    del x['date']
+			    del x['time']
 	    return hier 
 	
 	# SORT HELPER which takes set of data & returns list of (nonrepeat) dates for assembly
 	def compute_range(self,raw,key):
 	    range = []
 	    for i in raw[:]:
-		found = False
-		for j in range: 
-		    if (i[key] == j):
-			found = True
-		if not found:
-		    range.append(i[key])
+			found = False
+			for j in range: 
+			    if (i[key] == j):
+					found = True
+			if not found:
+		    	range.append(i[key])
 	    return range
 
 	# DAY-ENDING CREATOR - for proper labeling, helper to sort function
 	def daylabel(self,val):
 	    if (val % 10 == 1 and val != 11):
-		return str(val)+"st"
+			return str(val)+"st"
 	    elif (val % 10 == 2):
-		return str(val)+"nd"
+			return str(val)+"nd"
 	    elif (val % 10 == 3):
-		return str(val)+"rd"
+			return str(val)+"rd"
 	    else:
-		return str(val)+"th"
+			return str(val)+"th"
 	
 	# CONVERTER:date obj and/or time object=> int representing total milliseconds fr UTC-std start
 	def get_ms(self,d,t): # gets in MS; optional D & T entries, if both included adds the 2
 	    dstd = datetime.date(1970,1,1)
 	    if d is None:
-		secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds() 
+			secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds() 
 	    elif t is None:
-		secs = (d - dstd).total_seconds()
+			secs = (d - dstd).total_seconds()
 	    else:
-		secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds()
-		secs += (d - dstd).total_seconds()
+			secs = datetime.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second).total_seconds()
+			secs += (d - dstd).total_seconds()
 	    return int(secs * 1000)
 
 	# CONVERTER:string of "HH:MM:SS YR-MO-DA ..."format => py datetime.datetime obj
@@ -434,12 +447,12 @@ class Fiend():
 	    condensed = ""
 	    last = len(arr)-1
 	    for i, x in enumerate(arr):
-		condensed+=str(x)
-		if ((i%3==2) and (i!=last)):
-		    condensed+="|"
-		elif (i!=last):
-		    condensed += ","
-		# Else, add nothing - last values
+			condensed+=str(x)
+			if ((i%3==2) and (i!=last)):
+			    condensed+="|"
+			elif (i!=last):
+			    condensed += ","
+			# Else, add nothing - last values
 	    return condensed
 
 	# PARSER for PHAROS lights display
@@ -447,45 +460,45 @@ class Fiend():
 	    FIXTURES = 24
 	    populate = True
 	    data = [] # Starts life as an array object
-	    if(message == "secret"):
-		data.append((0,0,255)) # top
-		data.append((255,0,0)) # bot	
-	    elif(message == "flip white"):
-                data.append((255,255,255))
-                data.append((0,0,0))
-	    elif(message == "flip black"):
-                data.append((0,0,0))
-                data.append((255,255,255))
-	    elif(message == "rainbow"):
-		data = [(int(128 + 128 * sin(phase)), \
-			 int(128 + 128 * sin(2.094 + phase)), \
-			 int(128 + 128 * sin(4.189 + phase))) \
-		for phase in [x/1000.0 for x in range(0, 6282, 6282/FIXTURES)]]
-	    	del data[(FIXTURES):] # TRIMS - was @ 75 generated (BRANDON?)
-		populate = False
-	    elif(message.startswith("flip")):
-		remainder = message[4:].strip() # chop off flip and strip any spaces
-		color = self.look_up_color(remainder)
-		inverse = self.complement(color)
-		data.append(color)
-		data.append(inverse)
+	    if (message == "secret"):
+			data.append((0,0,255)) # top
+			data.append((255,0,0)) # bot	
+	    elif (message == "flip white"):
+            data.append((255,255,255))
+            data.append((0,0,0))
+	    elif (message == "flip black"):
+            data.append((0,0,0))
+            data.append((255,255,255))
+	    elif (message == "rainbow"):
+			data = [(int(128 + 128 * sin(phase)), \
+				int(128 + 128 * sin(2.094 + phase)), \
+				int(128 + 128 * sin(4.189 + phase))) \
+				for phase in [x/1000.0 for x in range(0, 6282, 6282/FIXTURES)]]
+		    del data[(FIXTURES):] # TRIMS - was @ 75 generated (BRANDON?)
+			populate = False
+	    elif (message.startswith("flip")):
+			remainder = message[4:].strip() # chop off flip and strip any spaces
+			color = self.look_up_color(remainder)
+			inverse = self.complement(color)
+			data.append(color)
+			data.append(inverse)
 	    else:
-		color = self.look_up_color(message) #rets (x,y,z)(x,y,z)
-		data.append(color)
-		data.append(color)
-	    # FORMAT data from 2 RGB tuples to chain of (24*3) numbers  
-   	    if (populate):	
-		data = data * (FIXTURES/2)
-	    data = array.array('B', itertools.chain.from_iterable(data))
+			color = self.look_up_color(message) #rets (x,y,z)(x,y,z)
+			data.append(color)
+			data.append(color)
+   	    if (populate):	# FORMAT data from 2 RGB tuples to chain of (24*3) numbers  
+			data = data * (FIXTURES/2)
+		    data = array.array('B', itertools.chain.from_iterable(data))
 	    return data
 	
 	# COLOR methods (access, complement)
 	def complement(self, color): # pass color as (r, g, b) tuple
 	    # simpler, slower version of http://stackoverflow.com/a/40234924
 	    return tuple(max(color) + min(color) - channel for channel in color)
+
 	def look_up_color(self, name):
 	    try:
-		color = tuple(webcolors.hex_to_rgb(xkcd_names_to_hex[name]))
+			color = tuple(webcolors.hex_to_rgb(xkcd_names_to_hex[name]))
 	    except: # if we can't find a color, make up a random one
-		color = (randint(0, 255), randint(0, 255), randint(0, 255))
+			color = (randint(0, 255), randint(0, 255), randint(0, 255))
 	    return color
