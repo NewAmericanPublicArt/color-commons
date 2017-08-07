@@ -197,19 +197,14 @@ class Fiend():
 	def nodeloop(self, node, arg):
 		if ('children' in node):
 			if (node['children'] == []): #Empty branch
-				print("empty parent")
 				return node # dont do anyth to it
 			if ('msg' in node['children'][0]): # Actual call
-				print("lil sorting "+node['name'])
 				node['children'] = self.sort_by(arg,node['children']) #Call on entire object for all leaves
 				return node
 			else: #Go down a nest in a loop
-				print("big sorting "+node['name'])
 				for elem in node['children']:
 					elem = self.nodeloop(elem,arg)
 				return node
-		else:
-			print("got leaf")
 
 	def tierlabel(self, arg, data):
 		if (arg is self.SORTS[0]): #month - passed 1-12 int
