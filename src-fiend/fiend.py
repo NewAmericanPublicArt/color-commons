@@ -118,7 +118,6 @@ class Fiend():
 		s = [False, False] # skip value; max 2
 		query = {}
 		treed = False
-
 		for i, arg in enumerate(args):
 			if (s[0]^s[1] is False):
 				if arg in self.SPECS: # Depending on what it is, grabs 1-2 of next vals
@@ -177,12 +176,12 @@ class Fiend():
 					if (treed is False): # Transition over fr FIND to SORT
 						treed = True
 						dataset = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
-						hier.log = hier.sort_by(arg,dataset)
+						hier.log = {'name':hier.tierlabel(None,query), 'children':hier.sort_by(arg,dataset)}
 						print("181 "+str(hier.log)[:800])
 					else:
 						print("2nd sort for "+arg)
-						dataset = hier.get_log()[0] #Needs to unwrap obj
-						hier.log = hier.nodeloop(dataset,arg) 		
+						print("183 "+str(hier.log)[:800])
+						hier.log = hier.nodeloop(hier.get_log(),arg) 		
 						print("185 "+str(hier.log))			 
 				else:
 					print("Improper usage of LOAD; unknown key")
@@ -192,7 +191,7 @@ class Fiend():
 				s[0] = False
 
 		if (treed is False): #last-minute combing
-			hier.log = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder					
+			hier.log = {'name':hier.tierlabel(None,query), 'children':hier.find(None,query)} #IMPLEMENTS w/o sort			
 		
 		hier.rm_dt(hier.get_log())
 		print("197 "+str(hier.get_log())[:800])
@@ -214,6 +213,21 @@ class Fiend():
 				return node
 		else:
 			print("got leaf")
+
+	def tierlabel(self, arg, data):
+		if (arg is self.SORTS[0]): #month - passed 1-12 int
+			return(calendar.month_abbr[data])
+		elif (arg is self.SORTS[1]): #week - passed datetime start date
+			return("Week of"+calendar.day_abbr[data.weekday()]+" "+self.daylabel(data.day))
+		elif (arg is self.SORTS[2]): #day - passed datetime date
+			return(calendar.day_abbr[data.weekday()]+" "+self.daylabel(data.day))
+		elif (arg is self.SORTS[3]): #hr - passed 0-24(?) int
+			return("hr"+str(data)) #user,nuser - passed obj
+		elif (arg is self.SORTS[4] or arg is self.SORTS[5]): #user - passed obj
+			return(data['name']) #color, colorish - passed str
+		elif (arg is self.SORTS[6] or arg is self.SORTS[7]): #color
+			return(data)
+
 
 #	def defaultload(self,optional):
 #		if optional is not None:	#file import optional
@@ -291,7 +305,7 @@ class Fiend():
 					for i in range(0,12):
 						bmo = datetime.date(ouryear, (i+1), 1)# begin month
 						emo = datetime.date(ouryear, (i+1), calendar.monthrange(ouryear,(i+1))[1])
-						tier.append({ 'name': calendar.month_abbr[i+1], 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
+						tier.append({ 'name': self.tierlabel(root,(i+1)), 'children': self.find(raw,{'date':{'start':bmo,'end':emo}})})
 		# WEEK sorts
 				elif root is self.SORTS[1]: # by WEEK
 					daylist = sorted(self.compute_range(raw,'date'))
@@ -303,17 +317,17 @@ class Fiend():
 							offset = startdate + datetime.timedelta(days=i)
 							weekset += self.find(raw,{'date':offset})
 						dcopy = deepcopy(weekset) # TODO - not sure this is essential
-						tier.append({'name': ("Week of"+calendar.day_abbr[startdate.weekday()]+" "+self.daylabel(startdate.day)), 'children': dcopy })
+						tier.append({'name': self.tierlabel(root,startdate), 'children': dcopy })
 		# DAY sorts - uses compute_range
 			elif root is self.SORTS[2]:
 				daylist = self.compute_range(raw,'date')
 				for x in daylist:
-					tier.append({ 'name': (calendar.day_abbr[x.weekday()]+" "+self.daylabel(x.day)), 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
+					tier.append({ 'name': self.tierlabel(root,x), 'children': self.find(raw,{'date':x})}) # consider - removal fr main to avoid olap
 		# HOUR sorts - separate TIME item from DATE
 			elif root is self.SORTS[3]: #BY 24-HR, 1/24 CATEGORIES
 				for i in range(0,24):
 					temp = [datetime.time(i,0,0),datetime.time(i,59,59)]
-					tier.append({ 'name': ("hr"+str(i)) , 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
+					tier.append({ 'name': self.tierlabel(root,i), 'children': self.find(raw,{'time':{'start':temp[0],'end':temp[1]}})})
 			# USERS sorts - parses down to unique subset of USERS
 			elif root is self.SORTS[4]: # UNIQUE users
 				for i in raw[:]: 
@@ -323,7 +337,7 @@ class Fiend():
 							found = True
 							tier[iter]['children'].append(i) # Add to specific user iter
 					if not found:
-						tier.append({'name':i['name'], 'children':[i]}) # Adds as new j entry, restarts i-iter
+						tier.append({'name': self.tierlabel(root,i), 'children':[i]}) # Adds as new j entry, restarts i-iter
         # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
 			elif root is self.SORTS[5]: # NEW UNIQUE users
 				tier = self.sort_by("users",raw) # ranged unique users for our set
@@ -339,7 +353,7 @@ class Fiend():
 			elif root is self.SORTS[6] or root is self.SORTS[6]:
 				colorlist = sorted(self.compute_range(raw,'msg'))
 				for x in colorlist:
-					tier.append({'name':x, 'children': self.find(raw,{'msg':x})})
+					tier.append({'name': self.tierlabel(root,x), 'children': self.find(raw,{'msg':x})})
 		# COLORISH sort - parse down to VAGUELY CLOSE unique subsets of msgs	
 				if root is self.SORTS[7]:
 					tierish = []
