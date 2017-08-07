@@ -180,7 +180,7 @@ class Fiend():
 						hier.log = hier.sort_by(arg,hier.get_log())
 					else:
 						print("2nd sort for "+arg)
-						print(str(hier.log)[200:])
+						print(str(hier.log)[:200])
 						hier.log = hier.nodeloop(hier.get_log(),arg) 		
 						print(hier.log)			 
 				else:
