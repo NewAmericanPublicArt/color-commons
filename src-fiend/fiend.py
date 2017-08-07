@@ -181,9 +181,8 @@ class Fiend():
 					else:
 						print("2nd sort for "+arg)
 						dataset = hier.get_log()[0] #Needs to unwrap obj
-						print(str(dataset)[:800])
 						hier.log = hier.nodeloop(dataset,arg) 		
-						print(hier.log)			 
+						print("185 "+str(hier.log))			 
 				else:
 					print("Improper usage of LOAD; unknown key")
 			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
@@ -195,7 +194,7 @@ class Fiend():
 			hier.log = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder					
 		
 		hier.rm_dt(hier.get_log())
-		print(str(hier.get_log())[:800])
+		print("197 "+str(hier.get_log())[:800])
 		return hier.log
 
 	def nodeloop(self, node, arg):
@@ -203,10 +202,11 @@ class Fiend():
 			if (len(node['children'])<1): #Empty branch
 				return node # dont do anyth to it
 			if ('msg' in node['children'][0]): # Actual call
-				print("sorting "+node['name'])
+				print("lil sorting "+node['name'])
 				node = self.sort_by(node,arg) #Call on entire object for all leaves
 				return node
 			else: #Go down a nest in a loop
+				print("big sorting "+node['name'])
 				for elem in node['children']:
 					elem = nodeloop(elem,arg)
 				return node
