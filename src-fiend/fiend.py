@@ -4,18 +4,18 @@
 import array					# p_cmd array of 'B'
 import calendar					# for month utils
 from copy import deepcopy
-import csv					# file entry/db format
+import csv						# file entry/db format
 import datetime					# get_date, get_time
 import itertools				# p_cmd array/iterable loops
 import json
-from math import sin				# parse_command rainbow gen
-import md5					# built-in hash
-from random import randint                      # generate rand color
-from resources.names import *			# brings in NAMES, SURS
+from math import sin			# parse_command rainbow gen
+from hashlib import md5			# built-in hash
+from random import randint      # generate rand color
+from resources.names import *	# brings in NAMES, SURS
 from resources.xkcd_colors import xkcd_names_to_hex # look_up_color
-import re					# regexing
+import re						# regexing
 import socket					#
-import sys					#
+import sys						#
 import webcolors				#
 
 class Fiend():
@@ -101,7 +101,7 @@ class Fiend():
 		# Elem should be of form {'name':w,'msg':x,'date':y,'time':z}
 		if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
 			print("N_E2:Improper entry2 format\n")              
-        	return False
+			return False
 		elem['name'] = self.get_hashable(elem['name']) # No need for + removal
 		self.log.append(elem)
 		return True
@@ -175,38 +175,34 @@ class Fiend():
 				elif arg in self.SORTS:
 					if (treed is False): # Transition over fr FIND to SORT
 						treed = True
-						dataset = deepcopy(self.find(None,query)) # ACTUALLY IMPLEMENTS above query-builder
-						dataset = self.sort_by(arg,dataset)
-						
+						dataset = deepcopy(hier.find(None,query)) # ACTUALLY IMPLEMENTS above query-builder
+						dataset = hier.sort_by(arg,dataset)
+						print("got dataset post sort, ")
+						print(dataset)
 					else:
 						calc = False #calculate toggle
 						root = dataset #saves for eventual access
-						node = dataset
-						final = nodeloop(node,calc,arg) 						 
+						dataset = hier.nodeloop(root,arg) 		
+						print(dataset)				 
 				else:
 					print("Improper usage of LOAD; unknown key")
 			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
 				s[1] = False
 			else: # Know that s[0] is true
-				s[0] = False		
-		
-# TODO - RM_DT THINGY
+				s[0] = False	
+		return dataset	
 
-		format = {'name': 'TODO', 'children': hier.get_log()}    
-		return format
+	def nodeloop(self, node, arg):
+		if (len(node['children'])<1): #Empty branch
+			return
+		if ('msg' in node['children'][0]): # Actual call
+			node = self.sort_by(node,arg) #Call on entire object for all leaves
+			print("sorting "+node['name'])
+			return node
+		else: #Go down a nest in a loop
+			for elem in node['children']:
+				elem = nodeloop(elem,arg)
 
-	def nodeloop(self, node, calc, arg):
-		if (calc): # Actually call on this stuff
-			if
-			for x in node['children']:
-				x = self.nodeloop(x,True,arg)
-		else:
-			if (len(node['children'])>0):
-				x = node['children'][0]
-			else: # return node; nothing to sort
-				return
-            if ('msg' in x):
-                # We are at base level; toggle calculation on 1 up
 				
 				
 
