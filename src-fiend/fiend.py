@@ -227,6 +227,51 @@ class Fiend():
 			return(data['name']) #color, colorish - passed str
 		elif (arg is self.SORTS[6] or arg is self.SORTS[7]): #color
 			return(data)
+		elif (type(arg) is dict): #query object
+			tripped = False #for spacing
+			label = ""
+			
+			if ('msg' in arg):
+				tripped = True
+				if ('start' in arg['msg']):
+					label += "Colors ranged from "+arg['msg']['start']+" to "+arg['msg']['end']
+				else:
+					label += "Only "+arg['msg']
+
+			if ('name' in arg):
+				if (tripped == False):
+					tripped = True
+				else:
+					label += " "
+				if ('start' in arg['name']):
+					label += "Names ranged from "+arg['name']['start']+" to "+arg['name']['end']
+				else:
+					label += "By "+arg['name']
+
+			if ('date' in arg):
+				if (tripped == False):
+					tripped = True
+				else:
+					label += " "
+				if ('start' in arg['date']): # Ranged
+					label += "From "+self.tierlabel("day",arg['date']['start'])+" to "+self.tierlabel("day",arg['date']['end'])
+				else:
+					label += "On "+self.tierlabel("day",arg['date'])
+
+			if ('time' in arg):
+				if (tripped == False):
+					tripped = True
+				else:
+					label += " "
+				if ('start' in arg['time']):
+					label += "From "+self.tierlabel("hour",arg['time']['start'].hour)+" to "+self.tierlabel("hour",arg['time']['end'])
+				else:
+					label += "On "+self.tierlabel("hour",arg['time'].hour)
+
+			return label
+
+
+
 
 
 #	def defaultload(self,optional):
