@@ -176,8 +176,8 @@ class Fiend():
 				elif arg in self.SORTS:
 					if (treed is False): # Transition over fr FIND to SORT
 						treed = True
-						hier.log = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
-						hier.log = hier.sort_by(arg,hier.get_log())
+						dataset = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
+						hier.log = hier.sort_by(arg,dataset)
 					else:
 						print("2nd sort for "+arg)
 						print(str(hier.log)[:200])
