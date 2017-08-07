@@ -193,20 +193,20 @@ class Fiend():
 		return dataset	
 
 	def nodeloop(self, node, arg):
-	if ('children' in node):
-		if (len(node['children'])<1): #Empty branch
+		if ('children' in node):
+			if (len(node['children'])<1): #Empty branch
+				return
+			if ('msg' in node['children'][0]): # Actual call
+				print("sorting "+node['name'])
+				node = self.sort_by(node,arg) #Call on entire object for all leaves
+				return node
+			else: #Go down a nest in a loop
+				for elem in node['children']:
+					elem = nodeloop(elem,arg)
+				return node
+		else:
+			print("got leaf")
 			return
-		if ('msg' in node['children'][0]): # Actual call
-			print("sorting "+node['name'])
-			node = self.sort_by(node,arg) #Call on entire object for all leaves
-			return node
-		else: #Go down a nest in a loop
-			for elem in node['children']:
-				elem = nodeloop(elem,arg)
-			return node
-	else:
-		print("got leaf")
-		return
 
 #	def defaultload(self,optional):
 #		if optional is not None:	#file import optional
