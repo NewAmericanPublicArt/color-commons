@@ -109,17 +109,16 @@ class Fiend():
 #-------LOADER for page information by category
 	
 	def load(self,optional,args):
-
 		if optional is not None: # file import optional
 			self.get_fr_csv(optional)
-
 		hier = self.__deepcopy__()
 		hier.get_jsdt() # CONVERTER
+		#Prepping loop variables
 		s = [False, False] # skip value; max 2
 		query = {}
 		treed = False
 		for i, arg in enumerate(args):
-			if (s[0]^s[1] is False):
+			if (s[0]^s[1] is False): #NEW item to act upon
 				if arg in self.SPECS: # Depending on what it is, grabs 1-2 of next vals
 					s[0] = True # At least 1 skip
 					if arg is self.SPECS[0]: # "on"
@@ -175,8 +174,9 @@ class Fiend():
 				elif arg in self.SORTS:
 					if (treed is False): # Transition over fr FIND to SORT
 						treed = True
+						squery = query #savequery item maintains w/o usage change
 						dataset = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
-						hier.log = {'name':hier.tierlabel(query,None), 'children':hier.sort_by(arg,dataset)}
+						hier.log = {'name':hier.tierlabel(squery,None), 'children':hier.sort_by(arg,dataset)}
 					else:
 						print("2nd sort for "+arg)
 						hier.log = hier.nodeloop(hier.get_log(),arg) 		 
@@ -188,7 +188,8 @@ class Fiend():
 				s[0] = False
 
 		if (treed is False): #last-minute combing
-			hier.log = {'name':hier.tierlabel(None,query), 'children':hier.find(None,query)} #IMPLEMENTS w/o sort			
+			squery = query
+			hier.log = {'name':hier.tierlabel(squery,None), 'children':hier.find(None,query)} #IMPLEMENTS w/o sort			
 		
 		hier.rm_dt([hier.log])#Rewrap? TODO -understand rets
 		print("197 "+str(hier.get_log())[:800])
