@@ -176,7 +176,7 @@ class Fiend():
 					if (treed is False): # Transition over fr FIND to SORT
 						treed = True
 						dataset = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
-						hier.log = {'name':hier.tierlabel(None,query), 'children':hier.sort_by(arg,dataset)}
+						hier.log = {'name':hier.tierlabel(query,None), 'children':hier.sort_by(arg,dataset)}
 						print("181 "+str(hier.log)[:800])
 					else:
 						print("2nd sort for "+arg)
@@ -230,7 +230,7 @@ class Fiend():
 		elif (type(arg) is dict): #query object
 			tripped = False #for spacing
 			label = ""
-			
+
 			if ('msg' in arg):
 				tripped = True
 				if ('start' in arg['msg']):
