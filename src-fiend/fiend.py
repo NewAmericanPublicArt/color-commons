@@ -180,11 +180,10 @@ class Fiend():
 						hier.log = hier.sort_by(arg,dataset)
 					else:
 						print("2nd sort for "+arg)
-						print(str(hier.log)[:200])
 						dataset = hier.get_log()[0] #Needs to unwrap obj
-						print(str(dataset)[:200])
+						print(str(dataset)[:800])
 						hier.log = hier.nodeloop(dataset,arg) 		
-						print(hier.log)	 
+						print(hier.log)			 
 				else:
 					print("Improper usage of LOAD; unknown key")
 			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
@@ -196,6 +195,7 @@ class Fiend():
 			hier.log = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder					
 		
 		hier.rm_dt(hier.get_log())
+		print(str(hier.get_log())[:800])
 		return hier.log
 
 	def nodeloop(self, node, arg):
