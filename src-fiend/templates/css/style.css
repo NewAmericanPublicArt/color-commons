@@ -118,3 +118,12 @@ CLASS 3 RESPONSIVE - DESKTOP/BIG DESKTOP
         min-height: 500px;
     }
 }
+
+circle,
+path {
+  cursor: pointer;
+}
+circle {
+  fill: none;
+  pointer-events: all;
+}
