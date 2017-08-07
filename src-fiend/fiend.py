@@ -196,16 +196,13 @@ class Fiend():
 		if (len(node['children'])<1): #Empty branch
 			return
 		if ('msg' in node['children'][0]): # Actual call
-			node = self.sort_by(node,arg) #Call on entire object for all leaves
 			print("sorting "+node['name'])
+			node = self.sort_by(node,arg) #Call on entire object for all leaves
 			return node
 		else: #Go down a nest in a loop
 			for elem in node['children']:
 				elem = nodeloop(elem,arg)
-
-				
-				
-
+			return node
 
 #	def defaultload(self,optional):
 #		if optional is not None:	#file import optional
