@@ -209,7 +209,7 @@ class Fiend():
 			else: #Go down a nest in a loop
 				print("big sorting "+node['name'])
 				for elem in node['children']:
-					elem = nodeloop(elem,arg)
+					elem = self.nodeloop(elem,arg)
 				return node
 		else:
 			print("got leaf")
