@@ -177,13 +177,14 @@ class Fiend():
 					if (treed is False): # Transition over fr FIND to SORT
 						treed = True
 						dataset = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
-						dataset = dataset[0] #Needs to unwrap obj
 						hier.log = hier.sort_by(arg,dataset)
 					else:
 						print("2nd sort for "+arg)
 						print(str(hier.log)[:200])
-						hier.log = hier.nodeloop(hier.get_log(),arg) 		
-						print(hier.log)			 
+						dataset = hier.get_log()[0] #Needs to unwrap obj
+						print(str(dataset)[:200])
+						hier.log = hier.nodeloop(dataset,arg) 		
+						print(hier.log)	 
 				else:
 					print("Improper usage of LOAD; unknown key")
 			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
