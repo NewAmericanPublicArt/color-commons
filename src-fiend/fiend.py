@@ -231,14 +231,14 @@ class Fiend():
 			tripped = False #for spacing
 			label = ""
 
-			if ('msg' in arg):
+			if (type(arg['msg']) != bool):
 				tripped = True
 				if (type(arg['msg']) is dict):
 					label += "Colors ranged from "+arg['msg']['start']+" to "+arg['msg']['end']
 				else:
 					label += "Only "+arg['msg']
 
-			if ('name' in arg):
+			if (type(arg['name']) != bool):
 				if (tripped == False):
 					tripped = True
 				else:
@@ -248,7 +248,7 @@ class Fiend():
 				else:
 					label += "By "+arg['name']
 
-			if ('date' in arg):
+			if (type(arg['date']) != bool):
 				if (tripped == False):
 					tripped = True
 				else:
@@ -258,7 +258,7 @@ class Fiend():
 				else:
 					label += "On "+self.tierlabel("day",arg['date'])
 
-			if ('time' in arg):
+			if (type(arg['time']) != bool):
 				if (tripped == False):
 					tripped = True
 				else:
