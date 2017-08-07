@@ -191,7 +191,6 @@ class Fiend():
 			hier.log = {'name':hier.tierlabel(None,query), 'children':hier.find(None,query)} #IMPLEMENTS w/o sort			
 		
 		hier.rm_dt([hier.log])#Rewrap? TODO -understand rets
-		hier.log = hier.log[0]
 		print("197 "+str(hier.get_log())[:800])
 		return hier.log
 
