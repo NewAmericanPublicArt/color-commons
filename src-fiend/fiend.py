@@ -177,12 +177,10 @@ class Fiend():
 						treed = True
 						dataset = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
 						hier.log = {'name':hier.tierlabel(query,None), 'children':hier.sort_by(arg,dataset)}
-						print("181 "+str(hier.log)[:800])
 					else:
 						print("2nd sort for "+arg)
-						print("183 "+str(hier.log)[:800])
 						hier.log = hier.nodeloop(hier.get_log(),arg) 		
-						print("185 "+str(hier.log))			 
+						print("185 "+str(hier.log)[:500])		 
 				else:
 					print("Improper usage of LOAD; unknown key")
 			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
@@ -192,8 +190,8 @@ class Fiend():
 
 		if (treed is False): #last-minute combing
 			hier.log = {'name':hier.tierlabel(None,query), 'children':hier.find(None,query)} #IMPLEMENTS w/o sort			
-		
-		hier.rm_dt(hier.get_log())
+		print("193 "+str(hier.log)[:800])
+		hier.rm_dt(hier.log)
 		print("197 "+str(hier.get_log())[:800])
 		return hier.log
 
