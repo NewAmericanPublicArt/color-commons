@@ -109,7 +109,7 @@ class Fiend():
 #-------LOADER for page information by category
 	
 	def load(self,optional,args):
-		
+
 		if optional is not None: # file import optional
 			self.get_fr_csv(optional)
 
@@ -199,7 +199,7 @@ class Fiend():
 	def nodeloop(self, node, arg):
 		if ('children' in node):
 			if (len(node['children'])<1): #Empty branch
-				return
+				return node # dont do anyth to it
 			if ('msg' in node['children'][0]): # Actual call
 				print("sorting "+node['name'])
 				node = self.sort_by(node,arg) #Call on entire object for all leaves
