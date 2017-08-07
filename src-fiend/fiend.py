@@ -111,12 +111,14 @@ class Fiend():
 	def load(self,optional,args):
 		if optional is not None: # file import optional
 			self.get_fr_csv(optional);
+			print("got from csv")
 		hier = self.__deepcopy__()
 		hier.get_jsdt() # CONVERTER
 		
 		s = [False, False] # skip value; max 2
 		query = {}
 		treed = False
+		print(hier.log)
 
 		for i, arg in enumerate(args):
 			if (s[0]^s[1] is False):
@@ -175,22 +177,26 @@ class Fiend():
 				elif arg in self.SORTS:
 					if (treed is False): # Transition over fr FIND to SORT
 						treed = True
-						dataset = deepcopy(hier.find(None,query)) # ACTUALLY IMPLEMENTS above query-builder
-						dataset = hier.sort_by(arg,dataset)
-						print("got dataset post sort, ")
-						print(dataset)
+						hier.log = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
+						hier.log = hier.sort_by(arg,dataset)
+						print("in sort after find,")
+						print(hier.log)
 					else:
 						calc = False #calculate toggle
-						root = dataset #saves for eventual access
-						dataset = hier.nodeloop(root,arg) 		
-						print(dataset)				 
+						hier.log = hier.nodeloop(hier.log,arg) 		
+						print(hier.log)			 
 				else:
 					print("Improper usage of LOAD; unknown key")
 			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
 				s[1] = False
 			else: # Know that s[0] is true
-				s[0] = False	
-		return dataset	
+				s[0] = False
+
+		if (treed is False): #last-minute combing
+			hier.log = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder					
+		
+		hier.rm_dt()
+		return hier.log
 
 	def nodeloop(self, node, arg):
 		if ('children' in node):
