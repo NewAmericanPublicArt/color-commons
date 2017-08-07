@@ -177,6 +177,7 @@ class Fiend():
 					if (treed is False): # Transition over fr FIND to SORT
 						treed = True
 						dataset = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
+						dataset = dataset[0] #Needs to unwrap obj
 						hier.log = hier.sort_by(arg,dataset)
 					else:
 						print("2nd sort for "+arg)
