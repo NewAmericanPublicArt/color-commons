@@ -233,7 +233,7 @@ class Fiend():
 
 			if ('msg' in arg):
 				tripped = True
-				if ('start' in arg['msg']):
+				if (type(arg['msg']) is dict):
 					label += "Colors ranged from "+arg['msg']['start']+" to "+arg['msg']['end']
 				else:
 					label += "Only "+arg['msg']
@@ -243,7 +243,7 @@ class Fiend():
 					tripped = True
 				else:
 					label += " "
-				if ('start' in arg['name']):
+				if (type(arg['name']) is dict):
 					label += "Names ranged from "+arg['name']['start']+" to "+arg['name']['end']
 				else:
 					label += "By "+arg['name']
@@ -253,7 +253,7 @@ class Fiend():
 					tripped = True
 				else:
 					label += " "
-				if ('start' in arg['date']): # Ranged
+				if (type(arg['date']) is dict): # Ranged
 					label += "From "+self.tierlabel("day",arg['date']['start'])+" to "+self.tierlabel("day",arg['date']['end'])
 				else:
 					label += "On "+self.tierlabel("day",arg['date'])
@@ -263,7 +263,7 @@ class Fiend():
 					tripped = True
 				else:
 					label += " "
-				if ('start' in arg['time']):
+				if (type(arg['time']) is dict):
 					label += "From "+self.tierlabel("hour",arg['time']['start'].hour)+" to "+self.tierlabel("hour",arg['time']['end'])
 				else:
 					label += "On "+self.tierlabel("hour",arg['time'].hour)
