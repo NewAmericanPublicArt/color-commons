@@ -193,6 +193,7 @@ class Fiend():
 		return dataset	
 
 	def nodeloop(self, node, arg):
+	if ('children' in node):
 		if (len(node['children'])<1): #Empty branch
 			return
 		if ('msg' in node['children'][0]): # Actual call
@@ -203,6 +204,9 @@ class Fiend():
 			for elem in node['children']:
 				elem = nodeloop(elem,arg)
 			return node
+	else:
+		print("got leaf")
+		return
 
 #	def defaultload(self,optional):
 #		if optional is not None:	#file import optional
