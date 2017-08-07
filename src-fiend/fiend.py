@@ -178,6 +178,7 @@ class Fiend():
 						treed = True
 						dataset = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
 						hier.log = hier.sort_by(arg,dataset)
+						print("181 "+str(hier.log)[:800])
 					else:
 						print("2nd sort for "+arg)
 						dataset = hier.get_log()[0] #Needs to unwrap obj
