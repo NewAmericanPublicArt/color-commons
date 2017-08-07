@@ -195,7 +195,7 @@ class Fiend():
 		if (treed is False): #last-minute combing
 			hier.log = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder					
 		
-		hier.rm_dt()
+		hier.rm_dt(hier.get_log())
 		return hier.log
 
 	def nodeloop(self, node, arg):
