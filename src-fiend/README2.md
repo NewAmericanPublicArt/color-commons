@@ -1,3 +1,5 @@
+___
+
 # README for FIEND.py MODULE
 ###### (c) Sydney Strzempko for New American Public Art, Color Commons 2017
 
@@ -11,7 +13,7 @@ Fiend can display any of its log information at any time, as the attribute is no
 
 ## Structure
 
-A Fiend consists of a **list**-type of entries and a **md5-stream** generated upon instantiation with an implicit init call, along with a few hardwired arrays for definition searches and sorts.
+A Fiend consists of a **list**-type of entries and a **MD-5-stream** generated upon instantiation with an implicit init call, along with a few hardwired arrays for definition searches and sorts. The MD-5 stream is uniquely generated with each Fiend, though can be passed along in deepcopy. The list of entries is filled depending on the instantiation circumstances and subsequent entry calls to the particular Fiend instance.
 
 #### Queries
 
@@ -62,6 +64,8 @@ with complete flexibility in the `load` call. This allows for direct importation
 
 `__init__` : Constructor; creates empty log, hash stream
 
+`__deepcopy__` : Deepcopy custom hook; only passes through log
+
 `get_log` : Getter for log (library of all entries)
 
 `get_time` : Getter for current time(naive) from machine
@@ -72,31 +76,35 @@ with complete flexibility in the `load` call. This allows for direct importation
 
 `get_fr_csv( str FILE )` : Opens indicated file and fills log (using `new_entry2` utility) with relevant entries
 
-`load( str optional )` : Initiator function for generating hierarchy structure of specified log items. Standardized currently to 3 tiers; [1-week],[1-day],[1-color]. Optional parameter calls `get_fr_csv` on file string if given.
-
-`get_jsdt( obj hier )` : Creates ['jsdt'] key for all elements in log; value is `get_ms` calculated ms past 1970.
-
-`export_to_js( obj hier )` : TODO
-
 `new_entry( dict elem )` : Called by `server.py` upon correct POST request handling of incoming SMS message. Creates new entry from *elem*, calling hashing suite, getters for date/time, and inputs to log with this generated material.
 
 `new_entry2( dict elem )` : Same as new_entry but allows for date & time fields to be specified. Called by `get_fr_csv` for each new entry.
 
-`find( obj arr, dict query )` : TODO 
+`load( str optional )` : Initiator function for generating hierarchy structure of specified log items. Optional parameter calls `get_fr_csv` on file string if given.
 
-`range_find( obj arr, dict query )` : TODO
+`defaultload( str optional )` : TODO ^ and above
+
+`sampleload( str optional )` : Returns pretty-ranged array of particular day/user/color load
+
+`find( obj arr, dict query )` : Given array object and dictionary of query parameters, implements helper `range_find` and `in_range` methods
+
+`range_find( obj arr, dict query )` : Actual looped function which appraises each element in the list against query value to test for equivalence, or if 'start' and 'end' inner entries exist, tests within range equivalence. Adds correct entries to temp list to be returned upon loop completion
 
 `in_range( dict elem, dict test )` : Takes 2 elements of expected similar type, compares elem to test & returns true if it matches or falls within the 'start','end'-convention range, false otherwise
 
-`compute_range( obj raw, str key)` : Given an object (essentially a chunk of log) and a key indicating a particular attribute to highlight, generates a nonrepeating list of all values of that attribute from the original raw set. Ie, the computed range of all possible entries with the key 'msg' would generate a list of all possible colors, *as strings* rather than as more complex entries.
-
-`sort_by( str root, obj raw )` : TODO
-
-`clean_sort( obj raw )` : Optional; empties [] from generated hierarchies
+`sort_by( str root, obj raw )` : Takes root key, parses into various ways to separate/sort data, returns as a node with a generated name of the sort type and a children list of relevant entries harvested from the raw object
 
 `get_hashable( str nos )` : Creates 'alias' of username from a string, nos, of a particular phone number in [E.164 formatting](https://support.twilio.com/hc/en-us/articles/223183008-Formatting-International-Phone-Numbers).
 
 `generate_alias( str hash )` : Helper function called by `get_hashable`; uses bitwise operations to map 32-character strings of valid hex to two arrays of possible prefixes & names, with a trailing 3-character string to lend uniqueness in the case of two collisions creating non-unique aliases. Refer to `names.py` in the *rsrcs* folder for list of available combinations used in hashing; names taken from [this resource](https://www.ssa.gov/oact/babynames/limits.html) (publicly available, shortened to 6-char max length names).
+
+`get_jsdt( obj hier )` : Creates ['jsdt'] key for all elements in log; value is `get_ms` calculated ms past 1970.
+
+`rm_dt( obj hier )`: Goes through nested hierarchy shape in order to remove all 'date' and 'time' keys from array objects
+
+`compute_range( obj raw, str key)` : Given an object (essentially a chunk of log) and a key indicating a particular attribute to highlight, generates a nonrepeating list of all values of that attribute from the original raw set. Ie, the computed range of all possible entries with the key 'msg' would generate a list of all possible colors, *as strings* rather than as more complex entries.
+
+`daylabel( int val )` : Given int value, returns string of relevant value plus "st", "nd", "rd" relevant tails
 
 `get_ms( date d, time t )` : Converts (either/or/and) date, time (from Datetime super-class) to an integer value representing number of milliseconds from 1970/1/1; will be used as date constructor vals in JS
 
@@ -112,21 +120,10 @@ with complete flexibility in the `load` call. This allows for direct importation
 
 ## Interaction
 
-There are 3 main ways in which Fiend works behind the scenes to interact with clientele; in **accepting SMS**, in **manipulating content**, and in **formatting display** of content. This means that each Fiend instance is uniquely tied to an invocation of `server.py`, and interacts/is called upon to do the heavy lifting with all APIs offered on server-side. This allows for complete encapsulation of essentially all server-side and semi-server-side data into a convenient bundle of methods.
-
-#### Accepting SMS
-
-TODO
-
-#### Manipulating Content
-
-TODO
-
-#### Formatting Display
-
-The third and newest component of our Fiend interaction was the development of a new API (given the default "/" route in a GET request scenario) to allow users of the Color Commons project to see an interactive data vizualization of all user input to the Fiend organized by time span, unique user ID, colors, etc - the goal is to make this information accessible and live-updating to the clients interacting with it on the webpage. Accordingly, the handler for this API loads `index.html` which contains extensive js work in `master.js`, as well as the inclusion of the js graphics/data package D3 in order to generate an infographic out of a SVG. 
+The Fiend is first instantiated by the server, then fed entries with subsequent /SMS POST requests. Performs (in order) `new_entry`, (and within that, `get_hashable`) `parse_command`, `convert_to_str`. When called upon by /index renders, `load` calls a combo of `find` and `sort_by` along with `daylabel`, `get_time`, `get_date`, etc to return a hierarchy object with correctly nested labels and objects. Similarly, /serve pathway calls `load` and associated suite as well.
 
 ## Resources
+
 * [Fiend Tutorial](../master/src-fiend/TUTORIAL.md)
 * [Server Readme](../master/src-fiend/README.md)
 * [Data Visualization](http://97.107.136.63:12345/)

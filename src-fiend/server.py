@@ -32,17 +32,17 @@ def add_no_cache(response):
 @public.route('/', methods=['GET']) # Bleeding == nested functionality
 @public.route('/index', methods=['GET'])	
 def serve():
-    std = json.dumps(repo.thu_load('current.csv')) # rets a copy to ONLY log item of fiend/repo
+    std = json.dumps(repo.defaultload('current.csv')) # rets a copy to ONLY log item of fiend/repo
     try:
         return render_template('/index.html',data=std,all=len(repo.get_log()),time=(repo.get_ms(repo.get_date(),repo.get_time())))
     except:
-	return render_template('/except.html')
+	   return render_template('/except.html')
 
 ## SMS API; passes formatted input to pi ##
 @public.route('/sms', methods=['POST'])
 def parse_sms():
     message = str(request.form['Body']).strip().lower() # NOTE - Fiend object handles most input validation in-module
-    sender = repo.get_hashable(str(request.form['From']))
+    sender = str(request.form['From'])
     if (repo.new_entry({'name':sender,'msg':message})): # Also generates date/time specs with new_entry
     	data = repo.parse_command(message)
     package = repo.convert_to_str(data)
