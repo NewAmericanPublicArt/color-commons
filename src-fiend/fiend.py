@@ -152,15 +152,15 @@ class Fiend():
 							query['date'] = {'start':q0,'end':q1}
 						elif (q0 in self.SORTS): #special "Since" w sorts handler
 							key = q0
-							if (key in self.SORTS[:3]):
+							if (key in self.SORTS[:2]):
 								q0 = self.get_date()
 								if (key is self.SORTS[0]): #month
 									q1 = q0 - datetime.timedelta(months=1) # TODO -right span?
 								elif (key is self.SORTS[1]): #week
 									q1 = q0 - datetime.timedelta(days=6) 
-								elif (key is self.SORTS[2]): #day
-									q1 = q0 - datetime.timedelta(days=1)
 								query['date'] = {'start':q1, 'end':q0}
+							elif (key is self.SORTS[2]): #day
+									query['date'] = self.get_date()#easier than redo q0					
 							elif (key is self.SORTS[3]): #hour
 								q0 = self.get_time()
 								q1 = q0 - datetime.timedelta(hours=1)
