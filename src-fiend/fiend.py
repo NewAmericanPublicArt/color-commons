@@ -23,7 +23,7 @@ class Fiend():
 	# INITIALIZE
 	def __init__(self,log,hash):
 		self.log = log # Empty list of log entry
-		self.hasher = md5.new() # Establishes multipurpose md5 stream
+		self.hasher = md5() # Establishes multipurpose md5 stream
 		self.SORTS = ["month","week","day","hour","user","newuser","color","color2"]
 		self.SPECS = ["on","range","since"]	
 
@@ -222,19 +222,6 @@ class Fiend():
 
 	def sampleload(self, optional):
 		return self.load(optional, ['on',datetime.date(2017,7,27),'hour','user'])	
-
-	def thu_load(self,optional):
-		if optional is not None:	#file import optional
-			self.get_fr_csv(optional)
-		hier = self.__deepcopy__()
-		hier.get_jsdt() # CONVERTER - check now
-		dataset = hier.find(hier.log,{'date':datetime.date(2017,7,27)})
-		dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
-		for i,hr in enumerate(dataset):
-			dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
-		hier.rm_dt(dataset)
-		format = { 'name':(calendar.day_abbr[datetime.date(2017,7,27).weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
-		return format
 
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
