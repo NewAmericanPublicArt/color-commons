@@ -178,7 +178,6 @@ class Fiend():
 						dataset = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
 						hier.log = {'name':hier.tierlabel(squery,None), 'children':hier.sort_by(arg,dataset)}
 					else:
-						print("2nd sort for "+arg)
 						hier.log = hier.nodeloop(hier.get_log(),arg) 		 
 				else:
 					print("Improper usage of LOAD; unknown key")
@@ -190,100 +189,13 @@ class Fiend():
 		if (treed is False): #last-minute combing
 			squery = query
 			hier.log = {'name':hier.tierlabel(squery,None), 'children':hier.find(None,query)} #IMPLEMENTS w/o sort			
-		
+
 		hier.rm_dt([hier.log])#Rewrap? TODO -understand rets
-		print("197 "+str(hier.get_log())[:800])
 		return hier.log
-
-	def nodeloop(self, node, arg):
-		if ('children' in node):
-			if (node['children'] == []): #Empty branch
-				return node # dont do anyth to it
-			if ('msg' in node['children'][0]): # Actual call
-				node['children'] = self.sort_by(arg,node['children']) #Call on entire object for all leaves
-				return node
-			else: #Go down a nest in a loop
-				for elem in node['children']:
-					elem = self.nodeloop(elem,arg)
-				return node
-
-	def tierlabel(self, arg, data):
-		if (arg is self.SORTS[0]): #month - passed 1-12 int
-			return(calendar.month_abbr[data])
-		elif (arg is self.SORTS[1]): #week - passed datetime start date
-			return("Week of"+calendar.day_abbr[data.weekday()]+" "+self.daylabel(data.day))
-		elif (arg is self.SORTS[2]): #day - passed datetime date
-			return(calendar.day_abbr[data.weekday()]+" "+self.daylabel(data.day))
-		elif (arg is self.SORTS[3]): #hr - passed 0-24(?) int
-			return("hr"+str(data)) #user,nuser - passed obj
-		elif (arg is self.SORTS[4] or arg is self.SORTS[5]): #user - passed obj
-			return(data['name']) #color, colorish - passed str
-		elif (arg is self.SORTS[6] or arg is self.SORTS[7]): #color
-			return(data)
-		elif (type(arg) is dict): #query object
-			tripped = False #for spacing
-			label = ""
-			if (type(arg['msg']) != bool):
-				tripped = True
-				if (type(arg['msg']) is dict):
-					label += "Colors ranged from "+arg['msg']['start']+" to "+arg['msg']['end']
-				else:
-					label += arg['msg']#could do tlabel
-
-			if (type(arg['name']) != bool):
-				if (tripped == False):
-					tripped = True
-				else:
-					label += " "
-				if (type(arg['name']) is dict):
-					label += "Names ranged from "+arg['name']['start']+" to "+arg['name']['end']
-				else:
-					label += arg['name']#could do tlabel
-
-			if (type(arg['date']) != bool):
-				if (tripped == False):
-					tripped = True
-				else:
-					label += " "
-				if (type(arg['date']) is dict): # Ranged
-					label += "From "+self.tierlabel("day",arg['date']['start'])+" to "+self.tierlabel("day",arg['date']['end'])
-				else:
-					label += self.tierlabel("day",arg['date'])
-
-			if (type(arg['time']) != bool):
-				if (tripped == False):
-					tripped = True
-				else:
-					label += " "
-				if (type(arg['time']) is dict):
-					label += "From "+self.tierlabel("hour",arg['time']['start'].hour)+" to "+self.tierlabel("hour",arg['time']['end'])
-				else:
-					label += "On "+self.tierlabel("hour",arg['time'].hour)
-
-			return label
-
-
-
-
-
-#	def defaultload(self,optional):
-#		if optional is not None:	#file import optional
-#		self.get_fr_csv(optional)
-#		hier = self.__deepcopy__()
-#		hier.get_jsdt() # CONVERTER - check now
-#		dataset = hier.find(hier.log,{'date':hier.get_date()})
-#           dataset = hier.sort_by("hour",dataset) # Converts fr [] to [{x,[]},{y,[]}...
-#		for i,hr in enumerate(dataset):
-#		dataset[i]['children'] = hier.sort_by("user",hr['children']) #assigns arr[] to ea var
-#		hier.rm_dt(dataset)
-#		format = { 'name':(calendar.day_abbr[hier.get_date().weekday()]+" the "+self.daylabel(hier.get_date().day)),'children': dataset }
-#		return json.dumps(format) 
 	
+	# Embedded into SERVER.PY, default serve of a day ago w user breakdown
 	def defaultload(self, optional):
 		return self.load(optional,['since','day','hour','user'])
-
-	def sampleload(self, optional):
-		return self.load(optional, ['on',datetime.date(2017,7,27),'hour','user'])	
 
 #-------SEARCH HANDLER for dict-defined queries (automatically calls range suite)
 
@@ -434,7 +346,83 @@ class Fiend():
 		return alias
 	
 #-------MULTIPURPOSE methods - largely unrelated to self object
-	
+
+	# LOAD HELPER which goes thru nodes and pulls sort-by as needed
+	def nodeloop(self, node, arg):
+		if ('children' in node):
+			if (node['children'] == []): #Empty branch
+				return node # dont do anyth to it
+			if ('msg' in node['children'][0]): # Actual call
+				node['children'] = self.sort_by(arg,node['children']) #Call on entire object for all leaves
+				return node
+			else: #Go down a nest in a loop
+				for elem in node['children']:
+					elem = self.nodeloop(elem,arg)
+				return node
+
+	# LOAD HELPER which prints appropriate label for each nesting
+	def tierlabel(self, arg, data):
+		if (arg is self.SORTS[0]): #month - passed 1-12 int
+			return(calendar.month_abbr[data])
+		elif (arg is self.SORTS[1]): #week - passed datetime start date
+			return("Week of"+calendar.day_abbr[data.weekday()]+" "+self.daylabel(data.day))
+		elif (arg is self.SORTS[2]): #day - passed datetime date
+			return(calendar.day_abbr[data.weekday()]+" "+self.daylabel(data.day))
+		elif (arg is self.SORTS[3]): #hr - passed 0-24(?) int
+			return("hr"+str(data)) #user,nuser - passed obj
+		elif (arg is self.SORTS[4] or arg is self.SORTS[5]): #user - passed obj
+			return(data['name']) #color, colorish - passed str
+		elif (arg is self.SORTS[6] or arg is self.SORTS[7]): #color
+			return(data)
+		elif (type(arg) is dict): #query object
+			tripped = False #for spacing
+			label = ""
+			if (type(arg['msg']) != bool):
+				tripped = True
+				if (type(arg['msg']) is dict):
+					label += "Colors ranged from "+arg['msg']['start']+" to "+arg['msg']['end']
+				else:
+					label += arg['msg']#could do tlabel
+			if (type(arg['name']) != bool):
+				if (tripped == False):
+					tripped = True
+				else:
+					label += " "
+				if (type(arg['name']) is dict):
+					label += "Names ranged from "+arg['name']['start']+" to "+arg['name']['end']
+				else:
+					label += arg['name']#could do tlabel
+			if (type(arg['date']) != bool):
+				if (tripped == False):
+					tripped = True
+				else:
+					label += " "
+				if (type(arg['date']) is dict): # Ranged
+					label += "From "+self.tierlabel("day",arg['date']['start'])+" to "+self.tierlabel("day",arg['date']['end'])
+				else:
+					label += self.tierlabel("day",arg['date'])
+			if (type(arg['time']) != bool):
+				if (tripped == False):
+					tripped = True
+				else:
+					label += " "
+				if (type(arg['time']) is dict):
+					label += "From "+self.tierlabel("hour",arg['time']['start'].hour)+" to "+self.tierlabel("hour",arg['time']['end'])
+				else:
+					label += "On "+self.tierlabel("hour",arg['time'].hour)
+			return label
+
+	# DAY-ENDING CREATOR - for proper labeling, helper to sort function
+	def daylabel(self,val):
+		if (val % 10 == 1 and val != 11):
+			return str(val)+"st"
+		elif (val % 10 == 2):
+			return str(val)+"nd"
+		elif (val % 10 == 3):
+			return str(val)+"rd"
+		else:
+			return str(val)+"th"
+			
 	# MODIFIER takes log, creates new category ['jsdt'] for int values returned by get_ms
 	def get_jsdt(self):
 		for x in self.get_log():
@@ -465,17 +453,6 @@ class Fiend():
 				range.append(i[key])
 		return range
 
-	# DAY-ENDING CREATOR - for proper labeling, helper to sort function
-	def daylabel(self,val):
-		if (val % 10 == 1 and val != 11):
-			return str(val)+"st"
-		elif (val % 10 == 2):
-			return str(val)+"nd"
-		elif (val % 10 == 3):
-			return str(val)+"rd"
-		else:
-			return str(val)+"th"
-	
 	# CONVERTER:date obj and/or time object=> int representing total milliseconds fr UTC-std start
 	def get_ms(self,d,t): # gets in MS; optional D & T entries, if both included adds the 2
 		dstd = datetime.date(1970,1,1)
