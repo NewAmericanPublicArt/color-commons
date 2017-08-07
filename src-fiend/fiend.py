@@ -199,7 +199,8 @@ class Fiend():
 
 	def nodeloop(self, node, arg):
 		if ('children' in node):
-			if (len(node['children'])<1): #Empty branch
+			if (node['children'] == []): #Empty branch
+				print("empty parent")
 				return node # dont do anyth to it
 			if ('msg' in node['children'][0]): # Actual call
 				print("lil sorting "+node['name'])
