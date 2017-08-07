@@ -179,8 +179,7 @@ class Fiend():
 						hier.log = {'name':hier.tierlabel(query,None), 'children':hier.sort_by(arg,dataset)}
 					else:
 						print("2nd sort for "+arg)
-						hier.log = hier.nodeloop(hier.get_log(),arg) 		
-						print("185 "+str(hier.log)[:500])		 
+						hier.log = hier.nodeloop(hier.get_log(),arg) 		 
 				else:
 					print("Improper usage of LOAD; unknown key")
 			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
@@ -190,7 +189,6 @@ class Fiend():
 
 		if (treed is False): #last-minute combing
 			hier.log = {'name':hier.tierlabel(None,query), 'children':hier.find(None,query)} #IMPLEMENTS w/o sort			
-		print("193 "+str(hier.log)[:800])
 		hier.log = [hier.log]#Rewrap? TODO -understand rets
 		hier.rm_dt(hier.log)
 		print("197 "+str(hier.get_log())[:800])
@@ -203,7 +201,7 @@ class Fiend():
 				return node # dont do anyth to it
 			if ('msg' in node['children'][0]): # Actual call
 				print("lil sorting "+node['name'])
-				node = self.sort_by(node,arg) #Call on entire object for all leaves
+				node['children'] = self.sort_by(arg,node['children']) #Call on entire object for all leaves
 				return node
 			else: #Go down a nest in a loop
 				print("big sorting "+node['name'])
