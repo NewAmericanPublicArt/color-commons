@@ -33,7 +33,6 @@ def add_no_cache(response):
 @public.route('/index', methods=['GET'])	
 def serve():
     std = json.dumps(repo.defaultload('current.csv')) # rets a copy to ONLY log item of fiend/repo
-    print("got std")
     try:
         return render_template('/index.html',data=std,all=len(repo.get_log()),time=(repo.get_ms(repo.get_date(),repo.get_time())))
     except:
