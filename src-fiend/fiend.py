@@ -151,7 +151,7 @@ class Fiend():
 						elif (type(q0) is datetime.date):
 							q1 = self.get_date()
 							query['date'] = {'start':q0,'end':q1}
-						elif (q0 in self.SORTS):
+						elif (q0 in self.SORTS): #special "Since" w sorts handler
 							key = q0
 							if (key in self.SORTS[:3]):
 								q0 = self.get_date()
@@ -161,9 +161,11 @@ class Fiend():
 									q1 = q0 - datetime.timedelta(days=6) 
 								elif (key is self.sorts[2]): #day
 									q1 = q0 - datetime.timedelta(days=1)
+								query['date'] = {'start':q1, 'end':q0}
 							elif (key is self.SORTS[3]): #hour
 								q0 = self.get_time()
 								q1 = q0 - datetime.timedelta(hours=1)
+								query['time'] = {'start':q1, 'end':q0}
 							else: #othersort
 								print("Improper usage of SINCE")
 								return None
@@ -175,13 +177,12 @@ class Fiend():
 						treed = True
 						dataset = deepcopy(self.find(None,query)) # ACTUALLY IMPLEMENTS above query-builder
 						dataset = self.sort_by(arg,dataset)
+						
 					else:
-						restoreset = dataset # saves ptr to top object
-						# PERFORM NEEDED NESTING
-						while 'children' in dataset['children'][0]: # going to 2nd fr bottom layer
-							dataset = dataset['children'][0]
-							# TODO	
-						dataset = self.sort_by(arg)
+						calc = False #calculate toggle
+						root = dataset #saves for eventual access
+						node = dataset
+						final = nodeloop(node,calc,arg) 						 
 				else:
 					print("Improper usage of LOAD; unknown key")
 			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
@@ -193,6 +194,22 @@ class Fiend():
 
 		format = {'name': 'TODO', 'children': hier.get_log()}    
 		return format
+
+	def nodeloop(self, node, calc, arg):
+		if (calc): # Actually call on this stuff
+			if
+			for x in node['children']:
+				x = self.nodeloop(x,True,arg)
+		else:
+			if (len(node['children'])>0):
+				x = node['children'][0]
+			else: # return node; nothing to sort
+				return
+            if ('msg' in x):
+                # We are at base level; toggle calculation on 1 up
+				
+				
+
 
 #	def defaultload(self,optional):
 #		if optional is not None:	#file import optional
