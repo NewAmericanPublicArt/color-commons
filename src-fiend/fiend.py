@@ -109,16 +109,15 @@ class Fiend():
 #-------LOADER for page information by category
 	
 	def load(self,optional,args):
+		
 		if optional is not None: # file import optional
-			self.get_fr_csv(optional);
-			print("got from csv")
+			self.get_fr_csv(optional)
+
 		hier = self.__deepcopy__()
 		hier.get_jsdt() # CONVERTER
-		
 		s = [False, False] # skip value; max 2
 		query = {}
 		treed = False
-		print(hier.log)
 
 		for i, arg in enumerate(args):
 			if (s[0]^s[1] is False):
@@ -179,11 +178,10 @@ class Fiend():
 						treed = True
 						hier.log = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
 						hier.log = hier.sort_by(arg,hier.log)
-						print("in sort after find,")
-						print(hier.log)
+						print("in sort after find")
 					else:
-						calc = False #calculate toggle
-						hier.log = hier.nodeloop(hier.log,arg) 		
+						print("2nd sort for "+arg)
+						hier.log = hier.nodeloop(hier.get_log(),arg) 		
 						print(hier.log)			 
 				else:
 					print("Improper usage of LOAD; unknown key")
@@ -212,7 +210,6 @@ class Fiend():
 				return node
 		else:
 			print("got leaf")
-			return
 
 #	def defaultload(self,optional):
 #		if optional is not None:	#file import optional
