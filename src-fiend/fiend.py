@@ -177,10 +177,10 @@ class Fiend():
 					if (treed is False): # Transition over fr FIND to SORT
 						treed = True
 						hier.log = hier.find(None,query) # ACTUALLY IMPLEMENTS above query-builder
-						hier.log = hier.sort_by(arg,hier.log)
-						print("in sort after find")
+						hier.log = hier.sort_by(arg,hier.get_log())
 					else:
 						print("2nd sort for "+arg)
+						print(str(hier.log)[200:])
 						hier.log = hier.nodeloop(hier.get_log(),arg) 		
 						print(hier.log)			 
 				else:
