@@ -191,6 +191,7 @@ class Fiend():
 		if (treed is False): #last-minute combing
 			hier.log = {'name':hier.tierlabel(None,query), 'children':hier.find(None,query)} #IMPLEMENTS w/o sort			
 		print("193 "+str(hier.log)[:800])
+		hier.log = [hier.log]#Rewrap? TODO -understand rets
 		hier.rm_dt(hier.log)
 		print("197 "+str(hier.get_log())[:800])
 		return hier.log
@@ -457,6 +458,7 @@ class Fiend():
 			elif type(x) is dict: #we are @ base level
 				del x['date']
 				del x['time']
+		print("end rm_dt")
 		return hier 
 	
 	# SORT HELPER which takes set of data & returns list of (nonrepeat) dates for assembly
