@@ -70,7 +70,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
   center.append("title")
       .text("zoom out");
   var path = svg.selectAll("path")
-      .data(partition.nodes(root).slice(1))
+      .data(partition.nodes(root))//TODO - see what happens, leaves? .slice(1)
     .enter().append("path")
       .attr("d", arc)
       .style("fill", function(d) { return colorize(d); })
