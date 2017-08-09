@@ -175,8 +175,7 @@ function load_tabs(tree,num) {
 function colorize(d) {
     if (d.data.msg) {
         var lookup = COLORS[d.data['msg'].toLowerCase()];
-        if (lookup == null) { break; }
-        else {
+        if (lookup != null) {
             var c = d3.lab(d3.color(lookup));
             c.l = luminance(d.sum);
             return c; //breaks out if known, else defaults to fill
