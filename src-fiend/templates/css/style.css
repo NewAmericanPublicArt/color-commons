@@ -9,55 +9,38 @@ body {
     border: 0;
     text-align: center;
     font: 24px "Arial", sans-serif;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: stretch;
+    max-width: 100%;
+    max-height: 100%;
     background-color: #000000;
 }
-
-.buffer {
-    flex: 1 0 0;
-    background-color: #000000;
-}
-
 #page {
-    flex: 6 6 0;
-
-    display: flex;
-    flex-flow: column nowrap;
     background-color: #000066;
-    min-width: 0;
+}
+
+#header {
+    font-size: .8em;
+    background-color: #FFCC99;
 }
 
 #canvas {
-    flex: 8 8 0;
     background-color: #000066;
 }
 
 svg {
-    max-width: 100%;
-    max-height: 100%;
-}
-
-.label {
-    font-size: .6em; 
-}
-
-.label:hover {
-    visibility: visible;
+/*    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;*/
+    width: 80%;
+    height: 80%;
 }
 
 #info {
-    flex: 1 1 0;
-
+    display: flex;
     flex-flow: column nowrap;
     background-color: #000066;
 }
 
 #about { 
-    align-self: center;
     background-color: #FFCC99;
     padding: 5px;
     font-size: .3em;
@@ -67,7 +50,6 @@ svg {
     background-color: #000066;
     display: flex;
     flex-flow: column nowrap;
-    align-items: center;
 }
 /* Select all children of tabs - ie, #view, #tspan, #aspan as created*/
 .tabs>* {
@@ -79,48 +61,35 @@ svg {
     border-radius: 25px;
 }
 
-h1 {
-    font-size: .8em; 
-    background-color: #FFCC99; 
-}
-
-p {
-    padding: 0;
-    border: 0;
-    margin: 0;
-}
-
 /*
 CLASS 1 RESPONSIVE - ALL SMARTPHONES & LESS
 */
-@media only screen and (min-width: 80px) {
-    #buffer { flex: 0 0 0 }
+/*@media only screen and (min-width: 80px) {
     #canvas {
         min-width: 200px;
         min-height: 150px;
     }
-}
+}*/
 /*
 CLASS 2 RESPONSIVE - TABLET PORTRAIT & LANDSCAPE
 */
-@media only screen and (min-width: 600px) {
+/*@media only screen and (min-width: 600px) {
     #canvas {
         min-width: 400px;
         min-height: 250px;
     }
-}
+}*/
 /*
 CLASS 3 RESPONSIVE - DESKTOP/BIG DESKTOP
 */
-@media only screen and (min-width: 1200px) {
+/*@media only screen and (min-width: 1200px) {
     #canvas {
         min-width: 800px;
         min-height: 500px;
     }
-}
+}*/
 
-circle,
-path {
+circle,path {
   cursor: pointer;
 }
 circle {
