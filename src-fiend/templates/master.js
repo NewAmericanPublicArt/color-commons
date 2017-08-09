@@ -182,9 +182,9 @@ function load_tabs(tree,num) {
 // colorize: FINDS COLOR for each slice based on node
 function colorize(d) {
     if (d.msg) {
-        console.log("d.msg found, is "+d.msg);
-        var lookup = COLORS[d.msg.toLowerCase()];
+        var lookup = COLORS[(d.msg).toLowerCase()];
         if (lookup != null) {
+            console.log("found color "+lookup)
             var c = d3.lab(d3.color(lookup));
             c.l = luminance(d.sum);
             return c; //breaks out if known, else defaults to fill
