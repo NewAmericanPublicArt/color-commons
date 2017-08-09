@@ -32,6 +32,7 @@ def add_no_cache(response):
 @public.route('/', methods=['GET']) # Bleeding == nested functionality
 @public.route('/index', methods=['GET'])	
 def serve():
+    repo.get_fr_csv('current.csv')
     try:
         return render_template('/index.html',all=len(repo.get_log()),time=(repo.get_ms(repo.get_date(),repo.get_time())))
     except:
