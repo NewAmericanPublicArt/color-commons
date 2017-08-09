@@ -141,7 +141,7 @@ function key(d) {
 // mbostock
 function fill(d) {
   var p = d;
-  //while (p.depth > 1) p = p.parent;
+  while (p.depth > 1) p = p.parent;
   console.log(p.name);
   var c = d3.lab(hue2(p.name));
   c.l = luminance(d.sum);
