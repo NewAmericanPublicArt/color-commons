@@ -177,6 +177,9 @@ function load_tabs(tree,num) {
 }
 // colorize: FINDS COLOR for each slice based on node
 function colorize(d) {
+    console.log(d);
+    console.log(d.name);
+    console.log(d.key);
     if (d.data.msg) {
         var lookup = COLORS[d.data['msg'].toLowerCase()];
         if (lookup != null) {
