@@ -16,7 +16,7 @@ var margin = {top: 350, right: 480, bottom: 350, left: 480},
 
 var hue = d3.scale.category10();//THIS IS V3 IMPLEMENTATION; SO TODO
 // V4 IMPLEMENTATION
-var hue2 = d3.scale.ordinal(d3.interpolateYlGnBu);
+//var hue2 = d3.scale.ordinal(d3.interpolateYlGnBu);
 
 var luminance = d3.scale.sqrt()
     .domain([0, 1e6])
@@ -140,7 +140,7 @@ function key(d) {
 function fill(d) {
   var p = d;
   while (p.depth > 1) p = p.parent;
-  var c = d3.lab(hue2(p.name));
+  var c = d3.lab(hue(p.name));
   c.l = luminance(d.sum);
   return c;
 }
@@ -200,7 +200,7 @@ function killtext(d) {
 }
 // showtext: TOGGLES TEXT over slices of data viz, pulls fr title
 function showtext(d) {
-    var title = d.children? d.name : d.msg;
+    var title = d.name? d.name : d.msg;
     d3.selectAll('.tabs')
       .select('#view')
         .html("<b>NODE:</b> "+title+" ");
