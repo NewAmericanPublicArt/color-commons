@@ -28,7 +28,7 @@ var svg = d3.select("#canvas").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 var partition = d3.layout.partition()
-    .sort(function(a, b) { return a.msg? d3.ascending(a.msg, b.msg); : d3.ascending(a.name, b.name); })
+    .sort(function(a, b) { return a.msg? d3.ascending(a.msg, b.msg) : d3.ascending(a.name, b.name); })
     .size([2 * Math.PI, radius]);
 var arc = d3.svg.arc()
     .startAngle(function(d) { return d.x; })
@@ -47,6 +47,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
   // Compute the initial layout on the entire tree to sum sizes.
   // Also compute the full name and fill color for each node,
   // and stash the children so they can be restored as we descend.
+  console.log(root);
   partition
       .value(function(d) { return d.size; })
       .nodes(root)
@@ -54,7 +55,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
         d._children = d.children;
         d.sum = d.value;
         d.key = key(d);
-        d.fill = colorize(d);
+        d.fill = d.depth ? fill(d) : colorize(d);
       });
   // Now redefine the value function to use the previously-computed sum.
   partition
@@ -69,11 +70,12 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
       .on("click", zoomOut);
   center.append("title")
       .text("zoom out");
+
   var path = svg.selectAll("path")
       .data(partition.nodes(root).slice(1))
     .enter().append("path")
       .attr("d", arc)
-      .style("fill", function(d) { return colorize(d); })
+      .style("fill", function(d) { return d.depth? fill(d) : colorize(d); })
       .each(function(d) { this._current = updateArc(d); })
       .on("click", zoomIn)
       .on("mouseover", function (d,i) { showtext(d); })
@@ -118,7 +120,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
           .remove();
       path.enter().append("path")
           .style("fill-opacity", function(d) { return d.depth === 2 - (root === p) ? 1 : 0; })
-          .style("fill", function(d) { return colorize(d); })
+          .style("fill", function(d) { return d.depth? fill(d) : colorize(d); })
           .on("click", zoomIn)
           .on("mouseover", function (d,i) { showtext(d); })
           .on("mouseout", function (d,i) { killtext(d); })
@@ -138,7 +140,6 @@ function key(d) {
 }
 // mbostock
 function fill(d) {
-  console.log("fill");
   var p = d;
   while (p.depth > 1) p = p.parent;
   var c = d3.lab(hue(p.name));
@@ -182,13 +183,12 @@ function load_tabs(tree,num) {
 }
 // colorize: FINDS COLOR for each slice based on node
 function colorize(d) {
-    if (d.msg) {
-        var lookup = COLORS[(d.msg).toLowerCase()];
-        if (lookup == null) { lookup = "#000000"; } 
-        var c = d3.lab(lookup);
-        c.l = luminance(d.sum);
-        return c; //breaks out if known, else defaults to fill
-    } else { return fill(d); }
+    console.log("colorize called");
+    var lookup = COLORS[(d.msg).toLowerCase()];
+    if (lookup == null) { lookup = "#000000"; } 
+    var c = d3.lab(lookup);
+    c.l = luminance(d.sum);
+    return c; //breaks out if known, else defaults to fill
 }
 //killtext: TOGGLES nontext over nonslice
 function killtext(d) {
