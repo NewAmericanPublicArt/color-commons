@@ -15,12 +15,13 @@ load_about(time); // Coordinates 2/2 page
 var margin = {top: 350, right: 480, bottom: 350, left: 480},
     radius = Math.min(margin.top, margin.right, margin.bottom, margin.left) - 10;
 
-var hue = d3.scale.category10();
+var hue = d3.scale.category10();//THIS IS V3 IMPLEMENTATION; SO
+var hue2 = d3.scale.ordinal(d3.interpolateViridis);
 var luminance = d3.scale.sqrt()
     .domain([0, 1e6])
     .clamp(true)
     .range([90, 20]);
-var svg = d3.select("#canvas").append("svg") //TODO - just threw in here
+var svg = d3.select("#canvas").append("svg") 
     .attr("width", margin.left + margin.right)
     .attr("height", margin.top + margin.bottom)
   .append("g")
@@ -136,7 +137,7 @@ function key(d) {
 function fill(d) {
   var p = d;
   while (p.depth > 1) p = p.parent;
-  var c = d3.lab(hue(p.name));
+  var c = d3.lab(hue2(p.name));
   c.l = luminance(d.sum);
   return c;
 }
@@ -177,9 +178,8 @@ function load_tabs(tree,num) {
 }
 // colorize: FINDS COLOR for each slice based on node
 function colorize(d) {
-    console.log(d);
-    console.log(d.name);
     if (d.msg) {
+        console.log("d.msg found");
         var lookup = COLORS[d.msg.toLowerCase()];
         if (lookup != null) {
             var c = d3.lab(d3.color(lookup));
