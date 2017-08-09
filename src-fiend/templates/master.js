@@ -120,8 +120,8 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
           .style("fill-opacity", function(d) { return d.depth === 2 - (root === p) ? 1 : 0; })
           .style("fill", function(d) { return colorize(d); })
           .on("click", zoomIn)
-            //.on("mouseover", function (d,i) { showtext(d); })
-            //.on("mouseout", function (d,i) { killtext(d); })
+          .on("mouseover", function (d,i) { showtext(d); })
+          .on("mouseout", function (d,i) { killtext(d); })
           .each(function(d) { this._current = enterArc(d); });
       path.transition()
           .style("fill-opacity", 1)
