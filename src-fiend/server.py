@@ -47,6 +47,7 @@ def parse_sms():
     	data = repo.parse_command(message)
     package = repo.convert_to_str(data)
     response = requests.post('http://127.0.0.1:54321/colors',data={'raw': package}) # Passes dict as FORM-ENCODED object to pi
+    send_to_json() # NEW; attempts to live-update JSON as new texts come in
     return "POSTED"
 
 @public.route('/serve', methods=['GET'])
