@@ -32,9 +32,8 @@ def add_no_cache(response):
 @public.route('/', methods=['GET']) # Bleeding == nested functionality
 @public.route('/index', methods=['GET'])	
 def serve():
-    std = json.dumps(repo.defaultload('current.csv')) # rets a copy to ONLY log item of fiend/repo
     try:
-        return render_template('/index.html',data=std,all=len(repo.get_log()),time=(repo.get_ms(repo.get_date(),repo.get_time())))
+        return render_template('/index.html',all=len(repo.get_log()),time=(repo.get_ms(repo.get_date(),repo.get_time())))
     except:
 	   return render_template('/except.html')
 
@@ -51,7 +50,7 @@ def parse_sms():
 
 @public.route('/serve', methods=['GET'])
 def send_to_json():
-    data = repo.thu_load('current.csv') # rets a copy to ONLY log item of fiend
+    data = repo.defaultload('current.csv') # rets a copy to ONLY log item of fiend
     response = public.response_class(
         response=json.dumps(data),
         status=200,
