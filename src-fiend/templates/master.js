@@ -185,10 +185,12 @@ function colorize(d) {
         var lookup = COLORS[(d.msg).toLowerCase()];
         if (lookup != null) {
             console.log("found color "+d3.lab(lookup))
-            var c = d3.lab(lookup);
-            c.l = luminance(d.sum);
-            return c; //breaks out if known, else defaults to fill
-        }   
+        } else {
+            lookup = "#000000";
+        } 
+        var c = d3.lab(lookup);
+        c.l = luminance(d.sum);
+        return c; //breaks out if known, else defaults to fill
     }
     return fill(d);
 }
