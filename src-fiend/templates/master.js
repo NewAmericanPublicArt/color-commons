@@ -28,7 +28,7 @@ var svg = d3.select("#canvas").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 var partition = d3.layout.partition()
-    .sort(function(a, b) { return d3.ascending(a.name, b.name); })
+    .sort(function(a, b) { return a.msg? d3.ascending(a.msg, b.msg); : d3.ascending(a.name, b.name); })
     .size([2 * Math.PI, radius]);
 var arc = d3.svg.arc()
     .startAngle(function(d) { return d.x; })
@@ -70,7 +70,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
   center.append("title")
       .text("zoom out");
   var path = svg.selectAll("path")
-      .data(partition.nodes(root))//TODO - see what happens, leaves? .slice(1)
+      .data(partition.nodes(root).slice(1))
     .enter().append("path")
       .attr("d", arc)
       .style("fill", function(d) { return colorize(d); })
