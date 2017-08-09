@@ -183,11 +183,11 @@ function load_tabs(tree,num) {
 }
 // colorize: FINDS COLOR for each slice based on node
 function colorize(d) {
-    console.log("colorize called");
     var lookup = COLORS[(d.msg).toLowerCase()];
     if (lookup == null) { lookup = "#000000"; } 
     var c = d3.lab(lookup);
     c.l = luminance(d.sum);
+    console.log(c);
     return c; //breaks out if known, else defaults to fill
 }
 //killtext: TOGGLES nontext over nonslice
@@ -198,7 +198,7 @@ function killtext(d) {
 }
 // showtext: TOGGLES TEXT over slices of data viz, pulls fr title
 function showtext(d) {
-    var title = d.name? d.name : d.msg;
+    var title = d.msg? d.msg: d.name;
     d3.selectAll('.tabs')
       .select('#view')
         .html("<b>NODE:</b> "+title+" ");
