@@ -7,18 +7,20 @@ COLORS = {'acid green':'#8ffe09','adobe':'#bd6c48','algae':'#54ac68','algae gree
 
 //------------------------------------------------------------------------------
 
-var cur = d3.select("#about").attr("data-time");
+var time = d3.select("#about").attr("data-time");
 var all = parseInt(d3.select(".tabs").attr("data-all"));
 load_about(time); // Coordinates 2/2 page
 
+//TODO s here
 var margin = {top: 350, right: 480, bottom: 350, left: 480},
     radius = Math.min(margin.top, margin.right, margin.bottom, margin.left) - 10;
+
 var hue = d3.scale.category10();
 var luminance = d3.scale.sqrt()
     .domain([0, 1e6])
     .clamp(true)
     .range([90, 20]);
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#canvas").append("svg") //TODO - just threw in here
     .attr("width", margin.left + margin.right)
     .attr("height", margin.top + margin.bottom)
   .append("g")
@@ -33,6 +35,8 @@ var arc = d3.svg.arc()
     .padRadius(radius / 3)
     .innerRadius(function(d) { return radius / 3 * d.depth; })
     .outerRadius(function(d) { return radius / 3 * (d.depth + 1) - 1; });
+
+//d3.select("#canvas") is where we gotta put this
 
 //------------------------- JSON CALL ------------------------------------------    
 
