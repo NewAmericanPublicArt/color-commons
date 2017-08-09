@@ -184,7 +184,7 @@ function colorize(d) {
     if (d.msg) {
         var lookup = COLORS[(d.msg).toLowerCase()];
         if (lookup != null) {
-            console.log("found color "+lookup)
+            console.log("found color "+d3.color(lookup))
             var c = d3.lab(d3.color(lookup));
             c.l = luminance(d.sum);
             return c; //breaks out if known, else defaults to fill
