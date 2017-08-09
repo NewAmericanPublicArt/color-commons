@@ -1,26 +1,20 @@
-<html>
+<!DOCTYPE html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html" charset="utf-8" />
-    <link rel="stylesheet" href="css/style.css" type="text/css">
-    <script src="//d3js.org/d3.v4.min.js"></script>
+  <meta http-equiv="Content-Type" content="text/html" charset="utf-8" />
+  <link rel="stylesheet" href="css/style.css" type="text/css">
 </head>
 <body>
-<div class="buffer"></div>
 <div id="page">
-        <h1>Interactive Data Visualization: Color Commons</h1>
-	
-	<div id="canvas" data-log="{{data}}">
-	    <svg viewbox="0 0 600 600"></svg>
-	</div>
-	
-	<div id="info">
-	    <div class="tabs" data-all="{{all}}"></div>
-	    <div id="about" data-time="{{time}}">
-            	<p>Contact: info@newamericanpublicart.com | <a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
-        </div>
-	</div>
+  <div id="header"><h1>Interactive Data Visualization: Color Commons</h1></div>
+  <div id="canvas"></div>
+    <div id="info">
+    <div class="tabs" data-all="{{all}}"></div>
+    <div id="about" data-time="{{time}}">
+      <p>Contact: info@newamericanpublicart.com | <a href="http://www.newamericanpublicart.com/color-commons-2017">Learn More</a></p>
+    </div>
+  </div>
 </div>
-<div class="buffer"></div>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="colorbrewer.min.js"></script>
 <script src="master.js"></script>
-</body>
-</html>
+</script>

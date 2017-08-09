@@ -32,9 +32,9 @@ def add_no_cache(response):
 @public.route('/', methods=['GET']) # Bleeding == nested functionality
 @public.route('/index', methods=['GET'])	
 def serve():
-    std = json.dumps(repo.defaultload('current.csv')) # rets a copy to ONLY log item of fiend/repo
+    repo.get_fr_csv('current.csv')
     try:
-        return render_template('/index.html',data=std,all=len(repo.get_log()),time=(repo.get_ms(repo.get_date(),repo.get_time())))
+        return render_template('/index.html',all=len(repo.get_log()),time=(repo.get_ms(repo.get_date(),repo.get_time())))
     except:
 	   return render_template('/except.html')
 
@@ -47,11 +47,12 @@ def parse_sms():
     	data = repo.parse_command(message)
     package = repo.convert_to_str(data)
     response = requests.post('http://127.0.0.1:54321/colors',data={'raw': package}) # Passes dict as FORM-ENCODED object to pi
+    send_to_json() # NEW; attempts to live-update JSON as new texts come in
     return "POSTED"
 
 @public.route('/serve', methods=['GET'])
 def send_to_json():
-    data = repo.thu_load('current.csv') # rets a copy to ONLY log item of fiend
+    data = repo.defaultload('current.csv') # rets a copy to ONLY log item of fiend
     response = public.response_class(
         response=json.dumps(data),
         status=200,
