@@ -33,7 +33,7 @@ var partition = d3.layout.partition()
 var arc = d3.svg.arc()
     .startAngle(function(d) { return d.x; })
     .endAngle(function(d) { return d.x + d.dx ; })
-    .padAngle(.01)
+    .padAngle(.03)
     .padRadius(radius / 3)
     .innerRadius(function(d) { return radius / 3 * d.depth; })
     .outerRadius(function(d) { return radius / 3 * (d.depth + 1) - 1; });
@@ -142,6 +142,7 @@ function key(d) {
 function fill(d) {
   var p = d;
   while (p.depth > 1) p = p.parent;
+  console.log(p.name);
   var c = d3.lab(hue(p.name));
   c.l = luminance(d.sum);
   return c;
