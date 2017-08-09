@@ -16,7 +16,7 @@ var margin = {top: 350, right: 480, bottom: 350, left: 480},
 var hue = d3.scale.category10();//THIS IS V3 IMPLEMENTATION; SO TODO
 var hue2 = d3.scale.ordinal()
     //.domain(["foo", "bar", "baz"])
-    .range(colorbrewer.Greys[9]);
+    .range(colorbrewer.RdYlGn[9]);
 
 var luminance = d3.scale.sqrt()
     .domain([0, 1e6])
@@ -33,7 +33,7 @@ var partition = d3.layout.partition()
 var arc = d3.svg.arc()
     .startAngle(function(d) { return d.x; })
     .endAngle(function(d) { return d.x + d.dx ; })
-    .padAngle(.03)
+    .padAngle(.02)
     .padRadius(radius / 3)
     .innerRadius(function(d) { return radius / 3 * d.depth; })
     .outerRadius(function(d) { return radius / 3 * (d.depth + 1) - 1; });
