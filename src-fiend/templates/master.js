@@ -161,7 +161,7 @@ function load_about(time) {
 // load_tabs: DISPLAYS relevant tab component when selected
 function load_tabs(tree,num) {
     var format = [("<b>Total Texts for All Time:</b> "+num),
-                ("<b>Total Texts for "+tree.data.name+":</b> "+tree.value)];
+                ("<b>Total Texts for "+tree.name+":</b> "+tree.value)];
     d3.select('.tabs')
         .insert('div')
             .attr('id','view')
@@ -197,7 +197,7 @@ function killtext(d) {
 }
 // showtext: TOGGLES TEXT over slices of data viz, pulls fr title
 function showtext(d) {
-    var title = d.data.size? d.data.msg : d.data.name;
+    var title = d.children? d.name : d.msg;
     d3.selectAll('.tabs')
       .select('#view')
         .html("<b>NODE:</b> "+title+" ");
