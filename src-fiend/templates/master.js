@@ -179,9 +179,8 @@ function load_tabs(tree,num) {
 function colorize(d) {
     console.log(d);
     console.log(d.name);
-    console.log(d.key);
-    if (d.data.msg) {
-        var lookup = COLORS[d.data['msg'].toLowerCase()];
+    if (d.msg) {
+        var lookup = COLORS[d.msg.toLowerCase()];
         if (lookup != null) {
             var c = d3.lab(d3.color(lookup));
             c.l = luminance(d.sum);
