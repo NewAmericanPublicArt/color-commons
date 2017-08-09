@@ -16,7 +16,7 @@ var margin = {top: 350, right: 480, bottom: 350, left: 480},
 
 var hue = d3.scale.category10();//THIS IS V3 IMPLEMENTATION; SO TODO
 // V4 IMPLEMENTATION
-var hue2 = d3.scaleOrdinal(d3.interpolateYlGnBu);
+var hue2 = d3.scale.ordinal(d3.interpolateYlGnBu);
 
 var luminance = d3.scale.sqrt()
     .domain([0, 1e6])
