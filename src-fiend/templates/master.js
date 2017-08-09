@@ -185,9 +185,7 @@ function load_tabs(tree,num) {
 function colorize(d) {
     var lookup = COLORS[(d.msg).toLowerCase()];
     if (lookup == null) { lookup = "#000000"; } 
-    var c = d3.lab(lookup);
-    c.l = luminance(d.sum);
-    console.log(c);
+    var c = d3.rgb(lookup);
     return c; //breaks out if known, else defaults to fill
 }
 //killtext: TOGGLES nontext over nonslice
