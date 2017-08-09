@@ -11,12 +11,13 @@ var time = d3.select("#about").attr("data-time");
 var all = parseInt(d3.select(".tabs").attr("data-all"));
 load_about(time); // Coordinates 2/2 page
 
-//TODO s here
 var margin = {top: 350, right: 480, bottom: 350, left: 480},
     radius = Math.min(margin.top, margin.right, margin.bottom, margin.left) - 10;
 
-var hue = d3.scale.category10();//THIS IS V3 IMPLEMENTATION; SO
-var hue2 = d3.scale.ordinal(d3.interpolateViridis);
+var hue = d3.scale.category10();//THIS IS V3 IMPLEMENTATION; SO TODO
+// V4 IMPLEMENTATION
+var hue2 = d3.scaleOrdinal(d3.interpolateYlGnBu);
+
 var luminance = d3.scale.sqrt()
     .domain([0, 1e6])
     .clamp(true)
@@ -75,7 +76,8 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
       .style("fill", function(d) { return colorize(d); })
       .each(function(d) { this._current = updateArc(d); })
       .on("click", zoomIn);
-      //TODO
+      .on("mouseover", function (d,i) { showtext(d); })
+      .on("mouseout", function (d,i) { killtext(d); })
   function zoomIn(p) {
     if (p.depth > 1) p = p.parent;
     if (!p.children) return;
@@ -118,7 +120,8 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
           .style("fill-opacity", function(d) { return d.depth === 2 - (root === p) ? 1 : 0; })
           .style("fill", function(d) { return colorize(d); })
           .on("click", zoomIn)
-          //TODO
+            //.on("mouseover", function (d,i) { showtext(d); })
+            //.on("mouseout", function (d,i) { killtext(d); })
           .each(function(d) { this._current = enterArc(d); });
       path.transition()
           .style("fill-opacity", 1)
