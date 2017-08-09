@@ -138,6 +138,7 @@ function key(d) {
 }
 // mbostock
 function fill(d) {
+  console.log("fill");
   var p = d;
   while (p.depth > 1) p = p.parent;
   var c = d3.lab(hue(p.name));
@@ -183,16 +184,11 @@ function load_tabs(tree,num) {
 function colorize(d) {
     if (d.msg) {
         var lookup = COLORS[(d.msg).toLowerCase()];
-        if (lookup != null) {
-            console.log("found color "+d3.lab(lookup))
-        } else {
-            lookup = "#000000";
-        } 
+        if (lookup == null) { lookup = "#000000"; } 
         var c = d3.lab(lookup);
         c.l = luminance(d.sum);
         return c; //breaks out if known, else defaults to fill
-    }
-    return fill(d);
+    } else { return fill(d); }
 }
 //killtext: TOGGLES nontext over nonslice
 function killtext(d) {
