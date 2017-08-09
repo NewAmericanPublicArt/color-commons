@@ -81,7 +81,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
       .on("mouseover", function (d,i) { showtext(d); })
       .on("mouseout", function (d,i) { killtext(d); });
   function zoomIn(p) {
-    //if (p.depth > 1) p = p.parent; TODO see if this works
+    if (p.depth > 1) p = p.parent;
     if (!p.children) return;
     zoom(p, p);
   }
@@ -119,7 +119,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
           .attrTween("d", function(d) { return arcTween.call(this, exitArc(d)); })
           .remove();
       path.enter().append("path")
-          .style("fill-opacity", function(d) { return d.depth === 2 - (root === p) ? 1 : 0; })
+          .style("fill-opacity", function(d) { return d.depth === 2 - (root === p) ? 1 : 1; })//todo see whats up
           .style("fill", function(d) { return d.msg? colorize(d) : fill(d); })
           .on("click", zoomIn)
           .on("mouseover", function (d,i) { showtext(d); })
