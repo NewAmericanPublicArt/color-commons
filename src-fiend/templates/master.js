@@ -55,7 +55,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
         d._children = d.children;
         d.sum = d.value;
         d.key = key(d);
-        d.fill = d.depth ? fill(d) : colorize(d);
+        d.fill = d.depth ? colorize(d) : fill(d);
       });
   // Now redefine the value function to use the previously-computed sum.
   partition
@@ -75,7 +75,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
       .data(partition.nodes(root).slice(1))
     .enter().append("path")
       .attr("d", arc)
-      .style("fill", function(d) { return d.depth? fill(d) : colorize(d); })
+      .style("fill", function(d) { return d.depth? colorize(d) : fill(d); })
       .each(function(d) { this._current = updateArc(d); })
       .on("click", zoomIn)
       .on("mouseover", function (d,i) { showtext(d); })
@@ -120,7 +120,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
           .remove();
       path.enter().append("path")
           .style("fill-opacity", function(d) { return d.depth === 2 - (root === p) ? 1 : 0; })
-          .style("fill", function(d) { return d.depth? fill(d) : colorize(d); })
+          .style("fill", function(d) { return d.depth? colorize(d) : fill(d); })
           .on("click", zoomIn)
           .on("mouseover", function (d,i) { showtext(d); })
           .on("mouseout", function (d,i) { killtext(d); })
