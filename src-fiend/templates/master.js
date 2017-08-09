@@ -81,7 +81,7 @@ d3.json("http://97.107.136.63:12345/serve", function(error, root) {
       .on("mouseover", function (d,i) { showtext(d); })
       .on("mouseout", function (d,i) { killtext(d); });
   function zoomIn(p) {
-    if (p.depth > 1) p = p.parent;
+    //if (p.depth > 1) p = p.parent; TODO see if this works
     if (!p.children) return;
     zoom(p, p);
   }
