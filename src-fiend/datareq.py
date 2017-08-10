@@ -21,6 +21,9 @@ print("3) Number of NEW users during this period")
 arg3 = ["range", datetime.date(2017,7,11), datetime.date(2017,7,25), "newuser"]
 print(len(sampler.load(None,arg3)['children']))
 
+#q = {'date':{'start': datetime.date(2017,7,11), 'end': datetime.date(2017,7,25)}}
+#print(len(sampler.sort_by("newuser", sampler.find( None, q))))
+
 
 
 

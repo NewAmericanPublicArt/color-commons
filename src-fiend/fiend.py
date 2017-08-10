@@ -53,7 +53,7 @@ class Fiend():
 		if( self.get_log() != []): # No more than 1 file import allowed - can disable
 			print("frCSV:No import\n")
 			return
-		with open(str(FILE), 'r') as csvfile:
+		with open(str(FILE), 'r', encoding='utf-8') as csvfile:
 			parse = csv.reader(csvfile, strict=True)
 			next(parse,None) #Skips intro line
 			for row in parse:# FILE looper
@@ -61,15 +61,15 @@ class Fiend():
 				elem['name'] = str(row[0]).replace(" ","") # name acquired
 				if len(row) is not 6:
 					endmsg = False
-					msg = row[2].replace('"|', "")  # combine row[2] onwards till |
+					msg = row[2].replace('|', "")  # combine row[2] onwards till |
 					for s in row[3:]:    
 						if not endmsg:
-							s = re.sub(r"[^\p{Alpha} ]","",str(s))
+							#s = re.sub("[^A-Za-z0-9 ]","",str(s)) TODO edit
 							if s.find('|') != -1:		
 								endmsg = True
 							msg += s
 						else:
-							msg = msg.replace('|"', "") #rmv delim
+							msg = msg.replace('|', "") #rmv delim
 							elem['msg'] = msg
 							xdate = s
 							break    
@@ -135,9 +135,9 @@ class Fiend():
 						q0 = args[i+1]
 						q1 = args[i+2]
 						q = {'start':q0, 'end':q1}
-						if (type(q0) is datetime.time & type(q1) is datetime.time):
+						if (type(q0) is datetime.time and type(q1) is datetime.time):
 							query['time'] = q
-						elif (type(q0) is datetime.date & type(q1) is datetime.date):
+						elif (type(q0) is datetime.date and type(q1) is datetime.date):
 							query['date'] = q
 						else:
 							print("Improper/unmatched followers to RANGE")
@@ -179,8 +179,9 @@ class Fiend():
 						hier.log = {'name':hier.tierlabel(squery,None), 'children':hier.sort_by(arg,dataset)}
 					else:
 						hier.log = hier.nodeloop(hier.get_log(),arg) 		 
-				else:
-					print("Improper usage of LOAD; unknown key")
+				#else:
+					#print("Improper usage of LOAD; unknown key")
+					# TODO - throws error despite being fine
 			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
 				s[1] = False
 			else: # Know that s[0] is true
@@ -323,7 +324,7 @@ class Fiend():
 #-------HASHING/ALIAS methods (MD5-compliant)
 	
 	def get_hashable(self,nos):
-		nos = re.sub("[^0-9]",'',nos) #rmvs + from Twilio formatting
+		nos = str(re.sub("[^0-9]",'',nos)).encode('utf-8') #rmvs + from Twilio formatting
 		self.hasher.update(nos) # Feeds #s as str
 		hex = self.hasher.hexdigest()# Spits out encoded str
 		alias = self.generate_alias(hex)# Cross-indexes w extant baby names	   
@@ -375,15 +376,17 @@ class Fiend():
 		elif (arg is self.SORTS[6] or arg is self.SORTS[7]): #color
 			return(data)
 		elif (type(arg) is dict): #query object
+
 			tripped = False #for spacing
 			label = ""
-			if (type(arg['msg']) != bool):
+			if ('msg' in arg):
 				tripped = True
 				if (type(arg['msg']) is dict):
 					label += "Colors ranged from "+arg['msg']['start']+" to "+arg['msg']['end']
 				else:
-					label += arg['msg']#could do tlabel
-			if (type(arg['name']) != bool):
+					if (type(arg['msg']) is not bool):
+						label += str(arg['msg'])#could do tlabel
+			if ('name' in arg):
 				if (tripped == False):
 					tripped = True
 				else:
@@ -391,8 +394,9 @@ class Fiend():
 				if (type(arg['name']) is dict):
 					label += "Names ranged from "+arg['name']['start']+" to "+arg['name']['end']
 				else:
-					label += arg['name']#could do tlabel
-			if (type(arg['date']) != bool):
+					if (type(arg['name']) is not bool):
+						label += str(arg['name'])#could do tlabel
+			if ('date' in arg):
 				if (tripped == False):
 					tripped = True
 				else:
@@ -400,8 +404,9 @@ class Fiend():
 				if (type(arg['date']) is dict): # Ranged
 					label += "From "+self.tierlabel("day",arg['date']['start'])+" to "+self.tierlabel("day",arg['date']['end'])
 				else:
-					label += self.tierlabel("day",arg['date'])
-			if (type(arg['time']) != bool):
+					if (type(arg['date']) is not bool):
+						label += self.tierlabel("day",arg['date'])
+			if ('time' in arg):
 				if (tripped == False):
 					tripped = True
 				else:
@@ -409,7 +414,8 @@ class Fiend():
 				if (type(arg['time']) is dict):
 					label += "From "+self.tierlabel("hour",arg['time']['start'].hour)+" to "+self.tierlabel("hour",arg['time']['end'])
 				else:
-					label += "On "+self.tierlabel("hour",arg['time'].hour)
+					if (type(arg['time']) is not bool):
+						label += "On "+self.tierlabel("hour",arg['time'].hour)
 			return label
 
 	# DAY-ENDING CREATOR - for proper labeling, helper to sort function
