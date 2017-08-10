@@ -274,7 +274,7 @@ arg3 = ["color","user","day"]
 
 # INVALID - SPECS after SORTS
 wrong = ["day","since","week"]
-``
+```
 
 ## VII. Connecting Fiend to a Server
 
