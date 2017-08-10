@@ -166,7 +166,7 @@ Sorts can be nested inside each other, although only to one degree of nesting, a
 
 Load is the query-type that ties together finds and sort_bys and then processes it for non-python applications. 
 
-````python
+```python
 # def load(self,optional,args)
 # assume we have dansfiend, fully loaded
 args = ['since','week','color','user']
@@ -181,7 +181,7 @@ print(result)
 
 We should get something like this;
 
-```
+```python
 {'name':'Week of Mon Aug 7th', 'children': [ 
     {'name':'Purple','children':[
         {'name': 'Mr.FOX-4bb', 'children': [
