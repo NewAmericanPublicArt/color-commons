@@ -84,8 +84,6 @@ with complete flexibility in the `load` call. This allows for direct importation
 
 `defaultload( str optional )` : Initiator function, calls `load` with set day argument list. See Tutorial for more
 
-`sampleload( str optional )` : Returns pretty-ranged array of particular day/user/color load
-
 `find( obj arr, dict query )` : Given array object and dictionary of query parameters, implements helper `range_find` and `in_range` methods
 
 `range_find( obj arr, dict query )` : Actual looped function which appraises each element in the list against query value to test for equivalence, or if 'start' and 'end' inner entries exist, tests within range equivalence. Adds correct entries to temp list to be returned upon loop completion
