@@ -53,28 +53,28 @@ class Fiend():
 		if( self.get_log() != []): # No more than 1 file import allowed - can disable
 			print("frCSV:No import\n")
 			return
-		with open(str(FILE), 'rb') as csvfile:
+		with open(str(FILE), 'r') as csvfile:
 			parse = csv.reader(csvfile, strict=True)
 			next(parse,None) #Skips intro line
 			for row in parse:# FILE looper
 				elem = {}
-				elem['name'] = str(row[0]).translate(None,'"') # name acquired
+				elem['name'] = str(row[0]).replace(" ","") # name acquired
 				if len(row) is not 6:
 					endmsg = False
-					msg = row[2].translate(None, '|"')  # combine row[2] onwards till |
+					msg = row[2].replace('"|', "")  # combine row[2] onwards till |
 					for s in row[3:]:    
 						if not endmsg:
-							s = str(s).translate(None,'"') #cleans
+							s = re.sub(r"[^\p{Alpha} ]","",str(s))
 							if s.find('|') != -1:		
 								endmsg = True
 							msg += s
 						else:
-							msg = msg.translate(None,'|"') #rmv delim
+							msg = msg.replace('|"', "") #rmv delim
 							elem['msg'] = msg
 							xdate = s
 							break    
 				else:
-					elem['msg'] = str(row[2]).translate(None,'|"') # remove delimiters
+					elem['msg'] = str(row[2]).replace('|"', "") # remove delimiters
 					xdate = row[3]
 				dtime = self.convertexcel(xdate)
 				elem['date'] = dtime.date() 
@@ -89,7 +89,7 @@ class Fiend():
 		if not(elem and ('name' in elem) and ('msg' in elem)):
 			print("N_E:Improper entry format\n")
 			return False
-		elem['name'] = elem['name'].translate(None,'+')
+		elem['name'] = elem['name'].replace('+', "")
 		elem['name'] = self.get_hashable(elem['name'])
 		elem['date'] = self.get_date() #Bc TWILIO does not provide a timestamp when SENT
 		elem['time'] = self.get_time() #It is worth noting that these are times RECEIVED
