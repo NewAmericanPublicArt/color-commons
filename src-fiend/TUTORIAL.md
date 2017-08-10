@@ -159,17 +159,122 @@ This would return something like
  {'name': 'basalt', 'children': [...entries] }
  ...more color groupings...] #As 1 big list object of nested node-lists
 ```
-The sort queries ("month","day","hour","user","newuser","color","color2") are hardwired into evry instance of Fiend, and organize by their category name, respectively. The "month" and "hour" sorts default to 12- and 24-entry subsets per yr or day. "user" refers to a unique user with their subset of all entries, and newuser" refers to a first-time user with a subset of entries compared against all past entries. 
+The sort queries ("month","day","hour","user","newuser","color","color2") are hardwired into evry instance of Fiend, and organize by their category name, respectively. The "month" and "hour" sorts default to 12- and 24-entry subsets per yr or day. "user" refers to a unique user with their subset of all entries, and "newuser" refers to a first-time user with a subset of entries compared against all past entries. "Color" sorts by unique color and "color2" is a gentler sort of associated entries, ie "Pink", "pink", " pink ".
 Sorts can be nested inside each other, although only to one degree of nesting, as `sort_by` is not smart enough to intuitively work its way through complex tree systems. Thus I could call sort_by for unique users on `{'name':'aubergine', 'children':[]}` and sort_by would know to refer to the children subset, but not be able to call sort_by on each color from the main object without a for loop calling sort_by multiple times.
 
 ## VI. Load (BETA) Queries
 
-Load is the query-type that ties together finds and sort_bys and then processes it for non-python applications. The load suite can be broken down into 3 big steps;
-1. Create fiend copy, call get_jsdt
-2. Sort/find queries into a tree
-3. Calling rm_dt on tree
+Load is the query-type that ties together finds and sort_bys and then processes it for non-python applications. 
 
-TODO
+````python
+# def load(self,optional,args)
+# assume we have dansfiend, fully loaded
+args = ['since','week','color','user']
+result = dansfiend.load(None,args)
+
+## LET'S SAY dansfiend isn't loaded, or we're not sure that it is but we want to be safe.
+# We can slightly modify our call to use the *optional* param - a filename from which to import
+result = dansfiend.load('current.csv', args)
+
+print(result)
+```
+
+We should get something like this;
+
+```
+{'name':'Week of Mon Aug 7th', 'children': [ 
+    {'name':'Purple','children':[
+        {'name': 'Mr.FOX-4bb', 'children': [
+            {'name':'Mr.FOX-4bb', 'jsdt':1234444, 'msg':'Purple'},
+            {'name':'Mr.FOX-4bb', 'jsdt':1234640, 'msg':'Purple'}
+        ]},
+        {'name': 'Ms.REX-560', 'children': [
+            {'name': 'Ms.REX-560', 'jsdt':1334450, 'msg':'Purple'}
+        ]}
+    ]},
+    {'name':'Rainbow', 'children': [ 
+        # AND SO ON following basic nesting of color/user
+    ]},
+    # etc
+]}
+```
+
+Which is very convenient for tree-utilizing diagrams of data. In fact, the server uses `defaultload`, which is essentially *day/hour/user* in order to load its default page.
+
+In order to construct your own tier, there are VERY particular rules for the **args** parameter of an array of strings that will be broken down below. The important thing to keep in mind is, what are you asking the program? And can it be utilized to receive meaningful data?
+
+**Args** must be a list object of any length. In order to leave the log unsorted and simply return a nonhierarchical array, pass [] as a parameter, the empty list indicator.
+
+The **args** parameter has special keywords built in. When using these keywords, it is important to remember that *finds can never follow sorts*. What that means is, if you want a particular span of time to be separated by color, do the date commands FIRST in the array of arguments before the color-sort call. Otherwise you will get undefined results as LOAD is still in beta testing.
+
+Special keywords;
+
+```python
+# These are built into every fiend instance (as you can see by the self. call)
+# You don't need to do anything to set these up. But it is very useful to have
+# As a reference in case of improper call errors
+self.SPECS = ["on","range","since"] # Call these first
+self.SORTS = ["month","week","day","hour","user","newuser","color","color2"]
+``` 
+
+#### SPECS
+
+##### on
+
+**On** expects to be followed by one *special value*. This can be of the class `datetime.time`, or `datetime.date`. So when composing an arg list, remember that [..., "on", x, ...] is expecting x to be a particular date or time you want to specify as the range of values from which to choose. A date selection grabs all times within that date, and a time selection grabs all dates with the corresponding time and returns a list of those entries (both).
+
+##### range
+
+**Range** expects to be followed by two *special values*. These can be of the class `datetime.date` or `datetime.time` but **must be the same type**. Ie, [... "range", x, y ...] needs either two dates or two times from which to find all available entries in that range. As with On, Range finds all time entries independent of date, and all date entries independent of time.
+
+##### since
+
+**Since** expects to be followed by one *special value*. These can be of the class `datetime.date` or `datetime.time` OR one of the first 4 keywords of SORTS ("month","week","day","hour"). Since grabs all entries from that point up until the most recent; the sorts keywords were included as valid entries due to their standardized timespans.
+
+To wrap up; remember that SPECS fields can be thrown around with whatever order before the SORTS fields are included in the args list. They can be called multiple times with different entries as well. Here are a few examples of valid arg lists below;
+
+```python
+import datetime
+# or "from datetime import date, time" to reference these directly
+
+# At 3:00 PM for the last month
+arg1 = ["on", datetime.time(15,0,0), "since", "month"]
+
+# At 3:00 PM for the month of Apr 2017
+arg2 = ["range", datetime.date(2017,4,1), datetime.date(2017,4,30), "on", datetime.time(15,0,0)]
+
+# At 3:00 PM since the start of the month of Apr 2017
+arg3 = ["since", datetime.date(2017,4,1), "on", datetime.time(15,0,0)]
+```
+
+#### SORTS
+
+All of these lists of args above could be called with a few more arguments tacked onto the end of the array, but not *before* or *in the front of*. In SORTS, order matters a great deal as the sorting is performed hierarchically; the difference between [..."user","color"...] and [..."color","user"...] would be to eventually give sortings of unique users with their entries further sorted by color, rather than groupings of entries of the same color further sorted by user. The suite of sorts;
+
+Remember from sort_by that 
+
+>> The "month" and "hour" sorts default to 12- and 24-entry subsets per yr or day. 
+>> "User" refers to a unique user with their subset of all entries, and "newuser" refers to a first-time user with a subset of entries compared against all past entries. 
+>> "Color" sorts by unique color and "color2" is a gentler sort of associated entries, ie "Pink", "pink", " pink ".
+
+So some examples of valid arg lists would be;
+
+```python
+import datetime
+# or "from datetime import date, time" to reference these directly
+
+# At 3:00 PM for the last month org'd by color
+arg1 = ["on", datetime.time(15,0,0), "since", "month", "color"]
+
+# At 3:00 PM org'd by day, then hour, then user
+arg2 = ["on", datetime.time(15,0,0), "day", "hour", "user"]
+
+# All entries sorted by color, then user, then date
+arg3 = ["color","user","day"]
+
+# INVALID - SPECS after SORTS
+wrong = ["day","since","week"]
+``
 
 ## VII. Connecting Fiend to a Server
 
@@ -180,6 +285,7 @@ So now that we understand Fiend, and a 'sample.py' file with a series of command
 should run your program. Be sure to include `print(x)` or `send_to_csv()` messages so that you can actually get it to spit out the results of your aggregation onto terminal or to a file. Otherwise it'll just run, work fine, and not really "say" anything to you, the caller of the program. Also remember that every "python x" command instantiates a *new* instance of Fiend, so no data entered into the Fiend in an earlier, different iteration of the sample file will hang around when respecified in a later iteration of sample.py. With this in might, it might be easier to understand why `get_fr_csv` can be such a powerful tool on multiple instantiations of Fiend.
 
 But what about the color-commons `server.py` file, and that one point earlier where we mentioned @before-first-request or something equally confusing?? Is this a completely different "thing" from the Fiend?
+
 *The answer is no;* the server simply spawns its own Fiend and gives it very specific instructions using POST/GET APIs (this can get confusing if you've never done web apps - refer to [Flask](http://flask.pocoo.org/) if it's a serious roadblock to understanding what we are trying to accomplish here) so that the Fiend takes new entries in through the Twilio /SMS API, and displays a `load`-ed version of its log through the / or /index API. Essentially, the Fiend is just a venus flytrap that catches flies; the server is the homeowner that puts the Fiend near the window that flies are coming in through. 
 
 ## VIII. Resources
