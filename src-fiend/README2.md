@@ -80,9 +80,9 @@ with complete flexibility in the `load` call. This allows for direct importation
 
 `new_entry2( dict elem )` : Same as new_entry but allows for date & time fields to be specified. Called by `get_fr_csv` for each new entry.
 
-`load( str optional )` : Initiator function for generating hierarchy structure of specified log items. Optional parameter calls `get_fr_csv` on file string if given.
+`load( str optional, array args )` : Initiator function for generating hierarchy structure of specified log items. Optional parameter calls `get_fr_csv` on file string if given. See Tutorial for more
 
-`defaultload( str optional )` : TODO ^ and above
+`defaultload( str optional )` : Initiator function, calls `load` with set day argument list. See Tutorial for more
 
 `sampleload( str optional )` : Returns pretty-ranged array of particular day/user/color load
 
