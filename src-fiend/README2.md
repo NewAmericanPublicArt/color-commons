@@ -92,6 +92,8 @@ with complete flexibility in the `load` call. This allows for direct importation
 
 `sort_by( str root, obj raw )` : Takes root key, parses into various ways to separate/sort data, returns as a node with a generated name of the sort type and a children list of relevant entries harvested from the raw object
 
+`findmin(self,raw)` : Given some array of vals finds minimum value of date using lambda functionality (allows for nested passing)
+  
 `get_hashable( str nos )` : Creates 'alias' of username from a string, nos, of a particular phone number in [E.164 formatting](https://support.twilio.com/hc/en-us/articles/223183008-Formatting-International-Phone-Numbers).
 
 `generate_alias( str hash )` : Helper function called by `get_hashable`; uses bitwise operations to map 32-character strings of valid hex to two arrays of possible prefixes & names, with a trailing 3-character string to lend uniqueness in the case of two collisions creating non-unique aliases. Refer to `names.py` in the *rsrcs* folder for list of available combinations used in hashing; names taken from [this resource](https://www.ssa.gov/oact/babynames/limits.html) (publicly available, shortened to 6-char max length names).

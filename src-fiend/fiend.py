@@ -23,13 +23,17 @@ class Fiend():
 	# INITIALIZE
 	def __init__(self,log,hash):
 		self.log = log # Empty list of log entry
-		self.hasher = md5() # Establishes multipurpose md5 stream
+		if hash is None:
+			self.hasher = md5() # Establishes multipurpose md5 stream
+		else:
+			self.hasher = hash
 		self.SORTS = ["month","week","day","hour","user","newuser","color","color2"]
 		self.SPECS = ["on","range","since"]	
 
 	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
 	def __deepcopy__(self,memo={}):# http://code.activestate.com/recipes/259179/
-		dcopy = Fiend(deepcopy(self.get_log()),None)
+		hashcopy = self.hasher.copy()
+		dcopy = Fiend(deepcopy(self.get_log()),hashcopy)
 		return dcopy
 
 	# GETTERS
@@ -53,28 +57,28 @@ class Fiend():
 		if( self.get_log() != []): # No more than 1 file import allowed - can disable
 			print("frCSV:No import\n")
 			return
-		with open(str(FILE), 'rb') as csvfile:
+		with open(str(FILE), 'r', encoding='utf-8') as csvfile:
 			parse = csv.reader(csvfile, strict=True)
 			next(parse,None) #Skips intro line
 			for row in parse:# FILE looper
 				elem = {}
-				elem['name'] = str(row[0]).translate(None,'"') # name acquired
+				elem['name'] = str(row[0]).replace(" ","") # name acquired
 				if len(row) is not 6:
 					endmsg = False
-					msg = row[2].translate(None, '|"')  # combine row[2] onwards till |
+					msg = row[2].replace("|", "")  # combine row[2] onwards till |
 					for s in row[3:]:    
 						if not endmsg:
-							s = str(s).translate(None,'"') #cleans
-							if s.find('|') != -1:		
+							#s = re.sub("[^A-Za-z0-9 ]","",str(s)) TODO edit
+							if (s.find("|") != -1):		
 								endmsg = True
 							msg += s
 						else:
-							msg = msg.translate(None,'|"') #rmv delim
+							msg = msg.replace("|", "") #rmv delim
 							elem['msg'] = msg
 							xdate = s
 							break    
 				else:
-					elem['msg'] = str(row[2]).translate(None,'|"') # remove delimiters
+					elem['msg'] = str(row[2]).replace("|", "") # remove delimiters
 					xdate = row[3]
 				dtime = self.convertexcel(xdate)
 				elem['date'] = dtime.date() 
@@ -89,7 +93,7 @@ class Fiend():
 		if not(elem and ('name' in elem) and ('msg' in elem)):
 			print("N_E:Improper entry format\n")
 			return False
-		elem['name'] = elem['name'].translate(None,'+')
+		elem['name'] = elem['name'].replace('+', "")
 		elem['name'] = self.get_hashable(elem['name'])
 		elem['date'] = self.get_date() #Bc TWILIO does not provide a timestamp when SENT
 		elem['time'] = self.get_time() #It is worth noting that these are times RECEIVED
@@ -102,6 +106,7 @@ class Fiend():
 		if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
 			print("N_E2:Improper entry2 format\n")              
 			return False
+		elem['name'] = elem['name'].replace('+', "")
 		elem['name'] = self.get_hashable(elem['name']) # No need for + removal
 		self.log.append(elem)
 		return True
@@ -135,9 +140,9 @@ class Fiend():
 						q0 = args[i+1]
 						q1 = args[i+2]
 						q = {'start':q0, 'end':q1}
-						if (type(q0) is datetime.time & type(q1) is datetime.time):
+						if (type(q0) is datetime.time and type(q1) is datetime.time):
 							query['time'] = q
-						elif (type(q0) is datetime.date & type(q1) is datetime.date):
+						elif (type(q0) is datetime.date and type(q1) is datetime.date):
 							query['date'] = q
 						else:
 							print("Improper/unmatched followers to RANGE")
@@ -179,8 +184,9 @@ class Fiend():
 						hier.log = {'name':hier.tierlabel(squery,None), 'children':hier.sort_by(arg,dataset)}
 					else:
 						hier.log = hier.nodeloop(hier.get_log(),arg) 		 
-				else:
-					print("Improper usage of LOAD; unknown key")
+				#else:
+					#print("Improper usage of LOAD; unknown key")
+					# TODO - throws error despite being fine
 			elif (s[1] is True): # Function as skippers for 1-2 terms given specialty criteria
 				s[1] = False
 			else: # Know that s[0] is true
@@ -281,23 +287,24 @@ class Fiend():
 			elif root is self.SORTS[4]: # UNIQUE users
 				for i in raw[:]: 
 					found = False
-					for iter,j in enumerate(tier[:]):
+					for iter,j in enumerate(tier):
 						if (i['name'] == j['name']): # EQ compare, not ID
 							found = True
-							tier[iter]['children'].append(i) # Add to specific user iter
+							j['children'].append(i) # Add to specific user iter
 					if not found:
 						tier.append({'name': self.tierlabel(root,i), 'children':[i]}) # Adds as new j entry, restarts i-iter
         # UNIQUE USERS sort - parses from USERS subset to UNIQUE users subset
 			elif root is self.SORTS[5]: # NEW UNIQUE users
-				tier = self.sort_by("users",raw) # ranged unique users for our set
+				tier = self.sort_by("user",raw) # ranged unique users for our set
 				bot = datetime.date(2013,1,1)
-				top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
+				top = self.findmin(raw)
 				top = top - datetime.timedelta(days = 1) # Should reset BEFORE line far enough		
-				B = self.sort_by("users",(self.find(None,{'date':{'start':bot,'end':top}}))) # comp gainst prev vals    
+				B = self.sort_by("user",(self.find(None,{'date':{'start':bot,'end':top}}))) # comp gainst prev vals 
 				for i in tier[:]: # [SO]/questions/742371/python-strange-behavior-in-for-loop-or-lists
-					for j in B[:]:
+					for j in B:
 						if (i['name'] == j['name']):
 							tier.remove(i)
+							break
         # COLORS sort - parses down to unique subset of MSGs	
 			elif root is self.SORTS[6] or root is self.SORTS[6]:
 				colorlist = sorted(self.compute_range(raw,'msg'))
@@ -319,14 +326,31 @@ class Fiend():
 			else:
 				print("SORT_BY:Improper sort parameter "+str(root)+"\n")
 		return tier
-
+#-------HELPER - finds minimum value on richer nest type
+	def findmin(self,raw):
+		if (type(raw) is list):
+			if (len(raw)>=1):
+				if ('msg' not in raw[0]):
+					curmin = datetime.date(2020,1,1)
+					for elem in raw:
+						newmin = (min(elem['children'], key=lambda x:x['date']))['date']
+						if (newmin < curmin):
+							curmin =  newmin
+				else:
+					curmin = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
+				return curmin
+			else:
+				print("FINDMIN:emptylist")
+		else:
+			print("FINDMIN:wrong obj passed")
 #-------HASHING/ALIAS methods (MD5-compliant)
 	
 	def get_hashable(self,nos):
-		nos = re.sub("[^0-9]",'',nos) #rmvs + from Twilio formatting
-		self.hasher.update(nos) # Feeds #s as str
-		hex = self.hasher.hexdigest()# Spits out encoded str
-		alias = self.generate_alias(hex)# Cross-indexes w extant baby names	   
+		nos = nos.encode('utf-8') #rmvs + from Twilio formatting
+		freshhash = self.hasher.copy()
+		freshhash.update(nos) # Feeds #s as str
+		hex = freshhash.hexdigest()# Spits out encoded str
+		alias = self.generate_alias(hex)# Cross-indexes w extant baby names   
 		return alias		
 	
 	def generate_alias(self,hash):
@@ -375,15 +399,17 @@ class Fiend():
 		elif (arg is self.SORTS[6] or arg is self.SORTS[7]): #color
 			return(data)
 		elif (type(arg) is dict): #query object
+
 			tripped = False #for spacing
 			label = ""
-			if (type(arg['msg']) != bool):
+			if ('msg' in arg):
 				tripped = True
 				if (type(arg['msg']) is dict):
 					label += "Colors ranged from "+arg['msg']['start']+" to "+arg['msg']['end']
 				else:
-					label += arg['msg']#could do tlabel
-			if (type(arg['name']) != bool):
+					if (type(arg['msg']) is not bool):
+						label += str(arg['msg'])#could do tlabel
+			if ('name' in arg):
 				if (tripped == False):
 					tripped = True
 				else:
@@ -391,8 +417,9 @@ class Fiend():
 				if (type(arg['name']) is dict):
 					label += "Names ranged from "+arg['name']['start']+" to "+arg['name']['end']
 				else:
-					label += arg['name']#could do tlabel
-			if (type(arg['date']) != bool):
+					if (type(arg['name']) is not bool):
+						label += str(arg['name'])#could do tlabel
+			if ('date' in arg):
 				if (tripped == False):
 					tripped = True
 				else:
@@ -400,8 +427,9 @@ class Fiend():
 				if (type(arg['date']) is dict): # Ranged
 					label += "From "+self.tierlabel("day",arg['date']['start'])+" to "+self.tierlabel("day",arg['date']['end'])
 				else:
-					label += self.tierlabel("day",arg['date'])
-			if (type(arg['time']) != bool):
+					if (type(arg['date']) is not bool):
+						label += self.tierlabel("day",arg['date'])
+			if ('time' in arg):
 				if (tripped == False):
 					tripped = True
 				else:
@@ -409,7 +437,8 @@ class Fiend():
 				if (type(arg['time']) is dict):
 					label += "From "+self.tierlabel("hour",arg['time']['start'].hour)+" to "+self.tierlabel("hour",arg['time']['end'])
 				else:
-					label += "On "+self.tierlabel("hour",arg['time'].hour)
+					if (type(arg['time']) is not bool):
+						label += "On "+self.tierlabel("hour",arg['time'].hour)
 			return label
 
 	# DAY-ENDING CREATOR - for proper labeling, helper to sort function
