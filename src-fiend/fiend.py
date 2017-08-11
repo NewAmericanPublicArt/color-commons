@@ -57,7 +57,7 @@ class Fiend():
 		if( self.get_log() != []): # No more than 1 file import allowed - can disable
 			print("frCSV:No import\n")
 			return
-		with open(str(FILE), 'r', encoding='utf-8') as csvfile:
+		with open(str(FILE), 'r',) as csvfile:
 			parse = csv.reader(csvfile, strict=True)
 			next(parse,None) #Skips intro line
 			for row in parse:# FILE looper
