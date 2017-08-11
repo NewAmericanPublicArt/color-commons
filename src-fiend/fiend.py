@@ -23,13 +23,17 @@ class Fiend():
 	# INITIALIZE
 	def __init__(self,log,hash):
 		self.log = log # Empty list of log entry
-		self.hasher = md5() # Establishes multipurpose md5 stream
+		if hash is None:
+			self.hasher = md5() # Establishes multipurpose md5 stream
+		else:
+			self.hasher = hash
 		self.SORTS = ["month","week","day","hour","user","newuser","color","color2"]
 		self.SPECS = ["on","range","since"]	
 
 	# DEEPCOPY CUSTOM HOOK - https://stackoverflow.com/a/15685014
 	def __deepcopy__(self,memo={}):# http://code.activestate.com/recipes/259179/
-		dcopy = Fiend(deepcopy(self.get_log()),None)
+		hashcopy = self.hasher.copy()
+		dcopy = Fiend(deepcopy(self.get_log()),hashcopy)
 		return dcopy
 
 	# GETTERS
@@ -102,6 +106,7 @@ class Fiend():
 		if not(elem and ('name' in elem) and ('msg' in elem) and ('date' in elem) and ('time' in elem)):
 			print("N_E2:Improper entry2 format\n")              
 			return False
+		elem['name'] = elem['name'].replace('+', "")
 		elem['name'] = self.get_hashable(elem['name']) # No need for + removal
 		self.log.append(elem)
 		return True
@@ -292,7 +297,7 @@ class Fiend():
 			elif root is self.SORTS[5]: # NEW UNIQUE users
 				tier = self.sort_by("user",raw) # ranged unique users for our set
 				bot = datetime.date(2013,1,1)
-				top = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
+				top = self.findmin(raw)
 				top = top - datetime.timedelta(days = 1) # Should reset BEFORE line far enough		
 				B = self.sort_by("user",(self.find(None,{'date':{'start':bot,'end':top}}))) # comp gainst prev vals 
 				for i in tier[:]: # [SO]/questions/742371/python-strange-behavior-in-for-loop-or-lists
@@ -321,14 +326,31 @@ class Fiend():
 			else:
 				print("SORT_BY:Improper sort parameter "+str(root)+"\n")
 		return tier
-
+#-------HELPER - finds minimum value on richer nest type
+	def findmin(self,raw):
+		if (type(raw) is list):
+			if (len(raw)>=1):
+				if ('msg' not in raw[0]):
+					curmin = datetime.date(2020,1,1)
+					for elem in raw:
+						newmin = (min(elem['children'], key=lambda x:x['date']))['date']
+						if (newmin < curmin):
+							curmin =  newmin
+				else:
+					curmin = (min(raw, key=lambda x:x['date']))['date'] # defines all val BEFORE raw
+				return curmin
+			else:
+				print("FINDMIN:emptylist")
+		else:
+			print("FINDMIN:wrong obj passed")
 #-------HASHING/ALIAS methods (MD5-compliant)
 	
 	def get_hashable(self,nos):
-		nos = str(re.sub("[^0-9]",'',nos)).encode('utf-8') #rmvs + from Twilio formatting
-		self.hasher.update(nos) # Feeds #s as str
-		hex = self.hasher.hexdigest()# Spits out encoded str
-		alias = self.generate_alias(hex)# Cross-indexes w extant baby names	   
+		nos = nos.encode('utf-8') #rmvs + from Twilio formatting
+		freshhash = self.hasher.copy()
+		freshhash.update(nos) # Feeds #s as str
+		hex = freshhash.hexdigest()# Spits out encoded str
+		alias = self.generate_alias(hex)# Cross-indexes w extant baby names   
 		return alias		
 	
 	def generate_alias(self,hash):
