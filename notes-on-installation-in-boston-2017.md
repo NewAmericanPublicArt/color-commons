@@ -1,4 +1,5 @@
 Deployed version as of June 5, 2017 is:
+
     pi@colorcommons ~/color-commons $ git log
     commit 3aae3d47dc2331b2ea7a52fd0e9325d2c3816e7a
     Author: Brandon Stafford <brandon@pingswept.org>
